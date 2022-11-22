@@ -1,16 +1,5 @@
 {% extends 'main/navbar_footer.html' %}
 {% block title %}Calculate Inventory Holding Cost{% endblock  %}
 {% block content %}
-<h1>Calculate Inventory Holding Cost</h1>
-<form action="POST" name="calculateIHCForm">
-      <label for="month">Month: </label>
-      <input style="border: solid black 1px;" id="month" type="text" name="month" placeholder="Enter 1, 2, 3, or 4">
-      <br/>
-      <label for="holdingCost">Holding cost per unit per month: </label>
-      <input style="border: solid black 1px;" id="holdingCost" type="text" name="holdingCost" placeholder="Enter 1, 2, 3, or 4">
-      <br/>
-      <label for="unitsEnding">Units Ending Inventory for Month i: </label>
-      <input style="border: solid black 1px;" id="unitsEnding" type="text" name="unitsEnding" placeholder="Enter 1, 2, 3, or 4">
-      <br/><input type="submit" value="OK">
-</form>
+<h1>Calculate Inventory Holding Cost Template</h1>
 {% endblock  %}
