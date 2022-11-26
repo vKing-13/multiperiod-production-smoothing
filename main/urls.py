@@ -4,6 +4,11 @@ from . import views
 
 urlpatterns=[
   path('',views.index,name="Home Page"),
+
+  path('login/',views.login,name="Login"),
+  path('signup/',views.signup ,name="signup"),
+
+
   path('calculateFC/',views.calculateFinalCost,name="Calculate Final Cost"),
   path('calculateFHC/',views.calculateFiringHiringCost,name="Calculate Firing and Hiring Cost"),
   path('calculateIC/',views.calculateInventoryConstraints,name="Calculate Monthly Inventory Constraints"),
