@@ -4,11 +4,13 @@ from django.http import HttpResponse
 def index(response):
   return render(response,"main/index.html",{})
 
+
 def login(response):
   return render(response,'main/login.html',{})
 
 def signup(response):
   return render(response,'main/signup.html',{})
+
 
 def calculateFinalCost(response):
   return render(response,"main/calculate_final_cost.html",{})
