@@ -64,7 +64,7 @@ class DataInput(models.Model):
   monthlyInventoryConstraints=models.IntegerField()
 
 
-  
+
 
   
   
