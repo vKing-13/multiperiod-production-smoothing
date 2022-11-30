@@ -2,4 +2,77 @@
 {% block title %}Home Page{% endblock  %}
 {% block content %}
 <h1>Home Page Template</h1>
+<h2>Inventory Holding Cost:</h2>
+<table border='1'>
+      <tr>
+            <th>Month</th>
+            <th>Holding Cost Per Unit</th>
+            <th>Ending Inventory Units</th>
+            <th>Inventory Holding Cost</th>
+      </tr>
+      {% for x in IHC %}
+      <tr>
+            <td>{{ x.month }}</td>
+            <td>{{ x.holdingCostPerUnit }}</td>
+            <td>{{ x.unitsOfEndingInventory }}</td>
+            <td>{{ x.inventoryHoldingCost }}</td>
+      </tr>
+      {% endfor %}
+</table>
+
+<h2>Firing and Hiring Cost:</h2>
+<table border='1'>
+      <tr>
+            <th>Month</th>
+            <th>Temporary Worker Hiring Cost</th>
+            <th>Temporary Worker Firing Cost</th>
+            <th>Number of Hired Temporary Worker</th>
+            <th>Number of Fired Temporary Worker</th>
+            <th>Hiring Cost</th>
+            <th>Firing Cost</th>
+      </tr>
+      {% for x in FHC %}
+      <tr>
+            <td>{{ x.month }}</td>
+            <td>{{ x.tempWorkerHiringCost }}</td>
+            <td>{{ x.tempWorkerFiringCost }}</td>
+            <td>{{ x.tempWorkerHired }}</td>
+            <td>{{ x.tempWorkerFired }}</td>
+            <td>{{ x.hiringCost }}</td>
+            <td>{{ x.firingCost }}</td>
+      </tr>
+      {% endfor %}
+</table>
+
+<h2>Final Cost:</h2>
+<table border='1'>
+      <tr>
+            <th>Final Cost</th>
+      </tr>
+      {% for x in FC %}
+      <tr>
+            <td>{{ x.finalCost}}</td>
+      </tr>
+      {% endfor %}
+</table>
+
+<h2>Remaining Demand:</h2>
+<table border='1'>
+      <tr>
+            <th>Month</th>
+            <th>Demand</th>
+            <th>Production of a Permanent Worker</th>
+            <th>Number of Permanent Workers</th>
+            <th>Remaining Demand</th>
+      </tr>
+      {% for x in RD %}
+      <tr>
+            <td>{{ x.month}}</td>
+            <td>{{ x.demand}}</td>
+            <td>{{ x.productionPermanentWorker}}</td>
+            <td>{{ x.numPermanentWorker}}</td>
+            <td>{{ x.remainingDemand}}</td>
+      </tr>
+      {% endfor %}
+</table>
 {% endblock  %}
