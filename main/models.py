@@ -66,7 +66,7 @@ class RDDatabase(models.Model):
   # productionTempWorker=models.IntegerField() 
   # monthlyInventoryConstraints=models.IntegerField()
 
-  
+
 
   
   
