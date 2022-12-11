@@ -1,33 +1,34 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-# Create your models here.
-
-# class User(AbstractUser):
-#   is_manager=models.BooleanField(default=False)
-#   is_worker=models.BooleanField(default=False)
-#   email=models.EmailField(blank=True, null=True)
-#   phone = models.CharField(max_length=60, blank=True, null=True)
-
-#   def get_full_name(self):
-#     full_name = self.username
-#     if self.first_name and self.last_name:
-#         full_name = self.first_name + " " + self.last_name
-#     return full_name
+from django.contrib.auth.models import User
 
 
-# class Manager(models.Model):
-#   user=models.OneToOneField(User,on_delete=models.CASCADE)
-#   id_number = models.CharField(max_length=20, unique=True)
+class BossExtra(models.Model):
+  user= models.OneToOneField(User,on_delete=models.CASCADE)
+  joindate=models.DateField(auto_now_add=True)
+  mobile=models.CharField(max_length=40)
+  address=models.CharField(max_length=200)
+  def __str__(self):
+        return self.user.first_name
+  @property
+  def get_id(self):
+      return self.user.id
+  @property
+  def get_name(self):
+      return self.user.first_name+" "+self.user.last_name
 
-#   def __str__(self):
-#     return self.id_number
-
-# class Worker(models.Model):
-#   user=models.OneToOneField(User,on_delete=models.CASCADE)
-#   id_number = models.CharField(max_length=20, unique=True)
-
-#   def __str__(self):
-#     return self.id_number
+class WorkerExtra(models.Model):
+  user= models.OneToOneField(User,on_delete=models.CASCADE)
+  joindate=models.DateField(auto_now_add=True)
+  mobile=models.CharField(max_length=40)
+  address=models.CharField(max_length=200)
+  def __str__(self):
+        return self.user.first_name
+  @property
+  def get_id(self):
+      return self.user.id
+  @property
+  def get_name(self):
+      return self.user.first_name+" "+self.user.last_name
 
 
 class IHCDatabase(models.Model):
