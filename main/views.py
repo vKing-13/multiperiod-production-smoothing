@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from main import models,forms
+from django.contrib.auth.models import Group
 # Create your views here.
 def index(request):
   qsIHC = models.IHCDatabase.objects.all().values()
@@ -16,8 +17,26 @@ def index(request):
 def login(response):
   return render(response,'main/login.html',{})
 
-def signup(response): 
-  return render(response,'main/signup.html',{})
+def worker_signup_view(request): 
+  form1=forms.WorkerUserForm()
+  form2=forms.WorkerExtraForm()
+  dict={'form1':form1,'form2':form2}
+  if request.method == 'POST':
+    form1=forms.WorkerUserForm(request.POST)
+    form2=forms.WorkerExtraForm(request.POST)
+    if form1.is_valid() and form2.is_valid():
+      user=form1.save()
+      user.set_password(user.password)
+      user.save()
+      f2=form2.save(commit=False)
+      f2.user=user
+      user2=f2.save()
+
+      worker_group=Group.objects.get_or_create(name='WORKER')
+      worker_group[0].user_set.add(user)
+    return HttpResponseRedirect('worker_login')
+
+  return render(request,'main/worker_SignUp.html',context=dict)
 
 def calculateInventoryHoldingCost(request):
   if request.method == "POST":

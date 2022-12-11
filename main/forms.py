@@ -1,8 +1,26 @@
 from django import forms
 from .import models
 from django.contrib.auth.models import User
-from django.forms import ValidationError
-from django.forms import TextInput,NumberInput
+
+class BossUserForm(forms.ModelForm):
+  class Meta:
+    model=User
+    fields=['first_name','last_name','username','email', 'password']
+class BossExtraForm(forms.ModelForm):
+  class Meta:
+    model=models.BossExtra
+    fields=['mobile','address']
+
+class WorkerUserForm(forms.ModelForm):
+  class Meta:
+    model=User
+    fields=['first_name','last_name','username','email', 'password']
+class WorkerExtraForm(forms.ModelForm):
+  class Meta:
+    model=models.WorkerExtra
+    fields=['mobile','address']
+
+
 
 class IHCForm(forms.ModelForm):
   class Meta:
