@@ -38,6 +38,17 @@ def worker_signup_view(request):
 
   return render(request,'main/worker_SignUp.html',context=dict)
 
+
+
+def is_admin(user):
+    return user.groups.filter(name='ADMIN').exists()
+def is_teacher(user):
+    return user.groups.filter(name='TEACHER').exists()
+def is_student(user):
+    return user.groups.filter(name='STUDENT').exists()
+
+
+
 def calculateInventoryHoldingCost(request):
   if request.method == "POST":
     form = forms.IHCForm(request.POST)

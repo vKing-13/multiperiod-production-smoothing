@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% load widget_tweaks %}
+{% load compress %}
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% compress css %}
+    <link rel="stylesheet" href="{% static 'src/output.css' %}">
+  {% endcompress %}
+  <script src="https://unpkg.com/flowbite@1.5.5/dist/flowbite.js"></script>
+  <title>Login</title>
+</head>
+<body>
+  <p class="-mb-80" >Hi</p>
+    <form method="POST" class="container mx-auto" >
+      {% csrf_token %}
+      <div class="mb-6">
+        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
+        {% render_field form.username placeholder="Username" %}
+        
+      </div>
+      <div class="mb-6">
+        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your password</label>
+        {% render_field form.password placeholder="Password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" %}
+      </div>
+      
+    </form>
+
+</body>
+</html>
