@@ -42,10 +42,10 @@ def worker_signup_view(request):
 
 def is_admin(user):
     return user.groups.filter(name='ADMIN').exists()
-def is_teacher(user):
-    return user.groups.filter(name='TEACHER').exists()
-def is_student(user):
-    return user.groups.filter(name='STUDENT').exists()
+def is_boss(user):
+    return user.groups.filter(name='BOSS').exists()
+def is_worker(user):
+    return user.groups.filter(name='WORKER').exists()
 
 
 

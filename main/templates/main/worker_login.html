@@ -1,21 +1,33 @@
 <!DOCTYPE html>
+
+{% comment %} form input {% endcomment %}
 {% load widget_tweaks %}
+{% comment %}  {% endcomment %}
+
+
+{% comment %} Penting untuk tailwindcss {% endcomment %}
 {% load compress %}
 {% load static %}
+{% comment %}  {% endcomment %}
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  {% comment %} Penting untuk tailwindcss {% endcomment %}
   {% compress css %}
     <link rel="stylesheet" href="{% static 'src/output.css' %}">
   {% endcompress %}
   <script src="https://unpkg.com/flowbite@1.5.5/dist/flowbite.js"></script>
+  {% comment %}  {% endcomment %}
+
   <title>Login</title>
 </head>
 <body>
-  <p class="-mb-80" >Hi</p>
-    <form method="POST" class="container mx-auto" >
+  <div class="w-full max-w-xs" >
+    <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" >
       {% csrf_token %}
       <div class="mb-6">
         <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
@@ -28,6 +40,7 @@
       </div>
       
     </form>
+  </div>
 
 </body>
 </html>
