@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+{% comment %} form input {% endcomment %}
+{% load widget_tweaks %}
+{% comment %}  {% endcomment %}
+
+{% comment %} Penting untuk tailwindcss {% endcomment %}
+{% load compress %}
+{% load static %}
+{% comment %}  {% endcomment %}
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, inital-scale=1.0">
+
+        {% comment %} Penting untuk tailwindcss {% endcomment %}
+        {% compress css %}
+            <link rel="stylesheet" href="{% static 'src/output.css' %}">
+        {% endcompress %}
+        <script src="https://unpkg.com/flowbite@1.5.5/dist/flowbite.js"></script>
+        {% comment %}  {% endcomment %}
+
+        <title>Login Boss</title>
+    </head>
+    <body>
+        <div class="w-full max-w-xs">
+        <h2>Please Login</h2>
+        <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" >
+            {% csrf_token %}
+        <div class="mb-6">
+            <label for="email" class="block mb-2 text-sm font medium text-gray-800 dark:text-white">Email</label>
+            {% render_field form.username placeholder="Username" %}
+        </div>
+        <div class="mb-6">
+            <label for="password" class="block mb-2 text-sm font medium text-gray-900 dark:text-white">Password</label>
+            {% render_field form.password placeholder="Password" %}
+            </div>
+        <div class="mb-6">
+            Newly Appointed? <a href="boss_SignUp.html">Signup</a>
+        </div>
+        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Login</button>
+        </form>
+    </div>
+    </body>
+</html>
