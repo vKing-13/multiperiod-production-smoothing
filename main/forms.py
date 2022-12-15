@@ -52,3 +52,16 @@ class RDForm(forms.ModelForm):
               "demand": "Demand", 
               "productionPermanentWorker": "Production Rate of A Permanent Worker", 
               "numPermanentWorker": "Number of Permanent Worker"}
+    
+class NTWForm(forms.ModelForm):
+  class Meta:
+    model =  models.NTWDatabase
+    fields = ['tempWorkerMonthly']
+    labels = {"tempWorkerMonthly": "Number of Temporary Workers"}
+    
+class ICForm(forms.ModelForm):
+  class Meta:
+    model =  models.ICDatabase
+    fields=['month','productionTempWorker']
+    labels = {"month": "Month",
+              "productionTempWorker": "Production of Temporary Worker"}

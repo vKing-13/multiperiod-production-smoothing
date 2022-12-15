@@ -52,8 +52,9 @@ class FCDatabase(models.Model):
   # Final Cost
   finalCost= models.DecimalField(max_digits=19, decimal_places=2, default=0)
 
+class NTWDatabase(models.Model):
   # # Calculate Number of Temporary Workers Monthly
-  # tempWorkerMonthly = models.DecimalField(decimal_places=2,max_digits=5) 
+  tempWorkerMonthly = models.IntegerField(default=0) 
 
 class RDDatabase(models.Model):
   # Calculate Remaining Demand Monthly
@@ -63,9 +64,11 @@ class RDDatabase(models.Model):
   numPermanentWorker= models.IntegerField() 
   remainingDemand=models.IntegerField(null=True)
 
+class ICDatabase(models.Model):
   # # Calculate Monthly Inventory Constraints
-  # productionTempWorker=models.IntegerField() 
-  # monthlyInventoryConstraints=models.IntegerField()
+  month = models.IntegerField()
+  productionTempWorker=models.IntegerField() 
+  monthlyInventoryConstraints=models.IntegerField(null=True)
 
 
 
