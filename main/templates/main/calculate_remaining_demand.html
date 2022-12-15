@@ -1,7 +1,23 @@
 {% extends 'main/navbar_footer.html' %}
 {% block title %}Calculate Remaining Demand Monthly{% endblock  %}
 {% block content %}
+
+{% comment %} form input {% endcomment %}
+{% load widget_tweaks %}
+{% comment %}  {% endcomment %}
+
+
+{% comment %} Penting untuk tailwindcss {% endcomment %}
+{% load compress %}
+{% load static %}
+{% comment %}  {% endcomment %}
+
 {% comment %} <h1>Calculate Remaining Demand Monthly Template</h1> {% endcomment %}
+
+<script src="http://cdn.tailwindcss.com"></script>
+<body class="min-h-screen bg-slate-300">
+
+
 <form method="POST">
       {% csrf_token %}
       {{ form.as_p }}

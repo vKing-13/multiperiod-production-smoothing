@@ -1,7 +1,14 @@
 {% extends 'main/navbar_footer.html' %}
 {% block title %}Calculate Final Cost{% endblock  %}
 {% block content %}
+
+
+
 <h1>Calculate Final Cost Template</h1>
+
+<script src="http://cdn.tailwindcss.com"></script>
+<body class="min-h-screen bg-slate-300">
+
 <form method="POST">
       {% csrf_token %}
       <label for="addMonth">Select month to add to final cost</label>
