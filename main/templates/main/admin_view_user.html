@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+{% load widget_tweaks %}
+{% load compress %}
+{% load static %}
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, inital-scale=1.0">
+
+        {% compress css %}
+        <link rel="stylesheet" href="{% static 'src/output.css' %}">
+        {% endcompress %}
+        <script src="https://unpkg.com/flowbite@1.5.5/dist/flowbite.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <title>View User</title>
+    </head>
+    <body >
+       
+    <div class="overflow-x-auto relative">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="py-3 px-6">
+                        Email
+                    </th>
+                    <th scope="col" class="py-3 px-6">
+                        First Name
+                    </th>
+                    <th scope="col" class="py-3 px-6">
+                        Last Name
+                    </th>
+                    <th scope="col" class="py-3 px-6">
+                        Username
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    {% for b in boss %}
+                    <td class="py-4 px-6 ">
+                        {{ b.email }}
+                    </td>
+                    <td class="py-4 px-6">
+                        {{b.first_name}}
+                    </td>
+                    <td class="py-4 px-6">
+                        {{b.last_name}}
+                    </td>
+                    <td class="py-4 px-6">
+                        {{b.username}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+ 
+    </body>
+</html>
