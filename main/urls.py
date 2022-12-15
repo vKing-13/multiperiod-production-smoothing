@@ -18,4 +18,5 @@ urlpatterns=[
   path('calculateIHC/',views.calculateInventoryHoldingCost,name="Calculate Inventory Holding Cost"),
   path('calculateNTW/',views.calculateNumOfTempWorkers,name="Calculate Num. of Temp. Workers Monthly"),
   path('calculateRD/',views.calculateRemainingDemand,name="Calculate Remaining Demand Monthly"),
+  path('resetFinalCost/',views.resetFC,name="Reset Final Cost")
 ]

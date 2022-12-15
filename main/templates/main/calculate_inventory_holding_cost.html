@@ -22,10 +22,10 @@
     <i class="fa-solid fa-address-card"></i>Calc. Inventory Holding Cost</h1>
   {% csrf_token %}
         <label for="month" class="block mt-2 text-sm">Month:</label>
-        {% render_field form.month  placeholder="Month" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
+        {% render_field form.month readonly="true" placeholder="Month" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
 
         <label for="holdingCostPerUnit" class="block mt-2 text-sm">Holding cost per unit:</label>
-        {% render_field form.holdingCostPerUnit  placeholder="Holding cost per unit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
+        {% render_field form.holdingCostPerUnit placeholder="Holding cost per unit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
 
         <label for="unitsOfEndingInventory" class="block mt-2 text-sm">Ending inventory unit(s):</label>
         {% render_field form.unitsOfEndingInventory  placeholder="Ending inventory unit(s)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
