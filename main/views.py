@@ -148,11 +148,13 @@ def calculateFinalCost(request):
       form = forms.FCForm()
   return render(request,"main/calculate_final_cost.html",{'form':form})
 
-def calculateInventoryConstraints(response):
-  return render(response,"main/calculate_inventory_constraints.html",{})
+def calculateInventoryConstraints(request):
+  form = forms.ICForm(request.POST)
+  return render(request,"main/calculate_inventory_constraints.html",{'form':form})
 
-def calculateNumOfTempWorkers(response):
-  return render(response,"main/calculate_num_of_temp_workers.html",{})
+def calculateNumOfTempWorkers(request):
+  form = forms.NTWForm(request.POST)
+  return render(request,"main/calculate_num_of_temp_workers.html",{'form':form})
 
 def calculateRemainingDemand(request):
   if request.method == "POST":
