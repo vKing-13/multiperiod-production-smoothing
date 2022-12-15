@@ -1,10 +1,46 @@
 {% extends 'main/navbar_footer.html' %}
 {% block title %}Calculate Firing and Hiring Cost{% endblock  %}
 {% block content %}
+
+{% comment %} form input {% endcomment %}
+{% load widget_tweaks %}
+{% comment %}  {% endcomment %}
+
+
+{% comment %} Penting untuk tailwindcss {% endcomment %}
+{% load compress %}
+{% load static %}
+{% comment %}  {% endcomment %}
+
 {% comment %} <h1>Calculate Firing and Hiring Cost Template</h1> {% endcomment %}
-<form method="POST">
+
+
+
+<script src="http://cdn.tailwindcss.com"></script>
+<body class="min-h-screen bg-slate-300">
+
+<form method="POST" class="bg-white p-6 drop-shadow-lg rounded-md mx-auto max-w-4xl font-[Poppins] border-2 border-grey-800 w-full overflow-hidden m-10">
+  <h1 class="pb-2 text-3xl block text-center bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-500 font-bold">
+    <i class="fa-solid fa-address-card"></i>Calc. Firing & Hiring Cost</h1>
       {% csrf_token %}
-          {{ form.as_p }}
+      <label for="month" class="block mt-2 text-sm">Month:</label>
+      {% render_field form.month  placeholder="Month" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
+
+      <label for="tempWorkerHiringCost" class="block mt-2 text-sm">Temporary Worker Hiring Cost:</label>
+      {% render_field form.tempWorkerHiringCost  placeholder="Temporary Worker Hiring Cost" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
+
+      <label for="tempWorkerFiringCost" class="block mt-2 text-sm">Temporary Worker Firing Cost:</label>
+      {% render_field form.tempWorkerFiringCost  placeholder="Temporary Worker Firing Cost" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
+
+      <label for="tempWorkerHired" class="block mt-2 text-sm">Number of Hired Temporary Worker:</label>
+      {% render_field form.tempWorkerHired  placeholder="Number of Hired Temporary Worker" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
+
+      <label for="tempWorkerFired" class="block mt-2 text-sm">Number of Fired Temporary Worker:</label>
+      {% render_field form.tempWorkerFired  placeholder="Number of Fired Temporary Worker" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
+
+      <div class="flex space-x-2 justify-center m-4">
           <button type="submit" name="FHCSubmit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Calculate</button>
+        </div>
         </form>
+        </body>
 {% endblock  %}
