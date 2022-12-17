@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from main import models,forms
 from django.contrib.auth.models import Group
 from datetime import date
+from django.contrib.auth.decorators import login_required,user_passes_test
 # Create your views here.
 def index(request):
   qsIHC = models.IHCDatabase.objects.all().values()
@@ -69,6 +70,27 @@ def is_boss(user):
 def is_worker(user):
     return user.groups.filter(name='WORKER').exists()
 
+def afterlogin_view(request):
+    if is_admin(request.user):
+        return redirect('admin-view-user')
+    elif is_boss(request.user):
+        accountapproval=models.TeacherExtra.objects.all().filter(user_id=request.user.id,status=True)
+        if accountapproval:
+            return redirect('teacher-dashboard')
+        else:
+            return render(request,'school/teacher_wait_for_approval.html')
+    elif is_worker(request.user):
+        accountapproval=models.StudentExtra.objects.all().filter(user_id=request.user.id,status=True)
+        if accountapproval:
+            return redirect('student-dashboard')
+        else:
+            return render(request,'school/student_wait_for_approval.html')
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def admin_view_user_view(request):
+    boss=models.TeacherExtra.objects.all().filter(status=True)
+    return render(request,'school/admin_view_teacher.html',{'b1':boss})
 
 
 def calculateInventoryHoldingCost(request):
