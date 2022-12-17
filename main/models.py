@@ -54,7 +54,8 @@ class FCDatabase(models.Model):
 
 class NTWDatabase(models.Model):
   # # Calculate Number of Temporary Workers Monthly
-  tempWorkerMonthly = models.IntegerField(default=0) 
+  month = models.IntegerField(default=0)
+  tempWorkerMonthly = models.IntegerField(null=True) 
 
 class RDDatabase(models.Model):
   # Calculate Remaining Demand Monthly

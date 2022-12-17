@@ -2,8 +2,29 @@
 {% block title %}Calculate Monthly Inventory Constraints{% endblock  %}
 {% block content %}
 
+{% comment %} form input {% endcomment %}
+{% load widget_tweaks %}
+{% comment %}  {% endcomment %}
+
+{% comment %} Penting untuk tailwindcss {% endcomment %}
+{% load compress %}
+{% load static %}
+{% comment %}  {% endcomment %}
 
 <script src="http://cdn.tailwindcss.com"></script>
 <body class="min-h-screen bg-slate-300">
-<h1>Calculate Monthly Inventory Constraints Template</h1>
-{% endblock  %}
+    <form method="POST"class="bg-white p-6 drop-shadow-lg rounded-md mx-auto max-w-4xl font-[Poppins] border-2 border-grey-800 w-full overflow-hidden m-10">
+        <h1 class="pb-2 text-3xl block text-center bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-500 font-bold">
+          <i class="fa-solid fa-address-card"></i>Calculate Monthly Inventory Constraints</h1>
+          {% csrf_token %}
+          <label for="month" class="block mt-2 text-sm">Month:</label>
+          {% render_field form.month placeholder="Month" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
+          
+          <label for="productionTempWorker" class="block mt-2 text-sm">Production of Temporary Worker:</label>
+          {% render_field form.productionTempWorker placeholder="Production of Temporary Worker" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"%}
+          
+          <div class="flex space-x-2 justify-center m-4">
+            <button type="submit" name="ICSubmit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Calculate</button>
+        </div>
+          </form>
+          {% endblock  %}

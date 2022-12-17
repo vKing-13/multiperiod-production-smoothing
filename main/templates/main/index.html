@@ -4,7 +4,7 @@
 
 <h1 class="flex justify-center m-2 font-[Poppins]">Home Page Template</h1>
 <script src="http://cdn.tailwindcss.com"></script>
-<body class="min-h-screen bg-slate-300">
+<body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both;">
 <div class='overflow-x-auto w-full'>
 
       <h2 class="flex justify-center m-2 font-[Poppins]">Inventory Holding Cost:</h2>
@@ -74,9 +74,38 @@
                   <tbody class="bg-white border-b text-gray-900 text-center border-none">
       {% for x in FC %}
                         <tr class="cursor-pointer hover:bg-gray-300 hover:scale-105 duration-300 ">
-                              <td class="px-1 py-2 text-center border-none">{{ x.finalCost}}</td>
+                              <td class="px-1 py-2 text-center border-none">RM {{ x.finalCost}}</td>
                         </tr>
       {% endfor %}
+                        <tr class="cursor-pointer hover:bg-gray-300 hover:scale-105 duration-300 ">
+                              <td class="px-1 py-2 text-center border-none">
+                                    <form action="calculateFC/" method="POST">
+                                          {% csrf_token %}
+                                    <label for="month">Choose a month to add to final cost:</label>
+                                    <select id="month" name="month">
+                                          <option value="1">January</option>
+                                          <option value="2">February</option>
+                                          <option value="3">March</option>
+                                          <option value="4">April</option>
+                                          <option value="5">May</option>
+                                          <option value="6">June</option>
+                                          <option value="7">July</option>
+                                          <option value="8">August</option>
+                                          <option value="9">September</option>
+                                          <option value="10">October</option>
+                                          <option value="11">November</option>
+                                          <option value="12">December</option>
+                                    </select>
+                                          <br/><button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Calculate</button>
+                                    </form>
+                              </td>
+                        </tr>
+                        <tr class="cursor-pointer hover:bg-gray-300 hover:scale-105 duration-300 ">
+                              <td class="px-1 py-2 text-center border-none"><form action="resetFinalCost/" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Reset</button>
+                              </form></td>
+                        </tr>
                   </tbody>
             </table>
             </div>

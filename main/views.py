@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from main import models,forms
 from django.contrib.auth.models import Group
+from datetime import date
 # Create your views here.
 def index(request):
   qsIHC = models.IHCDatabase.objects.all().values()
@@ -90,7 +91,8 @@ def calculateInventoryHoldingCost(request):
       models.IHCDatabase.objects.filter(month=inputMonth).update(inventoryHoldingCost=inventoryHoldingCostResult)
       return HttpResponseRedirect('/')
   else:
-      form = forms.IHCForm()
+      current_month = date.today().month
+      form = forms.IHCForm(initial={'month': current_month})
   return render(request, 'main/calculate_inventory_holding_cost.html', {'form': form})
 
 def calculateFiringHiringCost(request):
@@ -125,34 +127,37 @@ def calculateFiringHiringCost(request):
   return render(request,"main/calculate_firing_hiring_cost.html",{'form':form})
 
 def calculateFinalCost(request):
-  if request.method == "POST":
-    form = forms.FCForm(request.POST)
-    if form.is_valid():
-      inputMonth = int(request.POST.get('addMonth'))
-      qs = models.FCDatabase.objects.all().values()
-      if qs.count() <= 0:
-        form.save()
-      for x in qs:
-        finalCostGet = x['finalCost']
-      qsIHC = models.IHCDatabase.objects.filter(month=inputMonth).values()
-      for x in qsIHC:
-        inventoryHoldingCost = x['inventoryHoldingCost']
-      qsFHC = models.FHCDatabase.objects.filter(month=inputMonth).values()
-      for x in qsFHC:
-        hiringCost = x['hiringCost']
-        firingCost = x['firingCost']
-      finalCostResult = finalCostGet + inventoryHoldingCost + hiringCost + firingCost
-      models.FCDatabase.objects.filter(finalCost=finalCostGet).update(finalCost=finalCostResult)
-      return HttpResponseRedirect('/')
-  else:
-      form = forms.FCForm()
-  return render(request,"main/calculate_final_cost.html",{'form':form})
+  # if request.method == "POST":
+  #   form = forms.FCForm(request.POST)
+  #   if form.is_valid():
+  #     inputMonth = int(request.POST.get('addMonth'))
+  #     qs = models.FCDatabase.objects.all().values()
+  #     if qs.count() <= 0:
+  #       form.save()
+  #     for x in qs:
+  #       finalCostGet = x['finalCost']
+  #     qsIHC = models.IHCDatabase.objects.filter(month=inputMonth).values()
+  #     for x in qsIHC:
+  #       inventoryHoldingCost = x['inventoryHoldingCost']
+  #     qsFHC = models.FHCDatabase.objects.filter(month=inputMonth).values()
+  #     for x in qsFHC:
+  #       hiringCost = x['hiringCost']
+  #       firingCost = x['firingCost']
+  #     finalCostResult = finalCostGet + inventoryHoldingCost + hiringCost + firingCost
+  #     models.FCDatabase.objects.filter(finalCost=finalCostGet).update(finalCost=finalCostResult)
+  #     return HttpResponseRedirect('/')
+  # else:
+  #     form = forms.FCForm()
+  # return render(request,"main/calculate_final_cost.html",{'form':form})
+  return HttpResponseRedirect('/')
 
-def calculateInventoryConstraints(response):
-  return render(response,"main/calculate_inventory_constraints.html",{})
+def calculateInventoryConstraints(request):
+  form = forms.ICForm(request.POST)
+  return render(request,"main/calculate_inventory_constraints.html",{'form':form})
 
-def calculateNumOfTempWorkers(response):
-  return render(response,"main/calculate_num_of_temp_workers.html",{})
+def calculateNumOfTempWorkers(request):
+  form = forms.NTWForm(request.POST)
+  return render(request,"main/calculate_num_of_temp_workers.html",{'form':form})
 
 def calculateRemainingDemand(request):
   if request.method == "POST":
@@ -181,3 +186,10 @@ def calculateRemainingDemand(request):
   else:
       form = forms.RDForm()
   return render(request,"main/calculate_remaining_demand.html",{'form':form})
+
+def resetFC(request):
+  qs = models.FCDatabase.objects.all().values()
+  for x in qs:
+    finalCostGet = x['finalCost']
+  models.FCDatabase.objects.filter(finalCost=finalCostGet).update(finalCost=0)
+  return HttpResponseRedirect('/')
