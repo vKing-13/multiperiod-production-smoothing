@@ -6,11 +6,16 @@ urlpatterns=[
   path('',views.index,name="Home Page"),
 
   path('login/',views.login,name="Login"),
+
   path('worker-signup/',views.worker_signup_view ),
   path('worker-signup/worker_login/',LoginView.as_view(template_name="main/worker_login.html")),
+
   path('boss-signup/',views.boss_signup_view ),
   path('boss-signup/boss_login/',LoginView.as_view(template_name="main/boss_login.html")),
 
+  path('admin-login',LoginView.as_view(name="admin-login")),
+
+  path('admin-view-user',views.admin_view_user,name="admin-view-user"),
 
   path('calculateFC/',views.calculateFinalCost,name="Calculate Final Cost"),
   path('calculateFHC/',views.calculateFiringHiringCost,name="Calculate Firing and Hiring Cost"),
