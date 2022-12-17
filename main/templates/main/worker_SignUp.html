@@ -16,52 +16,58 @@
     <script src="https://unpkg.com/flowbite@1.5.5/dist/flowbite.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Sign Up</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
+    <link rel="icon" href="https://i.ibb.co/8gpyyg9/logo-App-Dev.png" type="image/x-icon">
+    <title>Worker Sign Up</title>
   </head>
-  <body>
+  <body class="font-[Poppins]">
     <div class="flex justify-center items-center h-screen bg-gradient-to-r from-indigo-900 via-blue-700 to-blue-500">
-      <div>
-        <form method="POST" class="bg-white w-full p-6 drop-shadow-lg  rounded-md">
-        <h1 class="pb-2 text-2xl block text-center bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-500 font-bold"><i class="fa-solid fa-address-card"></i> &nbsp;Worker Registration Form</h1>  
+      <form method="POST" class="bg-white w-[32rem] p-4 drop-shadow-lg rounded-2xl">
+        <div class="mx-auto h-42 pb-6">
+          <img alt="logo" class="rounded-[11px] drop-shadow-sm" src="https://i.ibb.co/j9YmTFw/AppDevLg.png"></img>
+        </div>
+        <h1 class="pb-2 text-3xl block text-center bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-500 font-black"><i class="fa-solid fa-user"></i> &nbsp;Worker Registration Form</h1>
         <hr class="mt-3">
         {% csrf_token %}
-        <div class="mt-3 grid gap-4 grid-cols-2">
+        <div class="mt-3 p-2 grid gap-4 grid-cols-2">
           <div class="mt">
-            <label for="first_name" class="block mb-2 text-sm">First Name</label>
+            <label for="first_name" class="block mb-2 text-sm font-bold text-gray-600">First Name</label>
             {% render_field form1.first_name  placeholder="First Name" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1"%}
           </div>
           <div class="mt">
-            <label for="last_name" class="block mb-2 text-sm">Last Name</label>
+            <label for="last_name" class="block mb-2 text-sm font-bold text-gray-600">Last Name</label>
             {% render_field form1.last_name  placeholder="Last Name" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1"%}
           </div>
           <div class="">
-            <label for="username" class="block mb-2 text-sm">Username</label>
+            <label for="username" class="block mb-2 text-sm font-bold text-gray-600">Username</label>
             {% render_field form1.username  placeholder="Username" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1"%}
           </div>
           <div class="">
-            <label for="email" class="block mb-2 text-sm">Email</label>
+            <label for="email" class="block mb-2 text-sm font-bold text-gray-600">Email</label>
             {% render_field form1.email  placeholder="Email" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1"%}
           </div>
           <div class="">
-            <label for="mobile" class="block mb-2 text-sm">Mobile Phone</label>
+            <label for="mobile" class="block mb-2 text-sm font-bold text-gray-600">Mobile Phone</label>
             {% render_field form2.mobile  placeholder="Mobile" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1"%}
           </div>
           <div class="">
-            <label for="address" class="block mb-2 text-sm">Address</label>
+            <label for="address" class="block mb-2 text-sm font-bold text-gray-600">Address</label>
             {% render_field form2.address  placeholder="Address" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1"%}
           </div>
         </div>
-        <div class="mt-4 mb-2 grid gap-4 grid-cols-2">
+        <div class="mt p-2 mb-2 grid gap-4 grid-cols-2">
           <div class="mb">
-            <label for="password" class="block mb-2 text-sm">Your Password</label>
+            <label for="password" class="block mb-2 text-sm font-bold text-gray-600">Your Password</label>
             <input type="password" id="password" placeholder="Password" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1" required>
           </div>
-          <div class="mb-6">
-            <label for="repeat-password" class="block mb-2 text-sm">Confirm Password</label>
+          <div class="mb-2">
+            <label for="repeat-password" class="block mb-2 text-sm font-bold text-gray-600">Confirm Password</label>
             <input type="password" id="repeat-password" placeholder="Confirm Password" class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1" required>
           </div>
         </div>
-        <button type="submit" class="bg-indigo-600 text-white py-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-bold">REGISTER NEW ACCOUNT</button>
+        <div class="p-2">
+          <button type="submit" class="bg-indigo-600 text-white py-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-black">Register New Account</button>
+        </div>
         </form>
       </div>
     </div>
