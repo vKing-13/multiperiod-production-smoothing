@@ -135,3 +135,9 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 ]
+
+LOGIN_URL='login'
+
+LOGIN_REDIRECT_URL='home'
+
+# super user: punyakita, punyakita@gmail.com, punyakita132
