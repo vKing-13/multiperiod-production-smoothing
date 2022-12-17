@@ -6,8 +6,10 @@ urlpatterns=[
   path('',views.index,name="Home Page"),
 
   path('login/',views.login,name="Login"),
+
   path('worker-signup/',views.worker_signup_view ),
   path('worker-signup/worker_login/',LoginView.as_view(template_name="main/worker_login.html")),
+  
   path('boss-signup/',views.boss_signup_view ),
   path('boss-signup/boss_login/',LoginView.as_view(template_name="main/boss_login.html")),
 
