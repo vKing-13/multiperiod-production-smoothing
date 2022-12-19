@@ -39,8 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main.apps.MainConfig',
     'widget_tweaks',
-    "crispy_forms",
-    "crispy_tailwind",
     'compressor',
 ]
 
