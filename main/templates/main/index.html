@@ -2,29 +2,29 @@
 {% block title %}Home Page{% endblock  %}
 {% block content %}
 
-<h1 class="flex justify-center m-2 font-[Poppins]">Home Page Template</h1>
+<link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
 <script src="http://cdn.tailwindcss.com"></script>
 <body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both;">
 <div class='overflow-x-auto w-full'>
 
       <h2 class="flex justify-center m-2 font-[Poppins]">Inventory Holding Cost:</h2>
       
-            <table class="mx-auto max-w-4xl w-full drop-shadow-lg font-[Poppins] rounded-lg border-2 border-grey-800 w-6/12 overflow-hidden">
-                  <thead class="text-white border-b bg-gray-800">
+            <table class="mx-auto max-w-4xl w-full drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden">
+                  <thead class="text-white border-b bg-blue-700">
                         <tr class="text-white text-center border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Month</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Holding Cost Per Unit</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Ending Inventory Units</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Inventory Holding Cost</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Month</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Holding Cost Per Unit</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Ending Inventory Units</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center">Inventory Holding Cost</th>
                         </tr> 
                   </thead> 
                   <tbody class="bg-white border-b text-gray-900 text-center border-none">
       {% for x in IHC %}
-                        <tr class="cursor-pointer hover:bg-gray-300 hover:scale-105 duration-300 ">
+                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
                               <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
                               <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.holdingCostPerUnit }}</td>
                               <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.unitsOfEndingInventory }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.inventoryHoldingCost }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium ">{{ x.inventoryHoldingCost }}</td>
                         </tr>
       {% endfor %}
                   </tbody>
@@ -35,28 +35,28 @@
       <div class='overflow-x-auto w-full'>
 
 <h2 class="flex justify-center m-2 font-[Poppins]">Firing and Hiring Cost:</h2>
-            <table class="mx-auto max-w-4xl w-full drop-shadow-lg font-[Poppins] rounded-lg border-2 border-grey-800 w-6/12 overflow-hidden">
-                  <thead class="text-white border-b bg-gray-800">
+            <table class="mx-auto max-w-4xl w-full drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden">
+                  <thead class="text-white border-b bg-blue-700">
                         <tr class="text-white text-center border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Month</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Temporary Worker Hiring Cost</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Temporary Worker Firing Cost</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Number of Hired Temporary Worker</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Number of Fired Temporary Worker</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Hiring Cost</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Firing Cost</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Month</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Temporary Worker Hiring Cost</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Temporary Worker Firing Cost</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Hired Temporary Worker</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Fired Temporary Worker</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Hiring Cost</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center">Firing Cost</th>
                         </tr> 
                   </thead>
                   <tbody class="bg-white border-b text-gray-900 text-center border-none">
       {% for x in FHC %}
-                        <tr class="cursor-pointer hover:bg-gray-300 hover:scale-105 duration-300 ">
+                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
                               <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
                               <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.tempWorkerHiringCost }}</td>
                               <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.tempWorkerFiringCost }}</td>
                               <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.tempWorkerHired }}</td>
                               <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.tempWorkerFired }}</td>
                               <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.hiringCost }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.firingCost }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium">{{ x.firingCost }}</td>
                         </tr>
       {% endfor %}      
                   </tbody>
@@ -65,24 +65,24 @@
 
             <div class='overflow-x-auto w-full'>
 <h2 class="flex justify-center m-2 font-[Poppins]">Final Cost:</h2>
-            <table class="mx-auto max-w-4xl w-full drop-shadow-lg font-[Poppins] rounded-lg border-2 border-grey-800 w-6/12 overflow-hidden">
-                  <thead class="text-white border-b bg-gray-800">
+            <table class="mx-auto max-w-4xl w-full drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden">
+                  <thead class="text-white border-b bg-blue-700">
                         <tr class="text-white text-center border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Final Cost</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Final Cost</th>
                         </tr> 
                   </thead>
                   <tbody class="bg-white border-b text-gray-900 text-center border-none">
       {% for x in FC %}
-                        <tr class="cursor-pointer hover:bg-gray-300 hover:scale-105 duration-300 ">
+                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
                               <td class="px-1 py-2 text-center border-none">RM {{ x.finalCost}}</td>
                         </tr>
       {% endfor %}
-                        <tr class="cursor-pointer hover:bg-gray-300 hover:scale-105 duration-300 ">
+                        <tr >
                               <td class="px-1 py-2 text-center border-none">
                                     <form action="calculateFC/" method="POST">
                                           {% csrf_token %}
                                     <label for="month">Choose a month to add to final cost:</label>
-                                    <select id="month" name="month">
+                                    <select id="month" name="month" class="border-b shadow-sm">
                                           <option value="1">January</option>
                                           <option value="2">February</option>
                                           <option value="3">March</option>
@@ -96,14 +96,14 @@
                                           <option value="11">November</option>
                                           <option value="12">December</option>
                                     </select>
-                                          <br/><button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Calculate</button>
+                                          <br/><button type="submit" class="bg-indigo-600 text-white py-2 w-24 rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:bg-blue-500 hover:text-white font-bold">Calculate</button>
                                     </form>
                               </td>
                         </tr>
-                        <tr class="cursor-pointer hover:bg-gray-300 hover:scale-105 duration-300 ">
+                        <tr >
                               <td class="px-1 py-2 text-center border-none"><form action="resetFinalCost/" method="POST">
                                     {% csrf_token %}
-                                    <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Reset</button>
+                                    <button type="submit" class="bg-indigo-600 text-white py-2 w-24 rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:bg-blue-500 hover:text-white font-bold">Reset</button>
                               </form></td>
                         </tr>
                   </tbody>
@@ -112,19 +112,19 @@
 
             <div class='overflow-x-auto w-full'>
 <h2 class="flex justify-center m-2 font-[Poppins]">Remaining Demand:</h2>
-            <table class="mx-auto max-w-4xl w-full drop-shadow-lg font-[Poppins] rounded-lg border-2 border-grey-800 w-6/12 overflow-hidden  ">
-                  <thead class="text-white border-b bg-gray-800">
+            <table class="mx-auto max-w-4xl w-full drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden  ">
+                  <thead class="text-white border-b bg-blue-700">
                         <tr class="text-white text-center border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Month</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Demand</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Production of a Permanent Worker</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Number of Permanent Workers</th>
-                              <th  class="font-semibold text-sm uppercase px-6 py-4 bg-gray-800 text-center border-none">Remaining Demand</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Month</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Demand</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Production of a Permanent Worker</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Permanent Workers</th>
+                              <th  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center">Remaining Demand</th>
                         </tr>
                   </thead>
                   <tbody class="bg-white border-b text-gray-900 text-center border-none">
       {% for x in RD %}
-                        <tr class="cursor-pointer hover:bg-gray-300 hover:scale-105 duration-300 ">
+                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
                               <td class="px-1 py-2 text-center border-none">{{ x.month}}</td>
                               <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.demand}}</td>
                               <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.productionPermanentWorker}}</td>
