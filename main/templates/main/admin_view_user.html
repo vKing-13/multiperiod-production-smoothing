@@ -22,7 +22,7 @@
        
     <div class="overflow-x-auto relative">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
                 <tr>
                     <th scope="col" class="py-3 px-6">
                         Email
@@ -36,11 +36,14 @@
                     <th scope="col" class="py-3 px-6">
                         Username
                     </th>
+                    <th scope="col" class="py-3 px-6">
+                        Role
+                    </th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    {% for b in worker %}
+                {% for b in boss %}
+                <tr class="bg-white border-b ">
                     <td class="py-4 px-6 ">
                         {{ b.email }}
                     </td>
@@ -53,8 +56,30 @@
                     <td class="py-4 px-6">
                         {{b.username}}
                     </td>
-                    {% endfor %}
+                    <td class="py-4 px-6">
+                        Boss
+                    </td>
                 </tr>
+                {% endfor %}
+                {% for w in worker %}
+                <tr class="bg-white border-b ">
+                    <td class="py-4 px-6 ">
+                        {{ w.email }}
+                    </td>
+                    <td class="py-4 px-6">
+                        {{w.first_name}}
+                    </td>
+                    <td class="py-4 px-6">
+                        {{w.last_name}}
+                    </td>
+                    <td class="py-4 px-6">
+                        {{w.username}}
+                    </td>
+                    <td class="py-4 px-6">
+                        Worker
+                    </td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

@@ -23,8 +23,7 @@ def is_worker(user):
 def index(request):
   # if request.user.is_authenticated:
   #       if request.user.is_superuser:
-  #           # return redirect('admin_view_user')
-  #           return render(request, 'main/index.html')
+  #           return redirect('admin_view_user')
   #       elif is_boss(request.user) :
   #           return redirect('Calculate Final Cost')
   #       else:
@@ -87,13 +86,15 @@ def boss_signup_view(request):
   return render(request,'main/boss_SignUp.html',context=dict)
 
 
-@login_required(login_url='adminlogin')
+@login_required(login_url='admin-login')
 @user_passes_test(is_admin)
 def admin_view_user_view(request):
-    worker=models.WorkerExtra.objects.all()
-    # user = get_user_model()
-    # worker=user.objects.all()
-    return render(request,'main/admin_view_user.html',{'worker':worker})
+    # worker=models.WorkerExtra.objects.all()
+    user = get_user_model()
+    worker=user.objects.filter(groups__name='WORKER') 
+    boss=user.objects.filter(groups__name='BOSS') 
+    
+    return render(request,'main/admin_view_user.html',{'boss':boss,'worker':worker})
 
 
 

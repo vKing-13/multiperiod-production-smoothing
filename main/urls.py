@@ -11,8 +11,9 @@ urlpatterns=[
   path('boss-signup/',views.boss_signup_view ),
   path('boss-signup/boss_login/',LoginView.as_view(template_name="main/boss_login.html")),
 
-  path('admin-login/',LoginView.as_view(template_name="main/admin_login.html")),
-
+  path('logout', LogoutView.as_view(template_name='main/index.html'),name='logout'),
+  
+  path('admin-login/',LoginView.as_view(template_name="main/admin_login.html"),name="admin-login"),
   path('admin_view_user/',views.admin_view_user_view,name="admin_view_user"),
 
   path('calculateFC/',views.calculateFinalCost,name="Calculate Final Cost"),
