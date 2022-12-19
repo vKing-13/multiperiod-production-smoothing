@@ -40,7 +40,7 @@
             </thead>
             <tbody>
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    {% for b in boss %}
+                    {% for b in worker %}
                     <td class="py-4 px-6 ">
                         {{ b.email }}
                     </td>
@@ -53,6 +53,7 @@
                     <td class="py-4 px-6">
                         {{b.username}}
                     </td>
+                    {% endfor %}
                 </tr>
             </tbody>
         </table>

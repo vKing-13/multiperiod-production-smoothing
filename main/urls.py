@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,include
 from django.contrib.auth.views import LoginView,LogoutView
 from .import views
 
@@ -13,7 +13,7 @@ urlpatterns=[
 
   path('admin-login/',LoginView.as_view(template_name="main/admin_login.html")),
 
-  path('admin_view_user',views.admin_view_user_view,name="admin_view_user"),
+  path('admin_view_user/',views.admin_view_user_view,name="admin_view_user"),
 
   path('calculateFC/',views.calculateFinalCost,name="Calculate Final Cost"),
   path('calculateFHC/',views.calculateFiringHiringCost,name="Calculate Firing and Hiring Cost"),

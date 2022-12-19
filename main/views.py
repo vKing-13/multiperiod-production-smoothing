@@ -4,11 +4,16 @@ from main import models,forms
 from django.contrib.auth.models import Group
 from datetime import date
 from django.contrib.auth.decorators import login_required,user_passes_test
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
+from django.urls import reverse_lazy
+from django.contrib.auth import get_user_model
+
 # Create your views here.
 
 
 def is_admin(user):
-    return user.groups.filter(name='ADMIN').exists()
+    return user.is_superuser
 def is_boss(user):
     return user.groups.filter(name='BOSS').exists()
 def is_worker(user):
@@ -16,34 +21,34 @@ def is_worker(user):
 
 
 def index(request):
-  if request.user.is_authenticated:
-        if request.user.is_superuser:
-            return redirect('admin_view_user')
-        elif is_boss(request.user) :
-            return redirect('Calculate Final Cost')
-        else:
-          return redirect('Calculate Final Cost')
-  return render(request, 'index.html')
-  # qsIHC = models.IHCDatabase.objects.all().values()
-  # qsFHC = models.FHCDatabase.objects.all().values()
-  # qsFC = models.FCDatabase.objects.all().values()
-  # qsRD = models.RDDatabase.objects.all().values()
-  # return render(request,"main/index.html",  {'IHC':qsIHC,
-  #                                           'FHC':qsFHC,
-  #                                           'FC':qsFC,
-  #                                           'RD':qsRD})
+  # if request.user.is_authenticated:
+  #       if request.user.is_superuser:
+  #           # return redirect('admin_view_user')
+  #           return render(request, 'main/index.html')
+  #       elif is_boss(request.user) :
+  #           return redirect('Calculate Final Cost')
+  #       else:
+  #         return redirect('Calculate Final Cost')
+  # return render(request, 'main/index.html')
+  qsIHC = models.IHCDatabase.objects.all().values()
+  qsFHC = models.FHCDatabase.objects.all().values()
+  qsFC = models.FCDatabase.objects.all().values()
+  qsRD = models.RDDatabase.objects.all().values()
+  return render(request,"main/index.html",  {'IHC':qsIHC,
+                                            'FHC':qsFHC,
+                                            'FC':qsFC,
+                                            'RD':qsRD})
 
 
 def worker_signup_view(request): 
   form1=forms.WorkerUserForm()
   form2=forms.WorkerExtraForm()
-  dict={'form1':form1,'form2':form2}
   if request.method == 'POST':
     form1=forms.WorkerUserForm(request.POST)
     form2=forms.WorkerExtraForm(request.POST)
     if form1.is_valid() and form2.is_valid():
       user=form1.save()
-      user.set_password(user.password)
+      user.set_password(request.POST.get('password'))
       user.save()
       f2=form2.save(commit=False)
       f2.user=user
@@ -51,9 +56,13 @@ def worker_signup_view(request):
 
       worker_group=Group.objects.get_or_create(name='WORKER')
       worker_group[0].user_set.add(user)
-    return HttpResponseRedirect('worker_login')
+      # return redirect('main/index.html')
+      return render(request,'main/index.html')
 
-  return render(request,'main/worker_SignUp.html',context=dict)
+    else:
+      return HttpResponseRedirect('worker_login')
+
+  return render(request,'main/worker_SignUp.html',{'form1':form1,'form2':form2})
 
 def boss_signup_view(request): 
   form1=forms.BossUserForm()
@@ -64,7 +73,7 @@ def boss_signup_view(request):
     form2=forms.BossExtraForm(request.POST)
     if form1.is_valid() and form2.is_valid():
       user=form1.save()
-      user.set_password(user.password)
+      user.set_password(request.POST.get('password'))
       user.save()
       f2=form2.save(commit=False)
       f2.user=user
@@ -72,16 +81,30 @@ def boss_signup_view(request):
 
       boss_group=Group.objects.get_or_create(name='BOSS')
       boss_group[0].user_set.add(user)
+      return redirect('main/index.html')
     return HttpResponseRedirect('boss_login')
 
   return render(request,'main/boss_SignUp.html',context=dict)
 
 
-# @login_required(login_url='adminlogin')
-# @user_passes_test(is_admin)
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
 def admin_view_user_view(request):
-    boss=models.TeacherExtra.objects.all().filter(status=True)
-    return render(request,'main/admin_view_user.html',{'b1':boss})
+    worker=models.WorkerExtra.objects.all()
+    # user = get_user_model()
+    # worker=user.objects.all()
+    return render(request,'main/admin_view_user.html',{'worker':worker})
+
+
+
+
+
+
+
+
+
+
+
 
 
 def calculateInventoryHoldingCost(request):
