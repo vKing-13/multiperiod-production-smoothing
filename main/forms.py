@@ -57,8 +57,8 @@ class RDForm(forms.ModelForm):
 class NTWForm(forms.ModelForm):
   class Meta:
     model =  models.NTWDatabase
-    fields = ['month']
-    labels = {"month": "Month"}
+    fields = ['month', 'tempWorkerMonthly']
+    labels = {"month": "Month","tempWorkerMonthly": "Number of Temporary Worker"}
     
 class ICForm(forms.ModelForm):
   class Meta:
