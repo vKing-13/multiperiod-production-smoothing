@@ -16,6 +16,8 @@ def is_boss(user):
     return user.groups.filter(name='BOSS').exists()
 def is_worker(user):
     return user.groups.filter(name='WORKER').exists()
+def is_upper(user):
+  return user.groups.filter(name='BOSS').exists() or user.groups.filter(name='WORKER').exists()
 
 
 def index(request):
@@ -57,7 +59,6 @@ def index(request):
                                                 'NTW':NTWData,
                                                 'IC':ICData})
   else:
-    # return HttpResponseRedirect('worker-login/')
     calculateFinalCost()
     calculateNumOfTempWorkers()
     recheckIC()
@@ -75,20 +76,6 @@ def index(request):
                                                 'IC':ICData})
 
 
-def worker_loginView(request):
-  form=forms.WorkerUserForm()
-  if request.method == 'POST':
-    username = request.POST['username']
-    password = request.POST['password']
-    form1=forms.WorkerUserForm(request.POST)
-    if form1.is_valid() and form2.is_valid():
-      user = authenticate(request, username=username, password=password)
-      if user is not None:
-          login(request, user)
-          return redirect('home')
-      else:
-        errorMee
-        return render(request,'main/worker_login.html')
       
   
 
@@ -115,7 +102,7 @@ def worker_signup_view(request):
 
       worker_group=Group.objects.get_or_create(name='WORKER')
       worker_group[0].user_set.add(user)
-      return render(request,'main/index.html')
+      return redirect('home')
 
     else:
       return HttpResponseRedirect('worker_login')
@@ -125,7 +112,6 @@ def worker_signup_view(request):
 def boss_signup_view(request): 
   form1=forms.BossUserForm()
   form2=forms.BossExtraForm()
-  dict={'form1':form1,'form2':form2}
   if request.method == 'POST':
     form1=forms.BossUserForm(request.POST)
     form2=forms.BossExtraForm(request.POST)
@@ -139,22 +125,38 @@ def boss_signup_view(request):
 
       boss_group=Group.objects.get_or_create(name='BOSS')
       boss_group[0].user_set.add(user)
-      return redirect('main/index.html')
+      return redirect('home')
     return HttpResponseRedirect('boss_login')
 
-  return render(request,'main/boss_SignUp.html',context=dict)
+  return render(request,'main/boss_SignUp.html',{'form1':form1,'form2':form2})
 
 
 @login_required(login_url='admin-login')
 @user_passes_test(is_admin)
 def admin_view_user_view(request):
-    # worker=models.WorkerExtra.objects.all()
     user = get_user_model()
     worker=user.objects.filter(groups__name='WORKER') 
     boss=user.objects.filter(groups__name='BOSS') 
     
     return render(request,'main/admin_view_user.html',{'boss':boss,'worker':worker})
 
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def delete_boss_view(request,pk):
+    boss=models.BossExtra.objects.get(id=pk)
+    user=models.User.objects.get(id=boss.user_id)
+    user.delete()
+    boss.delete()
+    return redirect('admin_view_user')
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def delete_worker_view(request,pk):
+    worker=models.WorkerExtra.objects.get(id=pk)
+    user=models.User.objects.get(id=worker.user_id)
+    user.delete()
+    worker.delete()
+    return redirect('admin_view_user')
 
 
 
@@ -165,8 +167,8 @@ def admin_view_user_view(request):
 
 
 
-
-
+@login_required(login_url='/boss-login')
+@user_passes_test(is_upper)
 def calculateInventoryHoldingCost(request):
   if request.method == "POST":
     form = forms.IHCForm(request.POST)
@@ -191,6 +193,8 @@ def calculateInventoryHoldingCost(request):
       form = forms.IHCForm(initial={'month': current_month})
   return render(request, 'main/calculate_inventory_holding_cost.html', {'form': form})
 
+@login_required(login_url='/boss-login')
+@user_passes_test(is_upper)
 def calculateFiringHiringCost(request):
   if request.method == "POST":
     form = forms.FHCForm(request.POST)
@@ -249,6 +253,8 @@ def calculateFinalCost():
     finalCostResult = finalCostResult + (inventoryHoldingCost + hiringCost + firingCost)
   models.FCDatabase.objects.filter(finalCost=finalCostGet).update(finalCost=finalCostResult)
 
+@login_required(login_url='/boss-login')
+@user_passes_test(is_upper)
 def calculateInventoryConstraints(request):
   if request.method == "POST":
     form = forms.ICForm(request.POST)
@@ -325,6 +331,8 @@ def calculateNumOfTempWorkers():
     tempWorkerMonthlyResult = tempWorkerMonthlyGet + (tempWorkerHired - tempWorkerFired)
     models.NTWDatabase.objects.filter(month=i).update(tempWorkerMonthly=tempWorkerMonthlyResult)
 
+@login_required(login_url='/boss-login')
+@user_passes_test(is_upper)
 def calculateRemainingDemand(request):
   if request.method == "POST":
     form = forms.RDForm(request.POST)

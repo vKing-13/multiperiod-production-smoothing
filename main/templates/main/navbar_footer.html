@@ -9,7 +9,13 @@
   <link rel="stylesheet" href="./css/tailwind.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/flowbite@1.5.1/dist/flowbite.js"></script>
-
+  {% load widget_tweaks %}
+  {% load compress %}
+  {% load static %}
+  {% compress css %}
+  <link rel="stylesheet" href="{% static 'src/output.css' %}">
+  {% endcompress %}
+  <script src="https://unpkg.com/flowbite@1.5.5/dist/flowbite.js"></script>
   <style>
     table, tr, td{
       border: solid black 1px;
@@ -23,18 +29,12 @@
   
   <nav class="bg-gradient-to-r from-indigo-900 via-blue-700 to-blue-500  px-2 sm:px-4 py-2.5 rounded-b-lg ">
     <div class="container flex flex-wrap">
-      
-      <!-- <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 ml-3 text-sm text-slate-900 rounded-lg md:hidden hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-transparent dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
-        <span class="sr-only">Open main menu</span>
-        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
-      </button> -->
+
 
 
       <a href="/" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent"><img class="w-14 rounded-full m-2" src="https://i.ibb.co/8gpyyg9/logo-App-Dev.png"></img></a>
       
       {% if user.is_authenticated%}
-
-      hi {{user.username}}
       <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
         <a href="{% url 'logout' %}" class="px-4 font-bold">logout<a/>
         </button>
@@ -77,32 +77,6 @@
           
         </div>
       </button>
-
-      <!-- <div class="w-full lg:inline-flex lg:w-auto" id="navbar-default">
-        <ul class="flex flex-col p-4 mt-4 rounded-lg bg-transparent md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium    md:bg-white dark:bg-transparent md:dark:bg-transparent">
-          <li>
-            <a href="/" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent"><img class="w-16 rounded-full ml-3" src="https://i.ibb.co/8gpyyg9/logo-App-Dev.png"></img></a>
-          </li>
-          <li>
-            <a href="/calculateIHC" class="block py-2 pl-3 pr-4 text-white rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent">Calc. Inventory  Holding Cost</a>
-          </li>
-          <li>
-            <a href="/calculateFHC" class="block py-2 pl-3 pr-4 text-white rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent">Calc. Firing & Hiring Cost</a>
-          </li>
-          <li>
-            <a href="/calculateFC" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent">Calculate Final Cost</a>
-          </li>
-          <li>
-            <a href="/calculateNTW" class="block py-2 pl-3 pr-4 text-white rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent">Calc. Num. of Temp. Workers Monthly</a>
-          </li>
-          <li>
-            <a href="/calculateRD" class="block py-2 pl-3 pr-4 text-white rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent">Calc. Remaining Demand Monthly</a>
-          </li>
-          <li>
-            <a href="/calculateIC" class="block py-2 pl-3 pr-4 text-white rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent">Calc. Monthly Inventory Constraints</a>
-          </li>
-        </ul> 
-      </div> -->
     </div>
   </nav>
   

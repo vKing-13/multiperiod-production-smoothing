@@ -1,24 +1,12 @@
-<!DOCTYPE html>
+{% extends 'main/navbar_footer.html' %}
+
 
 {% load widget_tweaks %}
 {% load compress %}
 {% load static %}
+{% block title %}View User{% endblock  %}
+{% block content %}
 
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, inital-scale=1.0">
-
-        {% compress css %}
-        <link rel="stylesheet" href="{% static 'src/output.css' %}">
-        {% endcompress %}
-        <script src="https://unpkg.com/flowbite@1.5.5/dist/flowbite.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <script src="https://cdn.tailwindcss.com"></script>
-        <title>View User</title>
-    </head>
-    <body >
        
     <div class="overflow-x-auto relative">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -59,6 +47,12 @@
                     <td class="py-4 px-6">
                         Boss
                     </td>
+                    <td class="text-center"  >
+                        <button type="button" class="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 w-8 text-center inline-flex items-center mr-2 ">
+                           <a href="{% url 'delete-boss' b.id %}" ><span class="text-center" >X</span><a/>
+                          </button>
+                    </td>
+                    
                 </tr>
                 {% endfor %}
                 {% for w in worker %}
@@ -78,11 +72,14 @@
                     <td class="py-4 px-6">
                         Worker
                     </td>
+                    <td class="text-center"  >
+                        <button type="button" class="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 w-8 text-center inline-flex items-center mr-2 ">
+                           <a href="{% url 'delete-worker' w.id %}" ><span class="text-center" >X</span><a/>
+                          </button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
- 
-    </body>
-</html>
+    {% endblock  %} 
