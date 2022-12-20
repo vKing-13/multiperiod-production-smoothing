@@ -31,19 +31,27 @@ def index(request):
         return render(request,"main/index.html",  {'IHC':qsIHC,
                                                   'FHC':qsFHC,
                                                   'FC':qsFC,
-                                                  'RD':qsRD,
-                                                  'currUser':currUser})
+                                                  'RD':qsRD
+                                                  })
                                                   
     elif is_worker(request.user):
-      qsIHC = models.IHCDatabase.objects.all().values()
-      qsFHC = models.FHCDatabase.objects.all().values()
-      qsFC = models.FCDatabase.objects.all().values()
-      qsRD = models.RDDatabase.objects.all().values()
-      return render(request,"main/index.html",  {'IHC':qsIHC,
-                                                'FHC':qsFHC,
-                                                'FC':qsFC,
-                                                'RD':qsRD})
-
+        qsIHC = models.IHCDatabase.objects.all().values()
+        qsFHC = models.FHCDatabase.objects.all().values()
+        qsFC = models.FCDatabase.objects.all().values()
+        qsRD = models.RDDatabase.objects.all().values()
+        return render(request,"main/index.html",  {'IHC':qsIHC,
+                                                  'FHC':qsFHC,
+                                                  'FC':qsFC,
+                                                  'RD':qsRD})
+  else:
+    qsIHC = models.IHCDatabase.objects.all().values()
+    qsFHC = models.FHCDatabase.objects.all().values()
+    qsFC = models.FCDatabase.objects.all().values()
+    qsRD = models.RDDatabase.objects.all().values()
+    return render(request,"main/index.html",  {'IHC':qsIHC,
+                                              'FHC':qsFHC,
+                                              'FC':qsFC,
+                                              'RD':qsRD})
 
 def worker_loginView(request):
   form=forms.WorkerUserForm()

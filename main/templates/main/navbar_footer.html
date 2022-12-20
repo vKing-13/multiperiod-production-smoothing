@@ -33,13 +33,17 @@
       <a href="/" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent"><img class="w-14 rounded-full m-2" src="https://i.ibb.co/8gpyyg9/logo-App-Dev.png"></img></a>
       
       {% if user.is_authenticated%}
+
       hi {{user.username}}
-      {% else %} 
       <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
-        <p class="px-4 font-bold">Sign in for boss</p>
-      </button>
-      <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
-        <p class="px-4 font-bold">Sign in for worker</p>
+        <a href="{% url 'logout' %}" class="px-4 font-bold">logout<a/>
+        </button>
+        {% else %} 
+        <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
+          <a href="boss-login/" class="px-4 font-bold">Sign in for boss<a/>
+          </button>
+          <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
+            <a href="worker-login/" class="px-4 font-bold">Sign in for worker<a/>
       </button>
 
       {% endif %}
