@@ -4,11 +4,9 @@ from main import models,forms
 from django.contrib.auth.models import Group
 from datetime import date
 from django.contrib.auth.decorators import login_required,user_passes_test
-from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  UpdateView)
 from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
-
+from django.contrib.auth import logout,login,authenticate
 # Create your views here.
 
 
@@ -21,22 +19,54 @@ def is_worker(user):
 
 
 def index(request):
-  # if request.user.is_authenticated:
-  #       if request.user.is_superuser:
-  #           return redirect('admin_view_user')
-  #       elif is_boss(request.user) :
-  #           return redirect('Calculate Final Cost')
-  #       else:
-  #         return redirect('Calculate Final Cost')
-  # return render(request, 'main/index.html')
-  qsIHC = models.IHCDatabase.objects.all().values()
-  qsFHC = models.FHCDatabase.objects.all().values()
-  qsFC = models.FCDatabase.objects.all().values()
-  qsRD = models.RDDatabase.objects.all().values()
-  return render(request,"main/index.html",  {'IHC':qsIHC,
-                                            'FHC':qsFHC,
-                                            'FC':qsFC,
-                                            'RD':qsRD})
+  if request.user.is_authenticated:
+    currUser=request.user
+    if request.user.is_superuser:
+        return redirect('admin_view_user')
+    elif is_boss(request.user) :
+        qsIHC = models.IHCDatabase.objects.all().values()
+        qsFHC = models.FHCDatabase.objects.all().values()
+        qsFC = models.FCDatabase.objects.all().values()
+        qsRD = models.RDDatabase.objects.all().values()
+        return render(request,"main/index.html",  {'IHC':qsIHC,
+                                                  'FHC':qsFHC,
+                                                  'FC':qsFC,
+                                                  'RD':qsRD,
+                                                  'currUser':currUser})
+                                                  
+    elif is_worker(request.user):
+      qsIHC = models.IHCDatabase.objects.all().values()
+      qsFHC = models.FHCDatabase.objects.all().values()
+      qsFC = models.FCDatabase.objects.all().values()
+      qsRD = models.RDDatabase.objects.all().values()
+      return render(request,"main/index.html",  {'IHC':qsIHC,
+                                                'FHC':qsFHC,
+                                                'FC':qsFC,
+                                                'RD':qsRD})
+
+
+def worker_loginView(request):
+  form=forms.WorkerUserForm()
+  if request.method == 'POST':
+    username = request.POST['username']
+    password = request.POST['password']
+    form1=forms.WorkerUserForm(request.POST)
+    if form1.is_valid() and form2.is_valid():
+      user = authenticate(request, username=username, password=password)
+      if user is not None:
+          login(request, user)
+          return redirect('home')
+      else:
+        errorMee
+        return render(request,'main/worker_login.html')
+      
+  
+
+
+def logout_view(request):
+  logout(request)
+  return redirect('home')
+
 
 
 def worker_signup_view(request): 
@@ -55,7 +85,6 @@ def worker_signup_view(request):
 
       worker_group=Group.objects.get_or_create(name='WORKER')
       worker_group[0].user_set.add(user)
-      # return redirect('main/index.html')
       return render(request,'main/index.html')
 
     else:

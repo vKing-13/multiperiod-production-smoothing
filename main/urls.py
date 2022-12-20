@@ -6,12 +6,12 @@ urlpatterns=[
   path('',views.index,name="home"),
 
   path('worker-signup/',views.worker_signup_view ),
-  path('worker-signup/worker_login/',LoginView.as_view(template_name="main/worker_login.html")),
+  path('worker-login/',LoginView.as_view(template_name="main/worker_login.html")),
 
   path('boss-signup/',views.boss_signup_view ),
-  path('boss-signup/boss_login/',LoginView.as_view(template_name="main/boss_login.html")),
+  path('boss_login/',LoginView.as_view(template_name="main/boss_login.html")),
 
-  path('logout', LogoutView.as_view(template_name='main/index.html'),name='logout'),
+  path('logout', views.logout_view,name='logout'),
   
   path('admin-login/',LoginView.as_view(template_name="main/admin_login.html"),name="admin-login"),
   path('admin_view_user/',views.admin_view_user_view,name="admin_view_user"),
