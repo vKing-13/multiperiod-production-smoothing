@@ -22,7 +22,7 @@
           {% csrf_token %}
           <div class="p-6">
             <label for="month" class="block mb-2 text-sm font-bold text-gray-600">Month:</label>
-            {% render_field form.month  placeholder="Month" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
+            {% render_field form.month readonly="true" placeholder="Month" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
                     
             <div class="flex space-x-2 justify-center pt-3">
               <button type="submit" name="FHCSubmit" class="bg-indigo-600 text-white py-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-bold">Calculate</button>

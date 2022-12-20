@@ -24,25 +24,55 @@ def index(request):
     if request.user.is_superuser:
         return redirect('admin_view_user')
     elif is_boss(request.user) :
-        qsIHC = models.IHCDatabase.objects.all().values()
-        qsFHC = models.FHCDatabase.objects.all().values()
-        qsFC = models.FCDatabase.objects.all().values()
-        qsRD = models.RDDatabase.objects.all().values()
-        return render(request,"main/index.html",  {'IHC':qsIHC,
-                                                  'FHC':qsFHC,
-                                                  'FC':qsFC,
-                                                  'RD':qsRD,
-                                                  'currUser':currUser})
-                                                  
+      calculateFinalCost()
+      calculateNumOfTempWorkers()
+      recheckIC()
+      IHCData = models.IHCDatabase.objects.all().values().order_by('month')
+      FHCData = models.FHCDatabase.objects.all().values().order_by('month')
+      FCData = models.FCDatabase.objects.all().values()
+      RDData = models.RDDatabase.objects.all().values().order_by('month')
+      NTWData = models.NTWDatabase.objects.all().values().order_by('month')
+      ICData = models.ICDatabase.objects.all().values().order_by('month')
+      return render(request,"main/index.html",  {'IHC':IHCData,
+                                                'FHC':FHCData,
+                                                'FC':FCData,
+                                                'RD':RDData,
+                                                'NTW':NTWData,
+                                                'IC':ICData,
+                                                'currUser':currUser})
     elif is_worker(request.user):
-      qsIHC = models.IHCDatabase.objects.all().values()
-      qsFHC = models.FHCDatabase.objects.all().values()
-      qsFC = models.FCDatabase.objects.all().values()
-      qsRD = models.RDDatabase.objects.all().values()
-      return render(request,"main/index.html",  {'IHC':qsIHC,
-                                                'FHC':qsFHC,
-                                                'FC':qsFC,
-                                                'RD':qsRD})
+      calculateFinalCost()
+      calculateNumOfTempWorkers()
+      recheckIC()
+      IHCData = models.IHCDatabase.objects.all().values().order_by('month')
+      FHCData = models.FHCDatabase.objects.all().values().order_by('month')
+      FCData = models.FCDatabase.objects.all().values()
+      RDData = models.RDDatabase.objects.all().values().order_by('month')
+      NTWData = models.NTWDatabase.objects.all().values().order_by('month')
+      ICData = models.ICDatabase.objects.all().values().order_by('month')
+      return render(request,"main/index.html",  {'IHC':IHCData,
+                                                'FHC':FHCData,
+                                                'FC':FCData,
+                                                'RD':RDData,
+                                                'NTW':NTWData,
+                                                'IC':ICData})
+  else:
+    # return HttpResponseRedirect('worker-login/')
+    calculateFinalCost()
+    calculateNumOfTempWorkers()
+    recheckIC()
+    IHCData = models.IHCDatabase.objects.all().values().order_by('month')
+    FHCData = models.FHCDatabase.objects.all().values().order_by('month')
+    FCData = models.FCDatabase.objects.all().values()
+    RDData = models.RDDatabase.objects.all().values().order_by('month')
+    NTWData = models.NTWDatabase.objects.all().values().order_by('month')
+    ICData = models.ICDatabase.objects.all().values().order_by('month')
+    return render(request,"main/index.html",  {'IHC':IHCData,
+                                                'FHC':FHCData,
+                                                'FC':FCData,
+                                                'RD':RDData,
+                                                'NTW':NTWData,
+                                                'IC':ICData})
 
 
 def worker_loginView(request):
@@ -65,7 +95,7 @@ def worker_loginView(request):
 
 def logout_view(request):
   logout(request)
-  return redirect('home')
+  return HttpResponseRedirect('/')
 
 
 
@@ -189,41 +219,111 @@ def calculateFiringHiringCost(request):
       models.FHCDatabase.objects.filter(month=inputMonth).update(firingCost=firingCostResult)
       return HttpResponseRedirect('/')
   else:
-      form = forms.FHCForm()
+      current_month = date.today().month
+      form = forms.FHCForm(initial={'month': current_month})
   return render(request,"main/calculate_firing_hiring_cost.html",{'form':form})
 
-def calculateFinalCost(request):
-  # if request.method == "POST":
-  #   form = forms.FCForm(request.POST)
-  #   if form.is_valid():
-  #     inputMonth = int(request.POST.get('addMonth'))
-  #     qs = models.FCDatabase.objects.all().values()
-  #     if qs.count() <= 0:
-  #       form.save()
-  #     for x in qs:
-  #       finalCostGet = x['finalCost']
-  #     qsIHC = models.IHCDatabase.objects.filter(month=inputMonth).values()
-  #     for x in qsIHC:
-  #       inventoryHoldingCost = x['inventoryHoldingCost']
-  #     qsFHC = models.FHCDatabase.objects.filter(month=inputMonth).values()
-  #     for x in qsFHC:
-  #       hiringCost = x['hiringCost']
-  #       firingCost = x['firingCost']
-  #     finalCostResult = finalCostGet + inventoryHoldingCost + hiringCost + firingCost
-  #     models.FCDatabase.objects.filter(finalCost=finalCostGet).update(finalCost=finalCostResult)
-  #     return HttpResponseRedirect('/')
-  # else:
-  #     form = forms.FCForm()
-  # return render(request,"main/calculate_final_cost.html",{'form':form})
-  return HttpResponseRedirect('/')
+def calculateFinalCost():
+  inputMonth = date.today().month
+  qs = models.FCDatabase.objects.all().values()
+  finalCostResult = 0
+  if qs.count() <= 0:
+    models.FCDatabase.objects.create(finalCost=0)
+  for x in qs:
+    finalCostGet = x['finalCost']
+  for i in range(1, inputMonth+1):
+    qsIHC = models.IHCDatabase.objects.filter(month=i).values()
+    if qsIHC.exists():
+      for x in qsIHC:
+        inventoryHoldingCost = x['inventoryHoldingCost']
+    else:
+      inventoryHoldingCost = 0
+    qsFHC = models.FHCDatabase.objects.filter(month=i).values()
+    if qsFHC.exists():
+      for x in qsFHC:
+        hiringCost = x['hiringCost']
+        firingCost = x['firingCost']
+    else:
+      hiringCost = 0
+      firingCost = 0
+    finalCostResult = finalCostResult + (inventoryHoldingCost + hiringCost + firingCost)
+  models.FCDatabase.objects.filter(finalCost=finalCostGet).update(finalCost=finalCostResult)
 
 def calculateInventoryConstraints(request):
-  form = forms.ICForm(request.POST)
+  if request.method == "POST":
+    form = forms.ICForm(request.POST)
+    if form.is_valid():
+      inputMonth = int(request.POST.get('month'))
+      inputproductionTempWorker = float(request.POST.get('productionTempWorker'))
+      qs = models.ICDatabase.objects.filter(month=inputMonth).values()
+      if qs.count() > 0:
+        models.ICDatabase.objects.filter(month=inputMonth).update(productionTempWorker=inputproductionTempWorker)
+      else:
+        form.save()
+      for x in qs:
+          productionTempWorker = x['productionTempWorker']
+      qsIHC1 = models.IHCDatabase.objects.filter(month=inputMonth).values()
+      if qsIHC1.exists():
+        for x in qsIHC1:
+          unitsOfEndingInventory = x['unitsOfEndingInventory']
+      else:
+        unitsOfEndingInventory = 0
+      qsIHC2 = models.IHCDatabase.objects.filter(month=(inputMonth-1)).values()
+      if qsIHC2.exists():
+        for x in qsIHC2:
+          unitsOfEndingInventoryLastMonth = x['unitsOfEndingInventory']
+      else:
+        unitsOfEndingInventoryLastMonth = 0
+      qsNTW = models.NTWDatabase.objects.filter(month=inputMonth).values()
+      if qsNTW.exists():
+        for x in qsNTW:
+          tempWorkerMonthly = x['tempWorkerMonthly']
+      else:
+        tempWorkerMonthly = 0
+      qsRD = models.RDDatabase.objects.filter(month=inputMonth).values()
+      if qsRD.exists():
+        for x in qsRD:
+          remainingDemand = x['remainingDemand']
+      else:
+        remainingDemand = 0
+      monthlyInventoryConstraintsResult = remainingDemand + (unitsOfEndingInventory - unitsOfEndingInventoryLastMonth) - (productionTempWorker * tempWorkerMonthly)
+      if monthlyInventoryConstraintsResult < 0:
+        monthlyInventoryConstraintsResult = 0
+      
+      models.ICDatabase.objects.filter(month=inputMonth).update(monthlyInventoryConstraints=monthlyInventoryConstraintsResult)
+      return HttpResponseRedirect('/')
+  else:
+      current_month = date.today().month
+      form = forms.ICForm(initial={'month': current_month})
   return render(request,"main/calculate_inventory_constraints.html",{'form':form})
 
-def calculateNumOfTempWorkers(request):
-  form = forms.NTWForm(request.POST)
-  return render(request,"main/calculate_num_of_temp_workers.html",{'form':form})
+def calculateNumOfTempWorkers():
+  inputMonth = date.today().month
+  qs = models.NTWDatabase.objects.filter(month=inputMonth).values()
+  tempWorkerMonthlyResult = 0
+  tempWorkerMonthlyGet = 0
+  if qs.count() <= 0:
+    models.NTWDatabase.objects.create(month=inputMonth,tempWorkerMonthly = 0)
+  for i in range(1, inputMonth+1):
+    qsCheck = models.NTWDatabase.objects.filter(month=i).values()
+    if qsCheck.exists() == False:
+      models.NTWDatabase.objects.create(month=i,tempWorkerMonthly = 0)
+    qsGet = models.NTWDatabase.objects.filter(month=i-1).values()
+    if qsGet.exists():
+      for x in qsGet:
+        tempWorkerMonthlyGet = x['tempWorkerMonthly']
+    else:
+      tempWorkerMonthlyGet = 0
+    qsFHC = models.FHCDatabase.objects.filter(month=i).values()
+    if qsFHC.exists():
+      for x in qsFHC:
+        tempWorkerHired = x['tempWorkerHired']
+        tempWorkerFired = x['tempWorkerFired']
+    else:
+      tempWorkerHired = 0
+      tempWorkerFired = 0
+    tempWorkerMonthlyResult = tempWorkerMonthlyGet + (tempWorkerHired - tempWorkerFired)
+    models.NTWDatabase.objects.filter(month=i).update(tempWorkerMonthly=tempWorkerMonthlyResult)
 
 def calculateRemainingDemand(request):
   if request.method == "POST":
@@ -250,12 +350,47 @@ def calculateRemainingDemand(request):
       models.RDDatabase.objects.filter(month=inputMonth).update(remainingDemand=remainingDemandResult)
       return HttpResponseRedirect('/')
   else:
-      form = forms.RDForm()
+      current_month = date.today().month
+      form = forms.RDForm(initial={'month': current_month})
   return render(request,"main/calculate_remaining_demand.html",{'form':form})
 
-def resetFC(request):
-  qs = models.FCDatabase.objects.all().values()
-  for x in qs:
-    finalCostGet = x['finalCost']
-  models.FCDatabase.objects.filter(finalCost=finalCostGet).update(finalCost=0)
-  return HttpResponseRedirect('/')
+def recheckIC():
+  current_month = date.today().month
+  for i in range(1, current_month+1):
+    qs = models.ICDatabase.objects.filter(month=i).values()
+    if qs.exists():
+      for x in qs:
+        productionTempWorkerGet = x['productionTempWorker']
+    else:
+      productionTempWorkerGet = 0
+    qsIHC1 = models.IHCDatabase.objects.filter(month=i).values()
+    if qsIHC1.exists():
+      for x in qsIHC1:
+        unitsOfEndingInventory = x['unitsOfEndingInventory']
+    else:
+      unitsOfEndingInventory = 0
+    qsIHC2 = models.IHCDatabase.objects.filter(month=(i-1)).values()
+    if qsIHC2.exists():
+      for x in qsIHC2:
+        unitsOfEndingInventoryLastMonth = x['unitsOfEndingInventory']
+    else:
+      unitsOfEndingInventoryLastMonth = 0
+    qsNTW = models.NTWDatabase.objects.filter(month=i).values()
+    if qsNTW.exists():
+      for x in qsNTW:
+        tempWorkerMonthly = x['tempWorkerMonthly']
+    else:
+      tempWorkerMonthly = 0
+    qsRD = models.RDDatabase.objects.filter(month=i).values()
+    if qsRD.exists():
+      for x in qsRD:
+        remainingDemand = x['remainingDemand']
+    else:
+      remainingDemand = 0
+    monthlyInventoryConstraintsResult = remainingDemand + (unitsOfEndingInventory - unitsOfEndingInventoryLastMonth) - (productionTempWorkerGet * tempWorkerMonthly)
+    if monthlyInventoryConstraintsResult < 0:
+      monthlyInventoryConstraintsResult = 0
+    if qs.exists():
+      models.ICDatabase.objects.filter(month=i).update(monthlyInventoryConstraints=monthlyInventoryConstraintsResult)
+    else:
+      models.ICDatabase.objects.create(month=i,productionTempWorker=productionTempWorkerGet,monthlyInventoryConstraints=monthlyInventoryConstraintsResult)
