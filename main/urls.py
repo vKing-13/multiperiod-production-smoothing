@@ -8,8 +8,8 @@ urlpatterns=[
   path('worker-signup/',views.worker_signup_view ),
   path('worker-login/',LoginView.as_view(template_name="main/worker_login.html")),
 
-  path('boss_signup/',views.boss_signup_view ),
-  path('boss_login/',LoginView.as_view(template_name="main/boss_login.html")),
+  path('boss-signup/',views.boss_signup_view ),
+  path('boss-login/',LoginView.as_view(template_name="main/boss_login.html")),
 
   path('logout', views.logout_view,name='logout'),
   
