@@ -1,178 +1,361 @@
-{% extends 'main/navbar_footer.html' %}
-{% block title %}Home Page{% endblock  %}
+{% extends 'main/navbar_footer.html' %} {% block title %}Home Page{% endblock %}
 {% block content %}
 
-<link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
 <script src="http://cdn.tailwindcss.com"></script>
-<body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both;">
-<div class='overflow-x-auto  '>
-      <h2 class="flex justify-center m-2 font-[Poppins]">Inventory Holding Cost</h2>
-      <table class="mx-auto max-w-4xl   drop-shadow-lg font-[Poppins] rounded-lg border-gray-800 w-6/12 overflow-hidden">
-            <thead class="text-white border-none bg-blue-700">
-                  <tr class="text-white text-center border-none">
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Month</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Holding Cost Per Unit</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Ending Inventory Units</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Inventory Holding Cost</th>
-                  </tr> 
-            </thead> 
-            <tbody class="bg-white text-gray-900 text-center border-none">
-                  {% if IHC|length < 1 %}
-                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                              <td class="whitespace-nowrap text-sm font-medium border-none" colspan="4">EMPTY</td>
-                        </tr>
-                  {% else %}
-                        {% for x in IHC %}
-                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                              <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.holdingCostPerUnit }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.unitsOfEndingInventory }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.inventoryHoldingCost }}</td>
-                        </tr>
-                        {% endfor %}
-                  {% endif %}
-            </tbody>
+<body
+   class="min-h-screen bg-slate-300"
+   style="min-height: 400px; margin-bottom: 100px; clear: both"
+>
+   {% comment %}
+   <div class="overflow-x-auto">
+      <h2 class="flex justify-center m-2 font-[Poppins]">
+         Inventory Holding Cost
+      </h2>
+      <table
+         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-gray-800 w-6/12 overflow-hidden"
+      >
+         <thead class="text-white border-none bg-blue-700">
+            <tr class="text-white text-center border-none">
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Month
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Holding Cost Per Unit
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Ending Inventory Units
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Inventory Holding Cost
+               </th>
+            </tr>
+         </thead>
+         <tbody class="bg-white text-gray-900 text-center border-none">
+            {% if IHC|length < 1 %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td
+                  class="whitespace-nowrap text-sm font-medium border-none"
+                  colspan="4"
+               >
+                  EMPTY
+               </td>
+            </tr>
+            {% else %} {% for x in IHC %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.holdingCostPerUnit }}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.unitsOfEndingInventory }}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.inventoryHoldingCost }}
+               </td>
+            </tr>
+            {% endfor %} {% endif %}
+         </tbody>
       </table>
-</div>
+   </div>
 
-<div class='overflow-x-auto  '>
-      <h2 class="flex justify-center m-2 font-[Poppins]">Firing and Hiring Cost</h2>
-      <table class="mx-auto max-w-4xl   drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden">
-            <thead class="text-white border-b bg-blue-700">
-                  <tr class="text-white text-center border-none">
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Month</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Temp. Worker Hiring Cost</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Temp. Worker Firing Cost</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Num. of Hired Temp. Worker</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Num. of Fired Temp. Worker</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Hiring Cost</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Firing Cost</th>
-                  </tr> 
-            </thead>
-            <tbody class="bg-white border-b text-gray-900 text-center border-none">
-                  {% if FHC|length < 1 %}
-                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                              <td class="whitespace-nowrap text-sm font-medium border-none" colspan="7">EMPTY</td>
-                        </tr>
-                  {% else %}
-                        {% for x in FHC %}
-                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                              <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.tempWorkerHiringCost }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.tempWorkerFiringCost }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.tempWorkerHired }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.tempWorkerFired }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.hiringCost }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.firingCost }}</td>
-                        </tr>
-                        {% endfor %}      
-                  {% endif %}
-            </tbody>
+   <div class="overflow-x-auto">
+      <h2 class="flex justify-center m-2 font-[Poppins]">
+         Firing and Hiring Cost
+      </h2>
+      <table
+         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden"
+      >
+         <thead class="text-white border-b bg-blue-700">
+            <tr class="text-white text-center border-none">
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Month
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Temp. Worker Hiring Cost
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Temp. Worker Firing Cost
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Num. of Hired Temp. Worker
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Num. of Fired Temp. Worker
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Hiring Cost
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Firing Cost
+               </th>
+            </tr>
+         </thead>
+         <tbody class="bg-white border-b text-gray-900 text-center border-none">
+            {% if FHC|length < 1 %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td
+                  class="whitespace-nowrap text-sm font-medium border-none"
+                  colspan="7"
+               >
+                  EMPTY
+               </td>
+            </tr>
+            {% else %} {% for x in FHC %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.tempWorkerHiringCost }}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.tempWorkerFiringCost }}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.tempWorkerHired }}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.tempWorkerFired }}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.hiringCost }}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.firingCost }}
+               </td>
+            </tr>
+            {% endfor %} {% endif %}
+         </tbody>
       </table>
-</div>
+   </div>
 
-<div class='overflow-x-auto  '>
+   <div class="overflow-x-auto">
       <h2 class="flex justify-center m-2 font-[Poppins]">Final Cost</h2>
-      <table class="mx-auto max-w-4xl   drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden">
-            <thead class="text-white border-b bg-blue-700">
-                  <tr class="text-white text-center border-none">
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Final Cost</th>
-                  </tr> 
-            </thead>
-            <tbody class="bg-white border-b text-gray-900 text-center border-none">
-                  {% for x in FC %}
-                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                              <td class="px-1 py-2 text-center border-none">RM {{ x.finalCost}}</td>
-                        </tr>
-                  {% endfor %}
-            </tbody>
+      <table
+         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden"
+      >
+         <thead class="text-white border-b bg-blue-700">
+            <tr class="text-white text-center border-none">
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Final Cost
+               </th>
+            </tr>
+         </thead>
+         <tbody class="bg-white border-b text-gray-900 text-center border-none">
+            {% for x in FC %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td class="px-1 py-2 text-center border-none">
+                  RM {{ x.finalCost}}
+               </td>
+            </tr>
+            {% endfor %}
+         </tbody>
       </table>
-</div>
+   </div>
 
-<div class='overflow-x-auto  '>
-      <h2 class="flex justify-center m-2 font-[Poppins]">Number of Temporary Workers</h2>
-      <table class="mx-auto max-w-4xl   drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden">
-            <thead class="text-white border-b bg-blue-700">
-                  <tr class="text-white text-center border-none">
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Month</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Workers</th>
-                  </tr> 
-            </thead>
-            <tbody class="bg-white border-b text-gray-900 text-center border-none">
-                  {% if NTW|length < 1 %}
-                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                              <td class="whitespace-nowrap text-sm font-medium border-none" colspan="2">EMPTY</td>
-                        </tr>
-                  {% else %}
-                        {% for x in NTW %}
-                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                              <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.tempWorkerMonthly }}</td>
-                        </tr>
-                        {% endfor %}      
-                  {% endif %}
-            </tbody>
+   <div class="overflow-x-auto">
+      <h2 class="flex justify-center m-2 font-[Poppins]">
+         Number of Temporary Workers
+      </h2>
+      <table
+         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden"
+      >
+         <thead class="text-white border-b bg-blue-700">
+            <tr class="text-white text-center border-none">
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Month
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Number of Temporary Workers
+               </th>
+            </tr>
+         </thead>
+         <tbody class="bg-white border-b text-gray-900 text-center border-none">
+            {% if NTW|length < 1 %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td
+                  class="whitespace-nowrap text-sm font-medium border-none"
+                  colspan="2"
+               >
+                  EMPTY
+               </td>
+            </tr>
+            {% else %} {% for x in NTW %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.tempWorkerMonthly }}
+               </td>
+            </tr>
+            {% endfor %} {% endif %}
+         </tbody>
       </table>
-</div>
+   </div>
 
-<div class='overflow-x-auto'>
+   <div class="overflow-x-auto">
       <h2 class="flex justify-center m-2 font-[Poppins]">Remaining Demand:</h2>
-      <table class="mx-auto max-w-4xl   drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden">
-            <thead class="text-white border-b bg-blue-700">
-                  <tr class="text-white text-center border-none">
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Month</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Demand</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Production of a Permanent Worker</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Permanent Workers</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Remaining Demand</th>
-                  </tr>
-            </thead>
-            <tbody class="bg-white border-b text-gray-900 text-center border-none">
-                  {% if RD|length < 1 %}
-                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                              <td class="whitespace-nowrap text-sm font-medium border-none" colspan="5">EMPTY</td>
-                        </tr>
-                  {% else %}
-                        {% for x in RD %}
-                              <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                                    <td class="px-1 py-2 text-center border-none">{{ x.month}}</td>
-                                    <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.demand}}</td>
-                                    <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.productionPermanentWorker}}</td>
-                                    <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.numPermanentWorker}}</td>
-                                    <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.remainingDemand}}</td>
-                              </tr>
-                        {% endfor %}
-                  {% endif %}
-            </tbody>
+      <table
+         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden"
+      >
+         <thead class="text-white border-b bg-blue-700">
+            <tr class="text-white text-center border-none">
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Month
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Demand
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Production of a Permanent Worker
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Number of Permanent Workers
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Remaining Demand
+               </th>
+            </tr>
+         </thead>
+         <tbody class="bg-white border-b text-gray-900 text-center border-none">
+            {% if RD|length < 1 %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td
+                  class="whitespace-nowrap text-sm font-medium border-none"
+                  colspan="5"
+               >
+                  EMPTY
+               </td>
+            </tr>
+            {% else %} {% for x in RD %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td class="px-1 py-2 text-center border-none">{{ x.month}}</td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.demand}}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.productionPermanentWorker}}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.numPermanentWorker}}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.remainingDemand}}
+               </td>
+            </tr>
+            {% endfor %} {% endif %}
+         </tbody>
       </table>
-</div>
+   </div>
 
-<div class='overflow-x-auto'>
-      <h2 class="flex justify-center m-2 font-[Poppins]">Inventory Constraints</h2>
-      <table class="mx-auto max-w-4xl   drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden">
-            <thead class="text-white border-b bg-blue-700">
-                  <tr class="text-white text-center border-none">
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Month</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Production of a Temporary Worker</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Inventory Constraints</th>
-                  </tr>
-            </thead>
-            <tbody class="bg-white border-b text-gray-900 text-center border-none">
-                  {% if IC|length < 1 %}
-                        <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                              <td class="whitespace-nowrap text-sm font-medium border-none" colspan="3">EMPTY</td>
-                        </tr>
-                  {% else %}
-                        {% for x in IC %}
-                              <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                                    <td class="px-1 py-2 text-center border-none">{{ x.month}}</td>
-                                    <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.productionTempWorker}}</td>
-                                    <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.monthlyInventoryConstraints}}</td>
-                              </tr>
-                        {% endfor %}
-                  {% endif %}
-            </tbody>
+   <div class="overflow-x-auto">
+      <h2 class="flex justify-center m-2 font-[Poppins]">
+         Inventory Constraints
+      </h2>
+      <table
+         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden"
+      >
+         <thead class="text-white border-b bg-blue-700">
+            <tr class="text-white text-center border-none">
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Month
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Production of a Temporary Worker
+               </th>
+               <th
+                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
+               >
+                  Inventory Constraints
+               </th>
+            </tr>
+         </thead>
+         <tbody class="bg-white border-b text-gray-900 text-center border-none">
+            {% if IC|length < 1 %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td
+                  class="whitespace-nowrap text-sm font-medium border-none"
+                  colspan="3"
+               >
+                  EMPTY
+               </td>
+            </tr>
+            {% else %} {% for x in IC %}
+            <tr
+               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
+            >
+               <td class="px-1 py-2 text-center border-none">{{ x.month}}</td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.productionTempWorker}}
+               </td>
+               <td class="whitespace-nowrap text-sm font-medium border-none">
+                  {{ x.monthlyInventoryConstraints}}
+               </td>
+            </tr>
+            {% endfor %} {% endif %}
+         </tbody>
       </table>
-</div>
+   </div>
+   {% endcomment %}
 </body>
-{% endblock  %} 
+{% endblock %}
