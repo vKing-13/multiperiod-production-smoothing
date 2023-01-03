@@ -2,10 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from main import models, forms
 from django.contrib.auth.models import Group
-from datetime import date
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.urls import reverse_lazy
-from django.contrib.auth import get_user_model
 from django.contrib.auth import logout, login, authenticate
 from pulp import *
 # Create your views here.
@@ -92,10 +89,18 @@ def index(request):
 
 
 def history(request):
+    historyList = models.PlanDatabase.objects.all().values
+    return render(request, "main/history.html", {'historyList': historyList})
 
-    return render(request, "main/history.html")
 
+def viewDetail(request,plan_Name):
+    detail = models.PlanDatabase.objects.filter(planName=plan_Name)
+    return render(request, "main/viewDetail.html", {'detail': detail})
 
+def deleteDetail(request,plan_Name):
+    detail = models.PlanDatabase.objects.filter(planName=plan_Name)
+    detail.delete()
+    return redirect(history)
 def formula(request):
 
     return render(request, "main/formula.html")

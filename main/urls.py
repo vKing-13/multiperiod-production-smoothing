@@ -14,6 +14,10 @@ urlpatterns = [
     path('logout', views.logout_view, name='logout'),
     path('history', views.history, name='history'),
     path('formula', views.formula, name='formula'),
+    path('viewDetail/<plan_Name>/', views.viewDetail, name='viewDetail'),
+    path('deleteDetail/<plan_Name>/', views.deleteDetail, name='deleteDetail'),
+
+    # path('viewDetail/<id>/', views.viewDetail, name='viewDetail'),
 
     #     path('admin-login/', LoginView.as_view(template_name="main/admin_login.html"),
     #          name="admin-login"),
