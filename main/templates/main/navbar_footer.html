@@ -36,16 +36,18 @@
       
       {% if user.is_authenticated%}
       <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
-        <a href="{% url 'logout' %}" class="px-4 font-bold">logout<a/>
+        <a href="{% url 'logout' %}" class="px-4 font-bold">logout<a/> 
+        </button>
+      <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
+        <a href="{% url 'history' %}" class="px-4 font-bold">History<a/>
+        </button>
+      <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
+        <a href="{% url 'formula' %}" class="px-4 font-bold">Formula<a/>
         </button>
         {% else %} 
         <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
           <a href="boss-login/" class="px-4 font-bold">Sign in for boss<a/>
           </button>
-          <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
-            <a href="worker-login/" class="px-4 font-bold">Sign in for worker<a/>
-      </button>
-
       {% endif %}
       
 

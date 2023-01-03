@@ -13,6 +13,8 @@ urlpatterns = [
          name="boss-login"),
 
     path('logout', views.logout_view, name='logout'),
+    path('history', views.history, name='history'),
+    path('formula', views.formula, name='formula'),
 
     path('admin-login/', LoginView.as_view(template_name="main/admin_login.html"),
          name="admin-login"),
