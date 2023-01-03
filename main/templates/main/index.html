@@ -1,361 +1,57 @@
 {% extends 'main/navbar_footer.html' %} {% block title %}Home Page{% endblock %}
 {% block content %}
-
+{% load widget_tweaks %}
+{% load compress %}
+{% load static %}
 <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
 <script src="http://cdn.tailwindcss.com"></script>
-<body
-   class="min-h-screen bg-slate-300"
-   style="min-height: 400px; margin-bottom: 100px; clear: both"
->
-   {% comment %}
-   <div class="overflow-x-auto">
-      <h2 class="flex justify-center m-2 font-[Poppins]">
-         Inventory Holding Cost
-      </h2>
-      <table
-         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-gray-800 w-6/12 overflow-hidden"
-      >
-         <thead class="text-white border-none bg-blue-700">
-            <tr class="text-white text-center border-none">
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Month
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Holding Cost Per Unit
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Ending Inventory Units
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Inventory Holding Cost
-               </th>
-            </tr>
-         </thead>
-         <tbody class="bg-white text-gray-900 text-center border-none">
-            {% if IHC|length < 1 %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td
-                  class="whitespace-nowrap text-sm font-medium border-none"
-                  colspan="4"
-               >
-                  EMPTY
-               </td>
-            </tr>
-            {% else %} {% for x in IHC %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.holdingCostPerUnit }}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.unitsOfEndingInventory }}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.inventoryHoldingCost }}
-               </td>
-            </tr>
-            {% endfor %} {% endif %}
-         </tbody>
-      </table>
-   </div>
+<body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both">
+   <form method="POST" class="bg-white p-6 drop-shadow-lg rounded-[18px] mx-auto max-w-4xl font-[Poppins] w-[24rem] overflow-hidden m-10">
+      <h1 class="px-4 py-4 text-3xl block text-center bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-500 font-black">Please Insert Needed Input</h1>
+      {% csrf_token %}
+      <div class="p-6">
+         <label for="planName" class="block mb-2 text-sm font-bold text-gray-600">Plan Name:</label>
+         {% render_field form.planName placeholder="Plan Name" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
 
-   <div class="overflow-x-auto">
-      <h2 class="flex justify-center m-2 font-[Poppins]">
-         Firing and Hiring Cost
-      </h2>
-      <table
-         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden"
-      >
-         <thead class="text-white border-b bg-blue-700">
-            <tr class="text-white text-center border-none">
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Month
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Temp. Worker Hiring Cost
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Temp. Worker Firing Cost
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Num. of Hired Temp. Worker
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Num. of Fired Temp. Worker
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Hiring Cost
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Firing Cost
-               </th>
-            </tr>
-         </thead>
-         <tbody class="bg-white border-b text-gray-900 text-center border-none">
-            {% if FHC|length < 1 %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td
-                  class="whitespace-nowrap text-sm font-medium border-none"
-                  colspan="7"
-               >
-                  EMPTY
-               </td>
-            </tr>
-            {% else %} {% for x in FHC %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.tempWorkerHiringCost }}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.tempWorkerFiringCost }}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.tempWorkerHired }}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.tempWorkerFired }}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.hiringCost }}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.firingCost }}
-               </td>
-            </tr>
-            {% endfor %} {% endif %}
-         </tbody>
-      </table>
-   </div>
+         <label for="demand1" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 1:</label>
+         {% render_field form.demand1 placeholder="Demand for Month 1" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
 
-   <div class="overflow-x-auto">
-      <h2 class="flex justify-center m-2 font-[Poppins]">Final Cost</h2>
-      <table
-         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden"
-      >
-         <thead class="text-white border-b bg-blue-700">
-            <tr class="text-white text-center border-none">
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Final Cost
-               </th>
-            </tr>
-         </thead>
-         <tbody class="bg-white border-b text-gray-900 text-center border-none">
-            {% for x in FC %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td class="px-1 py-2 text-center border-none">
-                  RM {{ x.finalCost}}
-               </td>
-            </tr>
-            {% endfor %}
-         </tbody>
-      </table>
-   </div>
+         <label for="demand2" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 2:</label>
+         {% render_field form.demand2 placeholder="Demand for Month 2" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
 
-   <div class="overflow-x-auto">
-      <h2 class="flex justify-center m-2 font-[Poppins]">
-         Number of Temporary Workers
-      </h2>
-      <table
-         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden"
-      >
-         <thead class="text-white border-b bg-blue-700">
-            <tr class="text-white text-center border-none">
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Month
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Number of Temporary Workers
-               </th>
-            </tr>
-         </thead>
-         <tbody class="bg-white border-b text-gray-900 text-center border-none">
-            {% if NTW|length < 1 %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td
-                  class="whitespace-nowrap text-sm font-medium border-none"
-                  colspan="2"
-               >
-                  EMPTY
-               </td>
-            </tr>
-            {% else %} {% for x in NTW %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td class="px-1 py-2 text-center border-none">{{ x.month }}</td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.tempWorkerMonthly }}
-               </td>
-            </tr>
-            {% endfor %} {% endif %}
-         </tbody>
-      </table>
-   </div>
+         <label for="demand3" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 3:</label>
+         {% render_field form.demand3 placeholder="Demand for Month 3" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
 
-   <div class="overflow-x-auto">
-      <h2 class="flex justify-center m-2 font-[Poppins]">Remaining Demand:</h2>
-      <table
-         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden"
-      >
-         <thead class="text-white border-b bg-blue-700">
-            <tr class="text-white text-center border-none">
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Month
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Demand
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Production of a Permanent Worker
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Number of Permanent Workers
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Remaining Demand
-               </th>
-            </tr>
-         </thead>
-         <tbody class="bg-white border-b text-gray-900 text-center border-none">
-            {% if RD|length < 1 %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td
-                  class="whitespace-nowrap text-sm font-medium border-none"
-                  colspan="5"
-               >
-                  EMPTY
-               </td>
-            </tr>
-            {% else %} {% for x in RD %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td class="px-1 py-2 text-center border-none">{{ x.month}}</td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.demand}}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.productionPermanentWorker}}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.numPermanentWorker}}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.remainingDemand}}
-               </td>
-            </tr>
-            {% endfor %} {% endif %}
-         </tbody>
-      </table>
-   </div>
+         <label for="demand4" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 4:</label>
+         {% render_field form.demand4 placeholder="Demand for Month 4" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
 
-   <div class="overflow-x-auto">
-      <h2 class="flex justify-center m-2 font-[Poppins]">
-         Inventory Constraints
-      </h2>
-      <table
-         class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-2 border-gray-800 w-6/12 overflow-hidden"
-      >
-         <thead class="text-white border-b bg-blue-700">
-            <tr class="text-white text-center border-none">
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Month
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Production of a Temporary Worker
-               </th>
-               <th
-                  class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none"
-               >
-                  Inventory Constraints
-               </th>
-            </tr>
-         </thead>
-         <tbody class="bg-white border-b text-gray-900 text-center border-none">
-            {% if IC|length < 1 %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td
-                  class="whitespace-nowrap text-sm font-medium border-none"
-                  colspan="3"
-               >
-                  EMPTY
-               </td>
-            </tr>
-            {% else %} {% for x in IC %}
-            <tr
-               class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300"
-            >
-               <td class="px-1 py-2 text-center border-none">{{ x.month}}</td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.productionTempWorker}}
-               </td>
-               <td class="whitespace-nowrap text-sm font-medium border-none">
-                  {{ x.monthlyInventoryConstraints}}
-               </td>
-            </tr>
-            {% endfor %} {% endif %}
-         </tbody>
-      </table>
-   </div>
-   {% endcomment %}
+         <label for="numPermanent" class="block mb-2 text-sm font-bold text-gray-600">Number of Permanent Worker(s):</label>
+         {% render_field form.numPermanent placeholder="Number of Permanent Worker(s)" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
+
+         <label for="prodPermanent" class="block mb-2 text-sm font-bold text-gray-600">Production of a Permanent Worker:</label>
+         {% render_field form.prodPermanent placeholder="Production of a Permanent Worker" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
+
+         <label for="prodTemporary" class="block mb-2 text-sm font-bold text-gray-600">Production of a Temporary Worker:</label>
+         {% render_field form.prodTemporary placeholder="Production of a Temporary Worker" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
+
+         <label for="costHiring" class="block mb-2 text-sm font-bold text-gray-600">Temporary Worker Hiring Cost:</label>
+         {% render_field form.costHiring placeholder="Temporary Worker Hiring Cost" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
+
+         <label for="costFiring" class="block mb-2 text-sm font-bold text-gray-600">Temporary Worker Firing Cost:</label>
+         {% render_field form.costFiring placeholder="Temporary Worker Firing Cost" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
+
+         <label for="costHoldingUnit" class="block mb-2 text-sm font-bold text-gray-600">Monthly Holding Cost per Unit:</label>
+         {% render_field form.costHoldingUnit placeholder="Monthly Holding Cost per Unit" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
+
+         <label for="inventoryInitial" class="block mb-2 text-sm font-bold text-gray-600">Initial Inventory Level:</label>
+         {% render_field form.inventoryInitial placeholder="Initial Inventory Level" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
+
+         <label for="inventoryFinal" class="block mb-2 text-sm font-bold text-gray-600">Final Inventory Level:</label>
+         {% render_field form.inventoryFinal placeholder="Final Inventory Level" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center"%}
+         <div class="flex space-x-2 justify-center pt-3">
+            <button type="submit" name="FHCSubmit" class="bg-indigo-600 text-white py-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-bold">Calculate</button>
+         </div>
+      </div>
+   </form>
 </body>
 {% endblock %}
