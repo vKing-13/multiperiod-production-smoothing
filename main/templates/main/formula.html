@@ -1,0 +1,87 @@
+{% extends 'main/navbar_footer.html' %}
+{% block title %}History{% endblock  %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+<script src="http://cdn.tailwindcss.com"></script>
+<body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both;">
+    <!--so that the table can accomodate data-->
+    <div class='overflow-x-auto'>
+    <h3 class="block mt-6 mb-6 text-center text-2xl font-medium text-gray-800 dark:text-gray">Input Functions</h3>
+    <table class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-gray-800 w-4/5 overflow-hidden">
+        <!--start of table-->
+        <tr class="text-white text-center">
+            <td class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center">Function Name
+            </td>
+            <td class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center">Label
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">Plan Name
+                <td class="bg-white text-black">Plan Name</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">Demand 1
+                <td class="bg-white text-black">Demand for Montd 1</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">Demand 2
+                <td class="bg-white text-black">Demand for Montd 2</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">Demand 3
+                <td class="bg-white text-black">Demand for Montd 3</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">Demand 4
+                <td class="bg-white text-black">Demand for Montd 4</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">numPermanent
+                <td class="bg-white text-black">Number of Permanent Worker(s)</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">prodPermanent
+                <td class="bg-white text-black">Production of a Permanent Worker</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">prodTemporary
+                <td class="bg-white text-black">Production of a Temporary Worker</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">costHiring
+                <td class="bg-white text-black">Temporary Worker Hiring Cost</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">costFiring
+                <td class="bg-white text-black">Temporary Worker Firing Cost</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">costHoldingUnit
+                <td class="bg-white text-black">Montdly Holding Cost per Unit</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">inventoryInitial
+                <td class="bg-white text-black">Initial Inventory Level</td>
+            </td>
+        </tr>
+        <tr class="text-white text-center">
+            <td class="font-semibold bg-white text-sm text-black text-center">inventoryFinal
+                <td class="bg-white text-black">Final Inventory Level</td>
+            </td>
+        </tr>
+        <!--end of table-->
+    </table>
+    </div>
+{% endblock %}
