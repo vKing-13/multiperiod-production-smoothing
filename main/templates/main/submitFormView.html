@@ -4,70 +4,88 @@
 
 <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
 <script src="http://cdn.tailwindcss.com"></script>
-<body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both;">
-<div class='overflow-x-auto'>
-      <table class="mx-auto max-w-4xl   drop-shadow-lg font-[Poppins] rounded-lg border-gray-800 w-6/12 overflow-hidden">
-            <thead class="text-white border-none bg-blue-700">
-                  <tr class="text-white text-center border-none">
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Plan Name</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Demand for Month 1</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Demand for Month 2</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Demand for Month 3</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Demand for Month 4</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Permanent Worker(s)</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Production of a Permanent Worker</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Production of a Temporary Worker</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Temporary Worker Hiring Cost</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Temporary Worker Firing Cost</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Monthly Holding Cost per Unit</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Initial Inventory Level</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Final Inventory Level</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Ending Inventory for Month 1</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Ending Inventory for Month 2</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Ending Inventory for Month 3</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker Hired for Month 1</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker Hired for Month 2</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker Hired for Month 3</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker Hired for Month 4</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker Fired for Month 1</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker Fired for Month 2</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker Fired for Month 3</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker Fired for Month 4</th>
-                        <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Optimized Cost for Multi-Period Planning </th>
-                  </tr> 
-            </thead> 
-            <tbody class="bg-white text-gray-900 text-center border-none">
-                  {% for x in newInput %}
-                  <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-                        <td class="px-1 py-2 text-center border-none">{{ x.planName }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.demand1 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.demand2 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.demand3 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.demand4 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.numPermanent }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.prodPermanent }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.prodTemporary }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ x.costHiring }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ x.costFiring }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ x.costHoldingUnit }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.inventoryInitial }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.inventoryFinal }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.inventoryMonth1 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.inventoryMonth2 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.inventoryMonth3 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.hiredTemporary1 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.hiredTemporary2 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.hiredTemporary3 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.hiredTemporary4 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.firedTemporary1 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.firedTemporary2 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.firedTemporary3 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">{{ x.firedTemporary4 }}</td>
-                        <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ x.optimalCost }}</td>
-                  </tr>
-                  {% endfor %}
-            </tbody>
-      </table>
-</div>
+<body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px;">
+      <div class='overflow-x-auto my-4'>
+            <table class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-none w-full overflow-hidden">
+                  <thead class="text-white border-none bg-blue-700">
+                        {% for x in newInput %}
+                        <tr class="text-white text-center border-none">
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none" colspan="9">{{x.planName}}</th>
+                        </tr> 
+                        {% endfor %}
+                  </thead>
+                  <thead class="text-white border-none bg-blue-700">
+                        <tr class="text-white text-center border-none">
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Month</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Remaining Demand</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Ending Inventory Unit(s)</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker Hired</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker Fired</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Number of Temporary Worker(s)</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Hiring Cost</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Firing Cost</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none">Inventory Holding Cost</th>
+                        </tr> 
+                  </thead> 
+                  <tbody class="bg-white text-gray-900 text-center border-none">
+                        <tr class="border-none">
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none text-white">Month 1</th>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ rd1 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ei1 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwH1 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwF1 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntw1 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ hC1 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ fC1 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ ihc1 }}</td>
+                        </tr>
+                        <tr class="border-none">
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none text-white">Month 2</th>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ rd2 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ei2 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwH2 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwF2 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntw2 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ hC2 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ fC2 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ ihc2 }}</td>
+                        </tr>
+                        <tr class="border-none">
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none text-white">Month 3</th>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ rd3 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ei3 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwH3 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwF3 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntw3 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ hC3 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ fC3 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ ihc3 }}</td>
+                        </tr>
+                        <tr class="border-none">
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none text-white">Month 4</th>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ rd4 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ei4 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwH4 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwF4 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntw4 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ hC4 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ fC4 }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ ihc4 }}</td>
+                        </tr>
+                        <tr class="border-none">
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none text-white" colspan="6">Total Individual Costs</th>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ thC }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ tfC }}</td>
+                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ tihC }}</td>
+                        </tr>
+                        {% for x in newInput %}
+                        <tr class="border-none">
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none text-white" colspan="6">Optimized Final Cost for Multi-Period Planning</th>
+                              <td class="whitespace-nowrap text-sm font-medium border-none" colspan="3">RM{{ x.optimalCost }}</td>
+                        </tr>
+                        {% endfor %}
+                  </tbody>
+            </table>
+      </div>
 </body>
 {% endblock  %} 

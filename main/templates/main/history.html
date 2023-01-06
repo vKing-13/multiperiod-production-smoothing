@@ -5,16 +5,29 @@
 <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
 <script src="http://cdn.tailwindcss.com"></script>
 <body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both;">
-<div class='overflow-x-auto'>
-  <table>
-    {% for list in historyList %}
-      <tr class="cursor-pointer hover:bg-cyan-100 hover:scale-105 duration-300 ">
-        <td class="px-1 py-2 text-center border-none">{{list.planName}}
-          <button type="submit" name="viewDetail" class="mt-2 bg-indigo-600 text-white py-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-bold">
-            <a href={% url 'viewDetail' list.planName %} >details</a></button> 
-            <button type="submit" name="deleteDetail" class="mt-4 bg-indigo-600 text-white py-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-bold"><a href={% url 'deleteDetail' list.planName %} >delete</a></button></td> 
+  <div class='overflow-x-auto m-5'>
+    <table class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg w-2/5 overflow-hidden border-gray-800">
+      <tr class="text-white text-center border-none">
+        <td class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center">Plan Name
+        </td>
+        <td class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center" colspan="2">Action
+        </td>
+      </tr>
+      {% for list in historyList %}
+      <tr class="text-white text-center">
+        <td class="font-semibold bg-white text-sm text-black text-center whitespace-nowrap text-sm font-medium p-5">
+          {{list.planName}}
+        </td>
+        <td class="font-semibold bg-white text-sm text-black text-center whitespace-nowrap text-sm font-medium border-none p-5">
+          <a href={% url 'viewDetail' list.planName %} class="m-4 bg-indigo-600 text-white p-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-bold">View Details</a>
+        </td>
+        <td class="font-semibold bg-white text-sm text-black text-center whitespace-nowrap text-sm font-medium border-none p-5">
+          <a href={% url 'deleteDetail' list.planName %} class="m-4 bg-indigo-600 text-white p-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-bold">Delete Plan</a>
+        </td>
+      </tr> 
     {% endfor %}
-  </table>
-</div>
+        <!--end of table-->
+    </table>
+    </div>
 </body>
 {% endblock  %} 

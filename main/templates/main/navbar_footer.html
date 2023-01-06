@@ -35,19 +35,19 @@
       <a href="/" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent"><img class="w-14 rounded-full m-2" src="https://i.ibb.co/8gpyyg9/logo-App-Dev.png"></img></a>
       
       {% if user.is_authenticated%}
-      <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
-        <a href="{% url 'logout' %}" class="px-4 font-bold">logout<a/> 
-        </button>
-      <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
-        <a href="{% url 'history' %}" class="px-4 font-bold">History<a/>
-        </button>
-      <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
-        <a href="{% url 'formula' %}" class="px-4 font-bold">Formula<a/>
-        </button>
+      {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
+        <a href="{% url 'logout' %}" class="p-3 font-bold inline-block text-sm m-4 leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500">Logout</a> 
+        {% comment %} </button> {% endcomment %}
+      {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
+        <a href="{% url 'history' %}" class="p-3 font-bold inline-block text-sm m-4 leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500">History</a>
+        {% comment %} </button> {% endcomment %}
+      {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
+        <a href="{% url 'formula' %}" class="p-3 font-bold inline-block text-sm m-4 leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500">Formula</a>
+        {% comment %} </button> {% endcomment %}
         {% else %} 
-        <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 ">
-          <a href="login/" class="px-4 font-bold">Sign in<a/>
-          </button>
+        {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
+          <a href="login/" class="p-3 font-bold inline-block text-sm m-4 leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500">Sign in</a>
+          {% comment %} </button> {% endcomment %}
       {% endif %}
       
 

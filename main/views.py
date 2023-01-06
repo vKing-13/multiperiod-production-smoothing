@@ -36,10 +36,10 @@ def index(request):
             inputCostHoldingUnit = float(request.POST.get('costHoldingUnit'))
             inputInventoryInitial = int(request.POST.get('inventoryInitial'))
             inputInventoryFinal = int(request.POST.get('inventoryFinal'))
-            queryCheck = models.PlanDatabase.objects.filter(
-                planName=inputPlanName).exists()
-            if queryCheck == True:
+            queryCheck = queryCheck = models.PlanDatabase.objects.filter(planName=inputPlanName).exists()
+            while queryCheck == True:
                 inputPlanName = inputPlanName+'_copy'
+                queryCheck = models.PlanDatabase.objects.filter(planName=inputPlanName).exists()
             data = {'planName': inputPlanName,
                     'demand1': inputDemand1,
                     'demand2': inputDemand2,
@@ -78,9 +78,80 @@ def index(request):
             model.solve()
             models.PlanDatabase.objects.filter(planName=inputPlanName).update(inventoryMonth1=ihcDict[0].varValue, inventoryMonth2=ihcDict[1].varValue, inventoryMonth3=ihcDict[2].varValue, hiredTemporary1=hcDict[0].varValue, hiredTemporary2=hcDict[1].varValue, hiredTemporary3=hcDict[
                 2].varValue, hiredTemporary4=hcDict[3].varValue, firedTemporary1=fcDict[0].varValue, firedTemporary2=fcDict[1].varValue, firedTemporary3=fcDict[2].varValue, firedTemporary4=fcDict[3].varValue, optimalCost=value(model.objective))
-            newInput = models.PlanDatabase.objects.filter(
-                planName=inputPlanName).values()
-            return render(request, "main/submitFormView.html",  {'newInput': newInput})
+            newInput = models.PlanDatabase.objects.filter(planName=inputPlanName).values()
+            for x in newInput:
+                rd1 = x['demand1'] - (x['numPermanent'] * x['prodPermanent'])
+                rd2 = x['demand2'] - (x['numPermanent'] * x['prodPermanent'])
+                rd3 = x['demand3'] - (x['numPermanent'] * x['prodPermanent'])
+                rd4 = x['demand4'] - (x['numPermanent'] * x['prodPermanent'])
+                ntwH1 = x['hiredTemporary1']
+                ntwH2 = x['hiredTemporary2']
+                ntwH3 = x['hiredTemporary3']
+                ntwH4 = x['hiredTemporary4']
+                ntwF1 = x['firedTemporary1']
+                ntwF2 = x['firedTemporary2']
+                ntwF3 = x['firedTemporary3']
+                ntwF4 = x['firedTemporary4']
+                ntw1 = ntwH1 - ntwF1 
+                ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+                ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+                ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+                hC1 = ntwH1 * x['costHiring']
+                hC2 = ntwH2 * x['costHiring']
+                hC3 = ntwH3 * x['costHiring']
+                hC4 = ntwH4 * x['costHiring']
+                fC1 = ntwF1 * x['costFiring']
+                fC2 = ntwF2 * x['costFiring']
+                fC3 = ntwF3 * x['costFiring']
+                fC4 = ntwF4 * x['costFiring']
+                ihc1 = x['costHoldingUnit'] * x['inventoryMonth1']
+                ihc2 = x['costHoldingUnit'] * x['inventoryMonth2']
+                ihc3 = x['costHoldingUnit'] * x['inventoryMonth3']
+                ihc4 = x['costHoldingUnit'] * x['inventoryFinal']
+                thC = hC1 + hC2 + hC3 + hC4
+                tfC = fC1 + fC2 + fC3 + fC4
+                tihC = ihc1 + ihc2 + ihc3 + ihc4
+                ei1 = x['inventoryMonth1']
+                ei2 = x['inventoryMonth2']
+                ei3 = x['inventoryMonth3']
+                ei4 = x['inventoryFinal']
+            return render(request, "main/submitFormView.html",  {'newInput': newInput,
+                                                                 'rd1': rd1,
+                                                                 'rd2': rd2,
+                                                                 'rd3': rd3,
+                                                                 'rd4': rd4,
+                                                                 'ntw1': ntw1,
+                                                                 'ntw2': ntw2,
+                                                                 'ntw3': ntw3,
+                                                                 'ntw4': ntw4,
+                                                                 'ihc1': ihc1,
+                                                                 'ihc2': ihc2,
+                                                                 'ihc3': ihc3,
+                                                                 'ihc4': ihc4,
+                                                                 'ntwH1':ntwH1,
+                                                                 'ntwH2':ntwH2,
+                                                                 'ntwH3':ntwH3,
+                                                                 'ntwH4':ntwH4,
+                                                                 'ntwF1':ntwF1,
+                                                                 'ntwF2':ntwF2,
+                                                                 'ntwF3':ntwF3,
+                                                                 'ntwF4':ntwF4,
+                                                                 'hC1': hC1,
+                                                                 'hC2': hC2,
+                                                                 'hC3': hC3,
+                                                                 'hC4': hC4,
+                                                                 'fC1': fC1,
+                                                                 'fC2': fC2,
+                                                                 'fC3': fC3,
+                                                                 'fC4': fC4,
+                                                                 'ei1': ei1,
+                                                                 'ei2': ei2,
+                                                                 'ei3': ei3,
+                                                                 'ei4': ei4,
+                                                                 'thC': thC,
+                                                                 'tfC': tfC,
+                                                                 'tihC': tihC
+                                                                 })
         else:
             return redirect('boss-login')
     else:
@@ -94,8 +165,79 @@ def history(request):
 
 
 def viewDetail(request,plan_Name):
-    detail = models.PlanDatabase.objects.filter(planName=plan_Name)
-    return render(request, "main/viewDetail.html", {'detail': detail})
+    detail = models.PlanDatabase.objects.filter(planName=plan_Name).values()
+    for x in detail:
+        rd1 = x['demand1'] - (x['numPermanent'] * x['prodPermanent'])
+        rd2 = x['demand2'] - (x['numPermanent'] * x['prodPermanent'])
+        rd3 = x['demand3'] - (x['numPermanent'] * x['prodPermanent'])
+        rd4 = x['demand4'] - (x['numPermanent'] * x['prodPermanent'])
+        ntwH1 = x['hiredTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF1 = x['firedTemporary1']
+        ntwF2 = x['firedTemporary2']
+        ntwF3 = x['firedTemporary3']
+        ntwF4 = x['firedTemporary4']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        hC1 = ntwH1 * x['costHiring']
+        hC2 = ntwH2 * x['costHiring']
+        hC3 = ntwH3 * x['costHiring']
+        hC4 = ntwH4 * x['costHiring']
+        fC1 = ntwF1 * x['costFiring']
+        fC2 = ntwF2 * x['costFiring']
+        fC3 = ntwF3 * x['costFiring']
+        fC4 = ntwF4 * x['costFiring']
+        ihc1 = x['costHoldingUnit'] * x['inventoryMonth1']
+        ihc2 = x['costHoldingUnit'] * x['inventoryMonth2']
+        ihc3 = x['costHoldingUnit'] * x['inventoryMonth3']
+        ihc4 = x['costHoldingUnit'] * x['inventoryFinal']
+        thC = hC1 + hC2 + hC3 + hC4
+        tfC = fC1 + fC2 + fC3 + fC4
+        tihC = ihc1 + ihc2 + ihc3 + ihc4
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryFinal']
+    return render(request, "main/viewDetail.html", {'detail': detail,
+                                                    'rd1': rd1,
+                                                    'rd2': rd2,
+                                                    'rd3': rd3,
+                                                    'rd4': rd4,
+                                                    'ntw1': ntw1,
+                                                    'ntw2': ntw2,
+                                                    'ntw3': ntw3,
+                                                    'ntw4': ntw4,
+                                                    'ihc1': ihc1,
+                                                    'ihc2': ihc2,
+                                                    'ihc3': ihc3,
+                                                    'ihc4': ihc4,
+                                                    'ntwH1':ntwH1,
+                                                    'ntwH2':ntwH2,
+                                                    'ntwH3':ntwH3,
+                                                    'ntwH4':ntwH4,
+                                                    'ntwF1':ntwF1,
+                                                    'ntwF2':ntwF2,
+                                                    'ntwF3':ntwF3,
+                                                    'ntwF4':ntwF4,
+                                                    'hC1': hC1,
+                                                    'hC2': hC2,
+                                                    'hC3': hC3,
+                                                    'hC4': hC4,
+                                                    'fC1': fC1,
+                                                    'fC2': fC2,
+                                                    'fC3': fC3,
+                                                    'fC4': fC4,
+                                                    'ei1': ei1,
+                                                    'ei2': ei2,
+                                                    'ei3': ei3,
+                                                    'ei4': ei4,
+                                                    'thC': thC,
+                                                    'tfC': tfC,
+                                                    'tihC': tihC})
 
 def deleteDetail(request,plan_Name):
     detail = models.PlanDatabase.objects.filter(planName=plan_Name)

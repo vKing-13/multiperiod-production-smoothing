@@ -26,11 +26,11 @@ urlpatterns = [
     # path('delete-worker/<int:pk>', views.delete_worker_view,name='delete-worker'),
 
 
-    # # path('calculateFC/',views.calculateFinalCost,name="Calculate Final Cost"),
+    # path('calculateFC/',views.calculateFinalCost,name="Calculate Final Cost"),
     # path('calculateFHC/',views.calculateFiringHiringCost,name="Calculate Firing and Hiring Cost"),
     # path('calculateIC/',views.calculateInventoryConstraints,name="Calculate Monthly Inventory Constraints"),
     # path('calculateIHC/',views.calculateInventoryHoldingCost,name="Calculate Inventory Holding Cost"),
-    # # path('calculateNTW/',views.calculateNumOfTempWorkers,name="Calculate Num. of Temp. Workers Monthly"),
+    # path('calculateNTW/',views.calculateNumOfTempWorkers,name="Calculate Num. of Temp. Workers Monthly"),
     # path('calculateRD/',views.calculateRemainingDemand,name="Calculate Remaining Demand Monthly"),
     # path('resetFinalCost/',views.resetFC,name="Reset Final Cost")
 ]
