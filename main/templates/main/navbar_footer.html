@@ -26,39 +26,83 @@
   </style>
 </head>
 <body>
-  
-  <nav class="bg-gradient-to-r from-indigo-900 via-blue-700 to-blue-500  px-2 sm:px-4 py-2.5 rounded-b-lg ">
-    <div class="container flex flex-wrap">
+
+  <div class="container flex flex-wrap">
+  <aside class="w-64 h-screen bg-gradient-to-r from-indigo-900 via-blue-700 to-blue-500 rounded-r-lg fixed">
+    <div class="px-6 pt-8">
 
 
+      <div class="flex items-center justify-center pl-4">
+      <a href="/" class="block text-gray-700 rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent"><img class="w-36" src="https://i.ibb.co/xzd0dBy/App-Dev-Logo-2.png"></img></a>
+      </div>
 
-      <a href="/" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent"><img class="w-14 rounded-full m-2" src="https://i.ibb.co/8gpyyg9/logo-App-Dev.png"></img></a>
-      
+      <div class="pt-4">
+        <hr class="border-white">
+      </div>
+
+      <div class="flex items-center p-2 space-x-4">
+        <img src="https://source.unsplash.com/100x100/?portrait" alt="" class="w-12 h-12 rounded-full dark:bg-gray-500">
+        <div>
+          <h2 class="text-lg font-semibold  text-white">Diana Haidar</h2>
+          <span class="flex items-center space-x-1">
+            <a rel="noopener noreferrer" href="#" class="text-xs hover:underline  text-white">View profile</a>
+          </span>
+        </div>
+      </div>
+
+      <div class=" pt-2">
+        <hr class="border-white">
+      </div>
+
+        <div class="pt-4">
       {% if user.is_authenticated%}
-      {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
-        <a href="{% url 'logout' %}" class="p-3 font-bold inline-block text-sm m-4 leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500">Logout</a> 
+      {% comment %} <button class="inline-block text-sm leading-none  rounded text-white border-none hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
+        <a href="{% url 'history' %}" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"
+        :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
+        role="button"
+        aria-haspopup="true"
+        :aria-expanded="(open || isActive) ? 'true' : 'false'"
+    >History</a>
         {% comment %} </button> {% endcomment %}
+
       {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
-        <a href="{% url 'history' %}" class="p-3 font-bold inline-block text-sm m-4 leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500">History</a>
+        <a href="{% url 'formula' %}" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"
+        :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
+        role="button"
+        aria-haspopup="true"
+        :aria-expanded="(open || isActive) ? 'true' : 'false'"
+    >Formula</a>
         {% comment %} </button> {% endcomment %}
-      {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
-        <a href="{% url 'formula' %}" class="p-3 font-bold inline-block text-sm m-4 leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500">Formula</a>
-        {% comment %} </button> {% endcomment %}
+
+        {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
+          <a href="{% url 'logout' %}" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"
+          :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
+          role="button"
+          aria-haspopup="true"
+          :aria-expanded="(open || isActive) ? 'true' : 'false'"
+      >Logout</a> 
+          {% comment %} </button> {% endcomment %}
         {% else %} 
         {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
-          <a href="login/" class="p-3 font-bold inline-block text-sm m-4 leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500">Sign in</a>
+          <a href="login/" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"
+                :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
+                role="button"
+                aria-haspopup="true"
+                :aria-expanded="(open || isActive) ? 'true' : 'false'"
+            >Sign in</a>
           {% comment %} </button> {% endcomment %}
       {% endif %}
+    </div>
       
 
-      <button id="dropdownDefault" data-dropdown-toggle="dropdown" class="relative flex justify-end ml-auto items-center  focus:outline-none text-white rounded group">
+      <!-- <button id="dropdownDefault" data-dropdown-toggle="dropdown" class="relative flex justify-end ml-auto items-center  focus:outline-none text-white rounded group">
         <p class="px-4 font-bold"></p>
         <span class=" px-2 p-2 hover:bg-blue-400 rounded">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
             <path fill-rule="evenodd" d="M3 6.75A.75.75 0 013.75 6h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 6.75zM3 12a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 12zm0 5.25a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" ></path>
             </svg>
         </span>
-        {% comment %} <div id="dropdown" class="z-10 hidden block w-max divide-y divide-gray-100 rounded bg-white shadow dark:bg-white" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(327px, 70px, 0px);">
+        {% comment %} <div id="dropdown" class="z-10 w-max divide-y divide-gray-100 rounded bg-white shadow dark:bg-white" data-popper-reference-hidden="" data-popper-escaped="" data-popper-placement="bottom" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(327px, 70px, 0px);">
           <ul class="text-left border rounded">
             <li class="px-2 py-1 border-b">
               <a href="{% url 'Calculate Inventory Holding Cost' %}" class="block py-2 pl-3 pr-4 text-blue-500 font-bold rounded md:mr-6 hover:bg-transparent md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-blue-800 md:dark:hover:text-blue-500 dark:hover:bg-transparent dark:hover:text-blue-500 md:dark:hover:bg-transparent">Inventory Holding Cost</a>
@@ -77,19 +121,18 @@
             </li>
           </ul>
           
-        </div> {% endcomment %}
+        </div> {% endcomment %} -->
       </button>
     </div>
-  </nav>
-  
+
+    <div class="absolute inset-x-0 bottom-0 h-16">
+      <span class="block font-bold text-white sm:text-center text-sm">© 2022 M4C1 APPLICATION DEVELOPMENT
+      </span></div>
+  </aside>
+</div> 
+
   {% block content %}
   {% endblock content %}
-  <footer class="p-4 bg-gradient-to-r from-indigo-900 via-blue-700 to-blue-500 rounded-t-lg shadow md:px-6 md:py-4 dark:bg-transparent fixed
-  inset-x-0
-  bottom-0">
-    <span class="block font-bold text-slate-200 sm:text-center">© 2022 M4C1 APPLICATION DEVELOPMENT.
-    </span>
-</footer>
+
 </body>
 </html>
-
