@@ -72,7 +72,14 @@
         aria-haspopup="true"
         :aria-expanded="(open || isActive) ? 'true' : 'false'"
     >Formula</a>
-        {% comment %} </button> {% endcomment %}
+    
+    <a href="{% url 'contact' %}" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"
+    :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
+    role="button"
+    aria-haspopup="true"
+    :aria-expanded="(open || isActive) ? 'true' : 'false'"
+>Contact</a>
+    {% comment %} </button> {% endcomment %}
 
         {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
           <a href="{% url 'logout' %}" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"

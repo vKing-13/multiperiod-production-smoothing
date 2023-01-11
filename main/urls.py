@@ -14,6 +14,7 @@ urlpatterns = [
     path('logout', views.logout_view, name='logout'),
     path('history', views.history, name='history'),
     path('formula', views.formula, name='formula'),
+    path('contact',views.contact,name='contact'),
     
     path('viewDetailFour/<plan_Name>/', views.viewDetailFour, name='viewDetailFour'),
     path('deleteDetailFour/<plan_Name>/', views.deleteDetailFour, name='deleteDetailFour'),

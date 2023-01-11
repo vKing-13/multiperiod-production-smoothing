@@ -138,6 +138,11 @@ STATICFILES_FINDERS = [
     'compressor.finders.CompressorFinder',
 ]
 
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = '4989be04fbbf98'
+EMAIL_HOST_PASSWORD = 'c679013f9acdbd'
+EMAIL_PORT = '2525'
+
 LOGIN_URL='login'
 
 LOGOUT_URL='logout'

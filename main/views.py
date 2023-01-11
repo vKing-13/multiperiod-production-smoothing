@@ -5,6 +5,9 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout, login, authenticate
 from pulp import *
+from .forms import ContactForm
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 # Create your views here.
 def is_admin(user):
     return user.is_superuser
@@ -107,6 +110,24 @@ def history(request):
 def formula(request):
 
     return render(request, "main/formula.html")
+
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name=form.cleaned_data['name']
+            email=form.cleaned_data['email']
+            content=form.cleaned_data['content']
+            html=render_to_string('main/contactform.html',{
+                'name':name,
+                'email':email,
+                'content':content
+            })
+            send_mail('Multiperiod Production Smoothing Inquiry',content,email,['vicolee49@gmail.com'])
+            return redirect ("home")
+    form = ContactForm()
+    context = {'form': form}
+    return render(request, 'main/contact.html', context)
 
 
 def logout_view(request):
