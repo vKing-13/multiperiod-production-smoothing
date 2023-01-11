@@ -1,0 +1,41 @@
+{% extends 'main/navbar_footer.html' %} {% block title %}Demand Input{% endblock %}
+{% block content %}
+{% load widget_tweaks %}
+{% load compress %}
+{% load static %}
+<link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+<script src="http://cdn.tailwindcss.com"></script>
+<body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both">
+   <form method="POST" class="bg-white p-6 drop-shadow-lg rounded-[18px] mx-auto max-w-4xl font-[Poppins] w-[24rem] overflow-hidden m-10">
+      <h1 class="px-4 py-4 text-3xl block text-center bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-500 font-black">Please Insert Needed Input</h1>
+      {% csrf_token %}
+      <div class="p-6">
+         {% for x in detail %}
+         <label for="demand1" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 1:</label>
+         <input required min="0" type="number" step="1" value={{x.demand1}} name="demand1" id="demand1" placeholder="Demand for Month 1" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="demand2" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 2:</label>
+         <input required min="0" type="number" step="1" value={{x.demand2}} name="demand2" id="demand2" placeholder="Demand for Month 2" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="demand3" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 3:</label>
+         <input required min="0" type="number" step="1" value={{x.demand3}} name="demand3" id="demand3" placeholder="Demand for Month 3" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="demand4" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 4:</label>
+         <input required min="0" type="number" step="1" value={{x.demand4}} name="demand4" id="demand4" placeholder="Demand for Month 4" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="demand5" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 5:</label>
+         <input required min="0" type="number" step="1" value={{x.demand5}} name="demand5" id="demand5" placeholder="Demand for Month 5" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="demand6" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 6:</label>
+         <input required min="0" type="number" step="1" value={{x.demand6}} name="demand6" id="demand6" placeholder="Demand for Month 6" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="demand7" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 7:</label>
+         <input required min="0" type="number" step="1" value={{x.demand7}} name="demand7" id="demand7" placeholder="Demand for Month 7" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="demand8" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 8:</label>
+         <input required min="0" type="number" step="1" value={{x.demand8}} name="demand8" id="demand8" placeholder="Demand for Month 8" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="demand9" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 9:</label>
+         <input required min="0" type="number" step="1" value={{x.demand9}} name="demand9" id="demand9" placeholder="Demand for Month 9" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="demand10" class="block mb-2 text-sm font-bold text-gray-600">Demand for Month 10:</label>
+         <input required min="0" type="number" step="1" value={{x.demand10}} name="demand10" id="demand10" placeholder="Demand for Month 10" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         {% endfor %}
+         <div class="flex space-x-2 justify-center pt-3">
+            <button type="submit" name="Submit" class="bg-indigo-600 text-white py-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-bold">Confirm</button>
+         </div>
+      </div>
+   </form>
+</body>
+{% endblock %}

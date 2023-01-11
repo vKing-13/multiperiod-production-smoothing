@@ -1,0 +1,35 @@
+{% extends 'main/navbar_footer.html' %} {% block title %}Temporary Worker Firing Cost Input{% endblock %}
+{% block content %}
+{% load widget_tweaks %}
+{% load compress %}
+{% load static %}
+<link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+<script src="http://cdn.tailwindcss.com"></script>
+<body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both">
+   <form method="POST" class="bg-white p-6 drop-shadow-lg rounded-[18px] mx-auto max-w-4xl font-[Poppins] w-[24rem] overflow-hidden m-10">
+      <h1 class="px-4 py-4 text-3xl block text-center bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-500 font-black">Please Insert Needed Input</h1>
+      {% csrf_token %}
+      <div class="p-6">
+         {% for x in detail %}
+         <label for="costFiring1" class="block mb-2 text-sm font-bold text-gray-600">Temporary Worker Firing Cost for Month 1:</label>
+         <input required min="1" type="number" step="0.01" value={{x.costFiring1}} name="costFiring1" id="costFiring1" placeholder="Temporary Worker Firing Cost for Month 1" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="costFiring2" class="block mb-2 text-sm font-bold text-gray-600">Temporary Worker Firing Cost for Month 2:</label>
+         <input required min="1" type="number" step="0.01" value={{x.costFiring2}} name="costFiring2" id="costFiring2" placeholder="Temporary Worker Firing Cost for Month 2" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="costFiring3" class="block mb-2 text-sm font-bold text-gray-600">Temporary Worker Firing Cost for Month 3:</label>
+         <input required min="1" type="number" step="0.01" value={{x.costFiring3}} name="costFiring3" id="costFiring3" placeholder="Temporary Worker Firing Cost for Month 3" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="costFiring4" class="block mb-2 text-sm font-bold text-gray-600">Temporary Worker Firing Cost for Month 4:</label>
+         <input required min="1" type="number" step="0.01" value={{x.costFiring4}} name="costFiring4" id="costFiring4" placeholder="Temporary Worker Firing Cost for Month 4" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="costFiring5" class="block mb-2 text-sm font-bold text-gray-600">Temporary Worker Firing Cost for Month 5:</label>
+         <input required min="1" type="number" step="0.01" value={{x.costFiring5}} name="costFiring5" id="costFiring5" placeholder="Temporary Worker Firing Cost for Month 5" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="costFiring6" class="block mb-2 text-sm font-bold text-gray-600">Temporary Worker Firing Cost for Month 6:</label>
+         <input required min="1" type="number" step="0.01" value={{x.costFiring6}} name="costFiring6" id="costFiring6" placeholder="Temporary Worker Firing Cost for Month 6" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         <label for="costFiring7" class="block mb-2 text-sm font-bold text-gray-600">Temporary Worker Firing Cost for Month 7:</label>
+         <input required min="1" type="number" step="0.01" value={{x.costFiring7}} name="costFiring7" id="costFiring7" placeholder="Temporary Worker Firing Cost for Month 7" class="mt-1 px-3 py-2 mb-6 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 text-center">
+         {% endfor %}
+         <div class="flex space-x-2 justify-center pt-3">
+            <button type="submit" name="Submit" class="bg-indigo-600 text-white py-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-bold">Confirm</button>
+         </div>
+      </div>
+   </form>
+</body>
+{% endblock %}

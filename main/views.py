@@ -6,8 +6,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout, login, authenticate
 from pulp import *
 # Create your views here.
-
-
 def is_admin(user):
     return user.is_superuser
 
@@ -24,225 +22,88 @@ def index(request):
     if request.method == "POST":
         if request.user.is_authenticated:
             inputPlanName = str(request.POST.get('planName'))
-            inputDemand1 = int(request.POST.get('demand1'))
-            inputDemand2 = int(request.POST.get('demand2'))
-            inputDemand3 = int(request.POST.get('demand3'))
-            inputDemand4 = int(request.POST.get('demand4'))
-            inputNumPermanent = int(request.POST.get('numPermanent'))
-            inputProdPermanent = int(request.POST.get('prodPermanent'))
-            inputProdTemporary = int(request.POST.get('prodTemporary'))
-            inputCostHiring = float(request.POST.get('costHiring'))
-            inputCostFiring = float(request.POST.get('costFiring'))
-            inputCostHoldingUnit = float(request.POST.get('costHoldingUnit'))
-            inputInventoryInitial = int(request.POST.get('inventoryInitial'))
-            inputInventoryFinal = int(request.POST.get('inventoryFinal'))
-            queryCheck = queryCheck = models.PlanDatabase.objects.filter(planName=inputPlanName).exists()
-            while queryCheck == True:
-                inputPlanName = inputPlanName+'_copy'
-                queryCheck = models.PlanDatabase.objects.filter(planName=inputPlanName).exists()
-            data = {'planName': inputPlanName,
-                    'demand1': inputDemand1,
-                    'demand2': inputDemand2,
-                    'demand3': inputDemand3,
-                    'demand4': inputDemand4,
-                    'numPermanent': inputNumPermanent,
-                    'prodPermanent': inputProdPermanent,
-                    'prodTemporary': inputProdTemporary,
-                    'costHiring': inputCostHiring,
-                    'costFiring': inputCostFiring,
-                    'costHoldingUnit': inputCostHoldingUnit,
-                    'inventoryInitial': inputInventoryInitial,
-                    'inventoryFinal': inputInventoryFinal
-                    }
-            form = forms.PlanningForm(data)
-            form.save()
-            model = LpProblem("Minimize Cost", LpMinimize)
-            month = list(range(4))
-            ihcDict = LpVariable.dicts(
-                'IHC', month, lowBound=0, cat='Continuous')
-            ihcDict[3] = inputInventoryFinal
-            hcDict = LpVariable.dicts(
-                'HC', month, lowBound=0, cat='Continuous')
-            fcDict = LpVariable.dicts(
-                'FC', month, lowBound=0, cat='Continuous')
-            model += lpSum([inputCostHoldingUnit * ihcDict[i] for i in month]) + lpSum([inputCostHiring * hcDict[i]
-                                                                                        for i in month]) + lpSum([inputCostFiring * fcDict[i] for i in month])
-            model.addConstraint(inputInventoryInitial + inputProdTemporary *
-                                hcDict[0] - inputProdTemporary*fcDict[0] - ihcDict[0] == inputDemand1 - (inputNumPermanent * inputProdPermanent))
-            model.addConstraint(ihcDict[0] + inputProdTemporary*hcDict[0] - inputProdTemporary*fcDict[0] + inputProdTemporary *
-                                hcDict[1] - inputProdTemporary*fcDict[1] - ihcDict[1] == inputDemand2 - (inputNumPermanent * inputProdPermanent))
-            model.addConstraint(ihcDict[1] + inputProdTemporary*hcDict[0] - inputProdTemporary*fcDict[0] + inputProdTemporary*hcDict[1] - inputProdTemporary *
-                                fcDict[1] + inputProdTemporary*hcDict[2] - inputProdTemporary*fcDict[2] - ihcDict[2] == inputDemand3 - (inputNumPermanent * inputProdPermanent))
-            model.addConstraint(ihcDict[2] + inputProdTemporary*hcDict[0] - inputProdTemporary*fcDict[0] + inputProdTemporary*hcDict[1] - inputProdTemporary*fcDict[1] + inputProdTemporary *
-                                hcDict[2] - inputProdTemporary*fcDict[2] + inputProdTemporary*hcDict[3] - inputProdTemporary*fcDict[3] - ihcDict[3] == inputDemand4 - (inputNumPermanent * inputProdPermanent))
-            model.solve()
-            models.PlanDatabase.objects.filter(planName=inputPlanName).update(inventoryMonth1=ihcDict[0].varValue, inventoryMonth2=ihcDict[1].varValue, inventoryMonth3=ihcDict[2].varValue, hiredTemporary1=hcDict[0].varValue, hiredTemporary2=hcDict[1].varValue, hiredTemporary3=hcDict[
-                2].varValue, hiredTemporary4=hcDict[3].varValue, firedTemporary1=fcDict[0].varValue, firedTemporary2=fcDict[1].varValue, firedTemporary3=fcDict[2].varValue, firedTemporary4=fcDict[3].varValue, optimalCost=value(model.objective))
-            newInput = models.PlanDatabase.objects.filter(planName=inputPlanName).values()
-            for x in newInput:
-                rd1 = x['demand1'] - (x['numPermanent'] * x['prodPermanent'])
-                rd2 = x['demand2'] - (x['numPermanent'] * x['prodPermanent'])
-                rd3 = x['demand3'] - (x['numPermanent'] * x['prodPermanent'])
-                rd4 = x['demand4'] - (x['numPermanent'] * x['prodPermanent'])
-                ntwH1 = x['hiredTemporary1']
-                ntwH2 = x['hiredTemporary2']
-                ntwH3 = x['hiredTemporary3']
-                ntwH4 = x['hiredTemporary4']
-                ntwF1 = x['firedTemporary1']
-                ntwF2 = x['firedTemporary2']
-                ntwF3 = x['firedTemporary3']
-                ntwF4 = x['firedTemporary4']
-                ntw1 = ntwH1 - ntwF1 
-                ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
-                ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
-                ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
-                hC1 = ntwH1 * x['costHiring']
-                hC2 = ntwH2 * x['costHiring']
-                hC3 = ntwH3 * x['costHiring']
-                hC4 = ntwH4 * x['costHiring']
-                fC1 = ntwF1 * x['costFiring']
-                fC2 = ntwF2 * x['costFiring']
-                fC3 = ntwF3 * x['costFiring']
-                fC4 = ntwF4 * x['costFiring']
-                ihc1 = x['costHoldingUnit'] * x['inventoryMonth1']
-                ihc2 = x['costHoldingUnit'] * x['inventoryMonth2']
-                ihc3 = x['costHoldingUnit'] * x['inventoryMonth3']
-                ihc4 = x['costHoldingUnit'] * x['inventoryFinal']
-                thC = hC1 + hC2 + hC3 + hC4
-                tfC = fC1 + fC2 + fC3 + fC4
-                tihC = ihc1 + ihc2 + ihc3 + ihc4
-                ei1 = x['inventoryMonth1']
-                ei2 = x['inventoryMonth2']
-                ei3 = x['inventoryMonth3']
-                ei4 = x['inventoryFinal']
-            return render(request, "main/submitFormView.html",  {'newInput': newInput,
-                                                                 'rd1': rd1,
-                                                                 'rd2': rd2,
-                                                                 'rd3': rd3,
-                                                                 'rd4': rd4,
-                                                                 'ntw1': ntw1,
-                                                                 'ntw2': ntw2,
-                                                                 'ntw3': ntw3,
-                                                                 'ntw4': ntw4,
-                                                                 'ihc1': ihc1,
-                                                                 'ihc2': ihc2,
-                                                                 'ihc3': ihc3,
-                                                                 'ihc4': ihc4,
-                                                                 'ntwH1':ntwH1,
-                                                                 'ntwH2':ntwH2,
-                                                                 'ntwH3':ntwH3,
-                                                                 'ntwH4':ntwH4,
-                                                                 'ntwF1':ntwF1,
-                                                                 'ntwF2':ntwF2,
-                                                                 'ntwF3':ntwF3,
-                                                                 'ntwF4':ntwF4,
-                                                                 'hC1': hC1,
-                                                                 'hC2': hC2,
-                                                                 'hC3': hC3,
-                                                                 'hC4': hC4,
-                                                                 'fC1': fC1,
-                                                                 'fC2': fC2,
-                                                                 'fC3': fC3,
-                                                                 'fC4': fC4,
-                                                                 'ei1': ei1,
-                                                                 'ei2': ei2,
-                                                                 'ei3': ei3,
-                                                                 'ei4': ei4,
-                                                                 'thC': thC,
-                                                                 'tfC': tfC,
-                                                                 'tihC': tihC
-                                                                 })
+            inputMonthRange = int(request.POST.get('monthRange'))
+            if inputMonthRange == 4:
+                queryCheck = models.FourMonthPlan.objects.filter(planName=inputPlanName).exists()
+                while queryCheck == True:
+                    inputPlanName = inputPlanName+'_copy'
+                    queryCheck = models.FourMonthPlan.objects.filter(planName=inputPlanName).exists()
+                models.FourMonthPlan.objects.create(planName=inputPlanName)
+                return redirect('history')
+            elif inputMonthRange == 5:
+                queryCheck = models.FiveMonthPlan.objects.filter(planName=inputPlanName).exists()
+                while queryCheck == True:
+                    inputPlanName = inputPlanName+'_copy'
+                    queryCheck = models.FiveMonthPlan.objects.filter(planName=inputPlanName).exists()
+                models.FiveMonthPlan.objects.create(planName=inputPlanName)
+                return redirect('history')
+            elif inputMonthRange == 6:
+                queryCheck = models.SixMonthPlan.objects.filter(planName=inputPlanName).exists()
+                while queryCheck == True:
+                    inputPlanName = inputPlanName+'_copy'
+                    queryCheck = models.SixMonthPlan.objects.filter(planName=inputPlanName).exists()
+                models.SixMonthPlan.objects.create(planName=inputPlanName)
+                return redirect('history')
+            elif inputMonthRange == 7:
+                queryCheck = models.SevenMonthPlan.objects.filter(planName=inputPlanName).exists()
+                while queryCheck == True:
+                    inputPlanName = inputPlanName+'_copy'
+                    queryCheck = models.SevenMonthPlan.objects.filter(planName=inputPlanName).exists()
+                models.SevenMonthPlan.objects.create(planName=inputPlanName)
+                return redirect('history')
+            elif inputMonthRange == 8:
+                queryCheck = models.EightMonthPlan.objects.filter(planName=inputPlanName).exists()
+                while queryCheck == True:
+                    inputPlanName = inputPlanName+'_copy'
+                    queryCheck = models.EightMonthPlan.objects.filter(planName=inputPlanName).exists()
+                models.EightMonthPlan.objects.create(planName=inputPlanName)
+                return redirect('history')
+            elif inputMonthRange == 9:
+                queryCheck = models.NineMonthPlan.objects.filter(planName=inputPlanName).exists()
+                while queryCheck == True:
+                    inputPlanName = inputPlanName+'_copy'
+                    queryCheck = models.NineMonthPlan.objects.filter(planName=inputPlanName).exists()
+                models.NineMonthPlan.objects.create(planName=inputPlanName)
+                return redirect('history')
+            elif inputMonthRange == 10:
+                queryCheck = models.TenMonthPlan.objects.filter(planName=inputPlanName).exists()
+                while queryCheck == True:
+                    inputPlanName = inputPlanName+'_copy'
+                    queryCheck = models.TenMonthPlan.objects.filter(planName=inputPlanName).exists()
+                models.TenMonthPlan.objects.create(planName=inputPlanName)
+                return redirect('history')
+            elif inputMonthRange == 11:
+                queryCheck = models.ElevenMonthPlan.objects.filter(planName=inputPlanName).exists()
+                while queryCheck == True:
+                    inputPlanName = inputPlanName+'_copy'
+                    queryCheck = models.ElevenMonthPlan.objects.filter(planName=inputPlanName).exists()
+                models.ElevenMonthPlan.objects.create(planName=inputPlanName)
+                return redirect('history')
+            elif inputMonthRange == 12:
+                queryCheck = models.TwelveMonthPlan.objects.filter(planName=inputPlanName).exists()
+                while queryCheck == True:
+                    inputPlanName = inputPlanName+'_copy'
+                    queryCheck = models.TwelveMonthPlan.objects.filter(planName=inputPlanName).exists()
+                models.TwelveMonthPlan.objects.create(planName=inputPlanName)
+                return redirect('history')
         else:
-            return redirect('boss-login')
-    else:
-        form = forms.PlanningForm()
-    return render(request, 'main/index.html', {'form': form})
+            return redirect('login')
+    return render(request, 'main/index.html')
 
 
 def history(request):
-    historyList = models.PlanDatabase.objects.all().values
-    return render(request, "main/history.html", {'historyList': historyList})
+    historyListFour = models.FourMonthPlan.objects.all().values
+    historyListFive = models.FiveMonthPlan.objects.all().values
+    historyListSix = models.SixMonthPlan.objects.all().values
+    historyListSeven = models.SevenMonthPlan.objects.all().values
+    historyListEight = models.EightMonthPlan.objects.all().values
+    historyListNine = models.NineMonthPlan.objects.all().values
+    historyListTen = models.TenMonthPlan.objects.all().values
+    historyListEleven = models.ElevenMonthPlan.objects.all().values
+    historyListTwelve = models.TwelveMonthPlan.objects.all().values
+    return render(request, "main/history.html", {'historyListFour': historyListFour, 'historyListFive': historyListFive, 'historyListSix': historyListSix, 'historyListSeven': historyListSeven, 'historyListEight': historyListEight, 'historyListNine': historyListNine, 'historyListTen': historyListTen, 'historyListEleven': historyListEleven, 'historyListTwelve': historyListTwelve})
 
 
-def viewDetail(request,plan_Name):
-    detail = models.PlanDatabase.objects.filter(planName=plan_Name).values()
-    for x in detail:
-        rd1 = x['demand1'] - (x['numPermanent'] * x['prodPermanent'])
-        rd2 = x['demand2'] - (x['numPermanent'] * x['prodPermanent'])
-        rd3 = x['demand3'] - (x['numPermanent'] * x['prodPermanent'])
-        rd4 = x['demand4'] - (x['numPermanent'] * x['prodPermanent'])
-        ntwH1 = x['hiredTemporary1']
-        ntwH2 = x['hiredTemporary2']
-        ntwH3 = x['hiredTemporary3']
-        ntwH4 = x['hiredTemporary4']
-        ntwF1 = x['firedTemporary1']
-        ntwF2 = x['firedTemporary2']
-        ntwF3 = x['firedTemporary3']
-        ntwF4 = x['firedTemporary4']
-        ntw1 = ntwH1 - ntwF1 
-        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
-        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
-        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
-        hC1 = ntwH1 * x['costHiring']
-        hC2 = ntwH2 * x['costHiring']
-        hC3 = ntwH3 * x['costHiring']
-        hC4 = ntwH4 * x['costHiring']
-        fC1 = ntwF1 * x['costFiring']
-        fC2 = ntwF2 * x['costFiring']
-        fC3 = ntwF3 * x['costFiring']
-        fC4 = ntwF4 * x['costFiring']
-        ihc1 = x['costHoldingUnit'] * x['inventoryMonth1']
-        ihc2 = x['costHoldingUnit'] * x['inventoryMonth2']
-        ihc3 = x['costHoldingUnit'] * x['inventoryMonth3']
-        ihc4 = x['costHoldingUnit'] * x['inventoryFinal']
-        thC = hC1 + hC2 + hC3 + hC4
-        tfC = fC1 + fC2 + fC3 + fC4
-        tihC = ihc1 + ihc2 + ihc3 + ihc4
-        ei1 = x['inventoryMonth1']
-        ei2 = x['inventoryMonth2']
-        ei3 = x['inventoryMonth3']
-        ei4 = x['inventoryFinal']
-    return render(request, "main/viewDetail.html", {'detail': detail,
-                                                    'rd1': rd1,
-                                                    'rd2': rd2,
-                                                    'rd3': rd3,
-                                                    'rd4': rd4,
-                                                    'ntw1': ntw1,
-                                                    'ntw2': ntw2,
-                                                    'ntw3': ntw3,
-                                                    'ntw4': ntw4,
-                                                    'ihc1': ihc1,
-                                                    'ihc2': ihc2,
-                                                    'ihc3': ihc3,
-                                                    'ihc4': ihc4,
-                                                    'ntwH1':ntwH1,
-                                                    'ntwH2':ntwH2,
-                                                    'ntwH3':ntwH3,
-                                                    'ntwH4':ntwH4,
-                                                    'ntwF1':ntwF1,
-                                                    'ntwF2':ntwF2,
-                                                    'ntwF3':ntwF3,
-                                                    'ntwF4':ntwF4,
-                                                    'hC1': hC1,
-                                                    'hC2': hC2,
-                                                    'hC3': hC3,
-                                                    'hC4': hC4,
-                                                    'fC1': fC1,
-                                                    'fC2': fC2,
-                                                    'fC3': fC3,
-                                                    'fC4': fC4,
-                                                    'ei1': ei1,
-                                                    'ei2': ei2,
-                                                    'ei3': ei3,
-                                                    'ei4': ei4,
-                                                    'thC': thC,
-                                                    'tfC': tfC,
-                                                    'tihC': tihC})
-
-def deleteDetail(request,plan_Name):
-    detail = models.PlanDatabase.objects.filter(planName=plan_Name)
-    detail.delete()
-    return redirect(history)
 def formula(request):
 
     return render(request, "main/formula.html")
@@ -251,3 +112,3288 @@ def formula(request):
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect('/')
+
+
+def viewDetailFour(request,plan_Name):
+    optimizeFour(plan_Name)
+    detail = models.FourMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in detail:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        thC = hC1 + hC2 + hC3 + hC4
+        tfC = fC1 + fC2 + fC3 + fC4
+        tihC = ihc1 + ihc2 + ihc3 + ihc4
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryFinal']
+    return render(request, "main/four/viewDetailFour.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
+
+
+def viewDetailFive(request,plan_Name):
+    optimizeFive(plan_Name)
+    detail = models.FiveMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in detail:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        thC = hC1 + hC2 + hC3 + hC4 + hC5
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryFinal']
+    return render(request, "main/five/viewDetailFive.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
+
+
+def viewDetailSix(request,plan_Name):
+    optimizeSix(plan_Name)
+    detail = models.SixMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in detail:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryFinal']
+    return render(request, "main/six/viewDetailSix.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6,'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6,'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6,'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6,'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6,'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6,'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6,'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6,'thC': thC, 'tfC': tfC, 'tihC': tihC})
+
+
+def viewDetailSeven(request,plan_Name):
+    optimizeSeven(plan_Name)
+    detail = models.SevenMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in detail:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryFinal']
+    return render(request, "main/seven/viewDetailSeven.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
+
+
+def viewDetailEight(request,plan_Name):
+    optimizeEight(plan_Name)
+    detail = models.EightMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in detail:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        ntwH8 = x['hiredTemporary8']
+        ntwF8 = x['firedTemporary8']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryMonth7']
+        rd8 = x['demand8'] - (x['numPermanent8'] * x['prodPermanent8'])
+        if rd8 < 0:
+            rd8 = 0
+        hC8 = ntwH8 * x['costHiring8']
+        fC8 = ntwF8 * x['costFiring8']
+        ihc8 = x['costHoldingUnit8'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        ntw8 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7 + hC8
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7 + fC8
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7 + ihc8
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryMonth7']
+        ei8 = x['inventoryFinal']
+    return render(request, "main/eight/viewDetailEight.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'rd8': rd8, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ntw8': ntw8, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ihc8': ihc8, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwH8':ntwH8, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'ntwF8':ntwF8, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'hC8': hC8, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'fC8': fC8, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'ei8': ei8, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
+
+
+def viewDetailNine(request,plan_Name):
+    optimizeNine(plan_Name)
+    detail = models.NineMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in detail:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        ntwH8 = x['hiredTemporary8']
+        ntwF8 = x['firedTemporary8']
+        ntwH9 = x['hiredTemporary9']
+        ntwF9 = x['firedTemporary9']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryMonth7']
+        rd8 = x['demand8'] - (x['numPermanent8'] * x['prodPermanent8'])
+        if rd8 < 0:
+            rd8 = 0
+        hC8 = ntwH8 * x['costHiring8']
+        fC8 = ntwF8 * x['costFiring8']
+        ihc8 = x['costHoldingUnit8'] * x['inventoryMonth8']
+        rd9 = x['demand9'] - (x['numPermanent9'] * x['prodPermanent9'])
+        if rd9 < 0:
+            rd9 = 0
+        hC9 = ntwH9 * x['costHiring9']
+        fC9 = ntwF9 * x['costFiring9']
+        ihc9 = x['costHoldingUnit9'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        ntw8 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8
+        ntw9 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7 + hC8 + hC9
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7 + fC8 + fC9
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7 + ihc8 + ihc9
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryMonth7']
+        ei8 = x['inventoryMonth8']
+        ei9 = x['inventoryFinal']
+    return render(request, "main/nine/viewDetailNine.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'rd8': rd8, 'rd9': rd9,'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ntw8': ntw8, 'ntw9': ntw9,'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ihc8': ihc8, 'ihc9': ihc9,'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwH8':ntwH8, 'ntwH9':ntwH9,'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'ntwF8':ntwF8, 'ntwF9':ntwF9,'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'hC8': hC8, 'hC9': hC9,'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'fC8': fC8, 'fC9': fC9,'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'ei8': ei8, 'ei9': ei9,'thC': thC, 'tfC': tfC, 'tihC': tihC})
+
+
+def viewDetailTen(request,plan_Name):
+    optimizeTen(plan_Name)
+    detail = models.TenMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in detail:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        ntwH8 = x['hiredTemporary8']
+        ntwF8 = x['firedTemporary8']
+        ntwH9 = x['hiredTemporary9']
+        ntwF9 = x['firedTemporary9']
+        ntwH10 = x['hiredTemporary10']
+        ntwF10 = x['firedTemporary10']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryMonth7']
+        rd8 = x['demand8'] - (x['numPermanent8'] * x['prodPermanent8'])
+        if rd8 < 0:
+            rd8 = 0
+        hC8 = ntwH8 * x['costHiring8']
+        fC8 = ntwF8 * x['costFiring8']
+        ihc8 = x['costHoldingUnit8'] * x['inventoryMonth8']
+        rd9 = x['demand9'] - (x['numPermanent9'] * x['prodPermanent9'])
+        if rd9 < 0:
+            rd9 = 0
+        hC9 = ntwH9 * x['costHiring9']
+        fC9 = ntwF9 * x['costFiring9']
+        ihc9 = x['costHoldingUnit9'] * x['inventoryMonth9']
+        rd10 = x['demand10'] - (x['numPermanent10'] * x['prodPermanent10'])
+        if rd10 < 0:
+            rd10 = 0
+        hC10 = ntwH10 * x['costHiring10']
+        fC10 = ntwF10 * x['costFiring10']
+        ihc10 = x['costHoldingUnit10'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        ntw8 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8
+        ntw9 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9
+        ntw10 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7 + hC8 + hC9 + hC10
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7 + fC8 + fC9 + fC10
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7 + ihc8 + ihc9 + ihc10
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryMonth7']
+        ei8 = x['inventoryMonth8']
+        ei9 = x['inventoryMonth9']
+        ei10 = x['inventoryFinal']
+    return render(request, "main/ten/viewDetailTen.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'rd8': rd8, 'rd9': rd9, 'rd10': rd10, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ntw8': ntw8, 'ntw9': ntw9, 'ntw10': ntw10, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ihc8': ihc8, 'ihc9': ihc9, 'ihc10': ihc10, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwH8':ntwH8, 'ntwH9':ntwH9, 'ntwH10':ntwH10, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'ntwF8':ntwF8, 'ntwF9':ntwF9, 'ntwF10':ntwF10, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'hC8': hC8, 'hC9': hC9, 'hC10': hC10, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'fC8': fC8, 'fC9': fC9, 'fC10': fC10, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'ei8': ei8, 'ei9': ei9, 'ei10': ei10, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
+
+
+def viewDetailEleven(request,plan_Name):
+    optimizeEleven(plan_Name)
+    detail = models.ElevenMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in detail:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        ntwH8 = x['hiredTemporary8']
+        ntwF8 = x['firedTemporary8']
+        ntwH9 = x['hiredTemporary9']
+        ntwF9 = x['firedTemporary9']
+        ntwH10 = x['hiredTemporary10']
+        ntwF10 = x['firedTemporary10']
+        ntwH11 = x['hiredTemporary11']
+        ntwF11 = x['firedTemporary11']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryMonth7']
+        rd8 = x['demand8'] - (x['numPermanent8'] * x['prodPermanent8'])
+        if rd8 < 0:
+            rd8 = 0
+        hC8 = ntwH8 * x['costHiring8']
+        fC8 = ntwF8 * x['costFiring8']
+        ihc8 = x['costHoldingUnit8'] * x['inventoryMonth8']
+        rd9 = x['demand9'] - (x['numPermanent9'] * x['prodPermanent9'])
+        if rd9 < 0:
+            rd9 = 0
+        hC9 = ntwH9 * x['costHiring9']
+        fC9 = ntwF9 * x['costFiring9']
+        ihc9 = x['costHoldingUnit9'] * x['inventoryMonth9']
+        rd10 = x['demand10'] - (x['numPermanent10'] * x['prodPermanent10'])
+        if rd10 < 0:
+            rd10 = 0
+        hC10 = ntwH10 * x['costHiring10']
+        fC10 = ntwF10 * x['costFiring10']
+        ihc10 = x['costHoldingUnit10'] * x['inventoryMonth10']
+        rd11 = x['demand11'] - (x['numPermanent11'] * x['prodPermanent11'])
+        if rd11 < 0:
+            rd11 = 0
+        hC11 = ntwH11 * x['costHiring11']
+        fC11 = ntwF11 * x['costFiring11']
+        ihc11 = x['costHoldingUnit11'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        ntw8 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8
+        ntw9 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9
+        ntw10 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10
+        ntw11 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10 + ntwH11 - ntwF11
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7 + hC8 + hC9 + hC10 + hC11
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7 + fC8 + fC9 + fC10 + fC11
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7 + ihc8 + ihc9 + ihc10 + ihc11
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryMonth7']
+        ei8 = x['inventoryMonth8']
+        ei9 = x['inventoryMonth9']
+        ei10 = x['inventoryMonth10']
+        ei11 = x['inventoryFinal']
+    return render(request, "main/eleven/viewDetailEleven.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'rd8': rd8, 'rd9': rd9, 'rd10': rd10, 'rd11': rd11, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ntw8': ntw8, 'ntw9': ntw9, 'ntw10': ntw10, 'ntw11': ntw11, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ihc8': ihc8, 'ihc9': ihc9, 'ihc10': ihc10, 'ihc11': ihc11, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwH8':ntwH8, 'ntwH9':ntwH9, 'ntwH10':ntwH10, 'ntwH11':ntwH11, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'ntwF8':ntwF8, 'ntwF9':ntwF9, 'ntwF10':ntwF10, 'ntwF11':ntwF11, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'hC8': hC8, 'hC9': hC9, 'hC10': hC10, 'hC11': hC11, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'fC8': fC8, 'fC9': fC9, 'fC10': fC10, 'fC11': fC11, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'ei8': ei8, 'ei9': ei9, 'ei10': ei10, 'ei11': ei11, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
+
+
+def viewDetailTwelve(request,plan_Name):
+    optimizeTwelve(plan_Name)
+    detail = models.TwelveMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in detail:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        ntwH8 = x['hiredTemporary8']
+        ntwF8 = x['firedTemporary8']
+        ntwH9 = x['hiredTemporary9']
+        ntwF9 = x['firedTemporary9']
+        ntwH10 = x['hiredTemporary10']
+        ntwF10 = x['firedTemporary10']
+        ntwH11 = x['hiredTemporary11']
+        ntwF11 = x['firedTemporary11']
+        ntwH12 = x['hiredTemporary12']
+        ntwF12 = x['firedTemporary12']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryMonth7']
+        rd8 = x['demand8'] - (x['numPermanent8'] * x['prodPermanent8'])
+        if rd8 < 0:
+            rd8 = 0
+        hC8 = ntwH8 * x['costHiring8']
+        fC8 = ntwF8 * x['costFiring8']
+        ihc8 = x['costHoldingUnit8'] * x['inventoryMonth8']
+        rd9 = x['demand9'] - (x['numPermanent9'] * x['prodPermanent9'])
+        if rd9 < 0:
+            rd9 = 0
+        hC9 = ntwH9 * x['costHiring9']
+        fC9 = ntwF9 * x['costFiring9']
+        ihc9 = x['costHoldingUnit9'] * x['inventoryMonth9']
+        rd10 = x['demand10'] - (x['numPermanent10'] * x['prodPermanent10'])
+        if rd10 < 0:
+            rd10 = 0
+        hC10 = ntwH10 * x['costHiring10']
+        fC10 = ntwF10 * x['costFiring10']
+        ihc10 = x['costHoldingUnit10'] * x['inventoryMonth10']
+        rd11 = x['demand11'] - (x['numPermanent11'] * x['prodPermanent11'])
+        if rd11 < 0:
+            rd11 = 0
+        hC11 = ntwH11 * x['costHiring11']
+        fC11 = ntwF11 * x['costFiring11']
+        ihc11 = x['costHoldingUnit11'] * x['inventoryMonth11']
+        rd12 = x['demand12'] - (x['numPermanent12'] * x['prodPermanent12'])
+        if rd12 < 0:
+            rd12 = 0
+        hC12 = ntwH12 * x['costHiring12']
+        fC12 = ntwF12 * x['costFiring12']
+        ihc12 = x['costHoldingUnit12'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        ntw8 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8
+        ntw9 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9
+        ntw10 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10
+        ntw11 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10 + ntwH11 - ntwF11
+        ntw12 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10 + ntwH11 - ntwF11 + ntwH12 - ntwF12
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7 + hC8 + hC9 + hC10 + hC11 + hC12
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7 + fC8 + fC9 + fC10 + fC11 + fC12
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7 + ihc8 + ihc9 + ihc10 + ihc11 + ihc12
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryMonth7']
+        ei8 = x['inventoryMonth8']
+        ei9 = x['inventoryMonth9']
+        ei10 = x['inventoryMonth10']
+        ei11 = x['inventoryMonth11']
+        ei12 = x['inventoryFinal']
+    return render(request, "main/twelve/viewDetailTwelve.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'rd8': rd8, 'rd9': rd9, 'rd10': rd10, 'rd11': rd11, 'rd12': rd12, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ntw8': ntw8, 'ntw9': ntw9, 'ntw10': ntw10, 'ntw11': ntw11, 'ntw12': ntw12, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ihc8': ihc8, 'ihc9': ihc9, 'ihc10': ihc10, 'ihc11': ihc11, 'ihc12': ihc12, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwH8':ntwH8, 'ntwH9':ntwH9, 'ntwH10':ntwH10, 'ntwH11':ntwH11, 'ntwH12':ntwH12, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'ntwF8':ntwF8, 'ntwF9':ntwF9, 'ntwF10':ntwF10, 'ntwF11':ntwF11, 'ntwF12':ntwF12, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'hC8': hC8, 'hC9': hC9, 'hC10': hC10, 'hC11': hC11, 'hC12': hC12, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'fC8': fC8, 'fC9': fC9, 'fC10': fC10, 'fC11': fC11, 'fC12': fC12, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'ei8': ei8, 'ei9': ei9, 'ei10': ei10, 'ei11': ei11, 'ei12': ei12, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
+
+
+def deleteDetailFour(request,plan_Name):
+    detail = models.FourMonthPlan.objects.filter(planName=plan_Name)
+    detail.delete()
+    return redirect(history)
+
+
+def deleteDetailFive(request,plan_Name):
+    detail = models.FiveMonthPlan.objects.filter(planName=plan_Name)
+    detail.delete()
+    return redirect(history)
+
+
+def deleteDetailSix(request,plan_Name):
+    detail = models.SixMonthPlan.objects.filter(planName=plan_Name)
+    detail.delete()
+    return redirect(history)
+
+
+def deleteDetailSeven(request,plan_Name):
+    detail = models.SevenMonthPlan.objects.filter(planName=plan_Name)
+    detail.delete()
+    return redirect(history)
+
+
+def deleteDetailEight(request,plan_Name):
+    detail = models.EightMonthPlan.objects.filter(planName=plan_Name)
+    detail.delete()
+    return redirect(history)
+
+
+def deleteDetailNine(request,plan_Name):
+    detail = models.NineMonthPlan.objects.filter(planName=plan_Name)
+    detail.delete()
+    return redirect(history)
+
+
+def deleteDetailTen(request,plan_Name):
+    detail = models.TenMonthPlan.objects.filter(planName=plan_Name)
+    detail.delete()
+    return redirect(history)
+
+
+def deleteDetailEleven(request,plan_Name):
+    detail = models.ElevenMonthPlan.objects.filter(planName=plan_Name)
+    detail.delete()
+    return redirect(history)
+
+
+def deleteDetailTwelve(request,plan_Name):
+    detail = models.TwelveMonthPlan.objects.filter(planName=plan_Name)
+    detail.delete()
+    return redirect(history)
+
+
+def optimizeFour(inputPlanName):
+    qs = models.FourMonthPlan.objects.filter(planName=inputPlanName).values()
+    for x in qs:
+        inputInventoryInitial = int(x['inventoryInitial'])
+        inputInventoryFinal = x['inventoryFinal']
+        
+        inputDemand1 = int(x['demand1'])
+        inputNumPermanent1 = int(x['numPermanent1'])
+        inputProdPermanent1 = int(x['prodPermanent1'])
+        inputProdTemporary1 = int(x['prodTemporary1'])
+        inputCostHiring1 = float(x['costHiring1'])
+        inputCostFiring1 = float(x['costFiring1'])
+        inputCostHoldingUnit1 = float(x['costHoldingUnit1'])
+        
+        inputDemand2 = int(x['demand2'])
+        inputNumPermanent2 = int(x['numPermanent2'])
+        inputProdPermanent2 = int(x['prodPermanent2'])
+        inputProdTemporary2 = int(x['prodTemporary2'])
+        inputCostHiring2 = float(x['costHiring2'])
+        inputCostFiring2 = float(x['costFiring2'])
+        inputCostHoldingUnit2 = float(x['costHoldingUnit2'])
+        
+        inputDemand3 = int(x['demand3'])
+        inputNumPermanent3 = int(x['numPermanent3'])
+        inputProdPermanent3 = int(x['prodPermanent3'])
+        inputProdTemporary3 = int(x['prodTemporary3'])
+        inputCostHiring3 = float(x['costHiring3'])
+        inputCostFiring3 = float(x['costFiring3'])
+        inputCostHoldingUnit3 = float(x['costHoldingUnit3'])
+        
+        inputDemand4 = int(x['demand4'])
+        inputNumPermanent4 = int(x['numPermanent4'])
+        inputProdPermanent4 = int(x['prodPermanent4'])
+        inputProdTemporary4 = int(x['prodTemporary4'])
+        inputCostHiring4 = float(x['costHiring4'])
+        inputCostFiring4 = float(x['costFiring4'])
+        inputCostHoldingUnit4 = float(x['costHoldingUnit4'])
+    model = LpProblem("Minimize Cost", LpMinimize)
+    month = list(range(4))
+    ihcDict = LpVariable.dicts(
+        'IHC', month, lowBound=0, cat='Continuous')
+    ihcDict[3] = inputInventoryFinal
+    hcDict = LpVariable.dicts(
+        'HC', month, lowBound=0, cat='Continuous')
+    fcDict = LpVariable.dicts(
+        'FC', month, lowBound=0, cat='Continuous')
+    inputCostHoldingUnitDict = [inputCostHoldingUnit1, inputCostHoldingUnit2, inputCostHoldingUnit3, inputCostHoldingUnit4]
+    inputCostHiringDict = [inputCostHiring1, inputCostHiring2, inputCostHiring3, inputCostHiring4]
+    inputCostFiringDict = [inputCostFiring1, inputCostFiring2, inputCostFiring3, inputCostFiring4]
+    model += lpSum([inputCostHoldingUnitDict[i] * ihcDict[i] for i in month]) + lpSum([inputCostHiringDict[i] * hcDict[i] for i in month]) + lpSum([inputCostFiringDict[i] * fcDict[i] for i in month])
+    model.addConstraint(inputInventoryInitial + inputProdTemporary1 * hcDict[0] - inputProdTemporary1 * fcDict[0] - ihcDict[0] == inputDemand1 - (inputNumPermanent1 * inputProdPermanent1))
+    model.addConstraint(ihcDict[0] + inputProdTemporary2 * hcDict[0] - inputProdTemporary2*fcDict[0] + inputProdTemporary2*hcDict[1] - inputProdTemporary2*fcDict[1] - ihcDict[1] == inputDemand2 - (inputNumPermanent2 * inputProdPermanent2))
+    model.addConstraint(ihcDict[1] + inputProdTemporary3 * hcDict[0] - inputProdTemporary3*fcDict[0] + inputProdTemporary3*hcDict[1] - inputProdTemporary3*fcDict[1] + inputProdTemporary3*hcDict[2] - inputProdTemporary3*fcDict[2] - ihcDict[2] == inputDemand3 - (inputNumPermanent3 * inputProdPermanent3))
+    model.addConstraint(ihcDict[2] + inputProdTemporary4 * hcDict[0] - inputProdTemporary4*fcDict[0] + inputProdTemporary4*hcDict[1] - inputProdTemporary4*fcDict[1] + inputProdTemporary4*hcDict[2] - inputProdTemporary4*fcDict[2] + inputProdTemporary4*hcDict[3] - inputProdTemporary4*fcDict[3] - ihcDict[3] == inputDemand4 - (inputNumPermanent4 * inputProdPermanent4))
+    model.solve()
+    models.FourMonthPlan.objects.filter(planName = inputPlanName).update(inventoryInitial = inputInventoryInitial, inventoryFinal = inputInventoryFinal,inventoryMonth1 = ihcDict[0].varValue, inventoryMonth2 = ihcDict[1].varValue, inventoryMonth3 = ihcDict[2].varValue, hiredTemporary1 = hcDict[0].varValue, hiredTemporary2 = hcDict[1].varValue, hiredTemporary3 = hcDict[2].varValue, hiredTemporary4 = hcDict[3].varValue, firedTemporary1 = fcDict[0].varValue, firedTemporary2 = fcDict[1].varValue, firedTemporary3 = fcDict[2].varValue, firedTemporary4 = fcDict[3].varValue, optimalCost = value(model.objective))
+
+
+def optimizeFive(inputPlanName):
+    qs = models.FiveMonthPlan.objects.filter(planName=inputPlanName).values()
+    for x in qs:
+        inputInventoryInitial = int(x['inventoryInitial'])
+        inputInventoryFinal = x['inventoryFinal']
+        
+        inputDemand1 = int(x['demand1'])
+        inputNumPermanent1 = int(x['numPermanent1'])
+        inputProdPermanent1 = int(x['prodPermanent1'])
+        inputProdTemporary1 = int(x['prodTemporary1'])
+        inputCostHiring1 = float(x['costHiring1'])
+        inputCostFiring1 = float(x['costFiring1'])
+        inputCostHoldingUnit1 = float(x['costHoldingUnit1'])
+        
+        inputDemand2 = int(x['demand2'])
+        inputNumPermanent2 = int(x['numPermanent2'])
+        inputProdPermanent2 = int(x['prodPermanent2'])
+        inputProdTemporary2 = int(x['prodTemporary2'])
+        inputCostHiring2 = float(x['costHiring2'])
+        inputCostFiring2 = float(x['costFiring2'])
+        inputCostHoldingUnit2 = float(x['costHoldingUnit2'])
+        
+        inputDemand3 = int(x['demand3'])
+        inputNumPermanent3 = int(x['numPermanent3'])
+        inputProdPermanent3 = int(x['prodPermanent3'])
+        inputProdTemporary3 = int(x['prodTemporary3'])
+        inputCostHiring3 = float(x['costHiring3'])
+        inputCostFiring3 = float(x['costFiring3'])
+        inputCostHoldingUnit3 = float(x['costHoldingUnit3'])
+        
+        inputDemand4 = int(x['demand4'])
+        inputNumPermanent4 = int(x['numPermanent4'])
+        inputProdPermanent4 = int(x['prodPermanent4'])
+        inputProdTemporary4 = int(x['prodTemporary4'])
+        inputCostHiring4 = float(x['costHiring4'])
+        inputCostFiring4 = float(x['costFiring4'])
+        inputCostHoldingUnit4 = float(x['costHoldingUnit4'])
+        
+        inputDemand5 = int(x['demand5'])
+        inputNumPermanent5 = int(x['numPermanent5'])
+        inputProdPermanent5 = int(x['prodPermanent5'])
+        inputProdTemporary5 = int(x['prodTemporary5'])
+        inputCostHiring5 = float(x['costHiring5'])
+        inputCostFiring5 = float(x['costFiring5'])
+        inputCostHoldingUnit5 = float(x['costHoldingUnit5'])
+    model = LpProblem("Minimize Cost", LpMinimize)
+    month = list(range(5))
+    ihcDict = LpVariable.dicts(
+        'IHC', month, lowBound=0, cat='Continuous')
+    ihcDict[4] = inputInventoryFinal
+    hcDict = LpVariable.dicts(
+        'HC', month, lowBound=0, cat='Continuous')
+    fcDict = LpVariable.dicts(
+        'FC', month, lowBound=0, cat='Continuous')
+    inputCostHoldingUnitDict = [inputCostHoldingUnit1, inputCostHoldingUnit2, inputCostHoldingUnit3, inputCostHoldingUnit4, inputCostHoldingUnit5]
+    inputCostHiringDict = [inputCostHiring1, inputCostHiring2, inputCostHiring3, inputCostHiring4, inputCostHiring5]
+    inputCostFiringDict = [inputCostFiring1, inputCostFiring2, inputCostFiring3, inputCostFiring4, inputCostFiring5]
+    model += lpSum([inputCostHoldingUnitDict[i] * ihcDict[i] for i in month]) + lpSum([inputCostHiringDict[i] * hcDict[i] for i in month]) + lpSum([inputCostFiringDict[i] * fcDict[i] for i in month])
+    model.addConstraint(inputInventoryInitial + inputProdTemporary1 * hcDict[0] - inputProdTemporary1 * fcDict[0] - ihcDict[0] == inputDemand1 - (inputNumPermanent1 * inputProdPermanent1))
+    model.addConstraint(ihcDict[0] + inputProdTemporary2 * hcDict[0] - inputProdTemporary2*fcDict[0] + inputProdTemporary2*hcDict[1] - inputProdTemporary2*fcDict[1] - ihcDict[1] == inputDemand2 - (inputNumPermanent2 * inputProdPermanent2))
+    model.addConstraint(ihcDict[1] + inputProdTemporary3 * hcDict[0] - inputProdTemporary3*fcDict[0] + inputProdTemporary3*hcDict[1] - inputProdTemporary3*fcDict[1] + inputProdTemporary3*hcDict[2] - inputProdTemporary3*fcDict[2] - ihcDict[2] == inputDemand3 - (inputNumPermanent3 * inputProdPermanent3))
+    model.addConstraint(ihcDict[2] + inputProdTemporary4 * hcDict[0] - inputProdTemporary4*fcDict[0] + inputProdTemporary4*hcDict[1] - inputProdTemporary4*fcDict[1] + inputProdTemporary4*hcDict[2] - inputProdTemporary4*fcDict[2] + inputProdTemporary4*hcDict[3] - inputProdTemporary4*fcDict[3] - ihcDict[3] == inputDemand4 - (inputNumPermanent4 * inputProdPermanent4))
+    model.addConstraint(ihcDict[3] + inputProdTemporary5 * hcDict[0] - inputProdTemporary5*fcDict[0] + inputProdTemporary5*hcDict[1] - inputProdTemporary5*fcDict[1] + inputProdTemporary5*hcDict[2] - inputProdTemporary5*fcDict[2] + inputProdTemporary5*hcDict[3] - inputProdTemporary5*fcDict[3] + inputProdTemporary5*hcDict[4] - inputProdTemporary5*fcDict[4] - ihcDict[4] == inputDemand5 - (inputNumPermanent5 * inputProdPermanent5))
+    model.solve()
+    models.FiveMonthPlan.objects.filter(planName = inputPlanName).update(inventoryInitial = inputInventoryInitial, inventoryFinal = inputInventoryFinal,inventoryMonth1 = ihcDict[0].varValue, inventoryMonth2 = ihcDict[1].varValue, inventoryMonth3 = ihcDict[2].varValue, inventoryMonth4 = ihcDict[3].varValue, hiredTemporary1 = hcDict[0].varValue, hiredTemporary2 = hcDict[1].varValue, hiredTemporary3 = hcDict[2].varValue, hiredTemporary4 = hcDict[3].varValue, hiredTemporary5 = hcDict[4].varValue, firedTemporary1 = fcDict[0].varValue, firedTemporary2 = fcDict[1].varValue, firedTemporary3 = fcDict[2].varValue, firedTemporary4 = fcDict[3].varValue, firedTemporary5 = fcDict[4].varValue, optimalCost = value(model.objective))
+
+
+def optimizeSix(inputPlanName):
+    qs = models.SixMonthPlan.objects.filter(planName=inputPlanName).values()
+    for x in qs:
+        inputInventoryInitial = int(x['inventoryInitial'])
+        inputInventoryFinal = x['inventoryFinal']
+        
+        inputDemand1 = int(x['demand1'])
+        inputNumPermanent1 = int(x['numPermanent1'])
+        inputProdPermanent1 = int(x['prodPermanent1'])
+        inputProdTemporary1 = int(x['prodTemporary1'])
+        inputCostHiring1 = float(x['costHiring1'])
+        inputCostFiring1 = float(x['costFiring1'])
+        inputCostHoldingUnit1 = float(x['costHoldingUnit1'])
+        
+        inputDemand2 = int(x['demand2'])
+        inputNumPermanent2 = int(x['numPermanent2'])
+        inputProdPermanent2 = int(x['prodPermanent2'])
+        inputProdTemporary2 = int(x['prodTemporary2'])
+        inputCostHiring2 = float(x['costHiring2'])
+        inputCostFiring2 = float(x['costFiring2'])
+        inputCostHoldingUnit2 = float(x['costHoldingUnit2'])
+        
+        inputDemand3 = int(x['demand3'])
+        inputNumPermanent3 = int(x['numPermanent3'])
+        inputProdPermanent3 = int(x['prodPermanent3'])
+        inputProdTemporary3 = int(x['prodTemporary3'])
+        inputCostHiring3 = float(x['costHiring3'])
+        inputCostFiring3 = float(x['costFiring3'])
+        inputCostHoldingUnit3 = float(x['costHoldingUnit3'])
+        
+        inputDemand4 = int(x['demand4'])
+        inputNumPermanent4 = int(x['numPermanent4'])
+        inputProdPermanent4 = int(x['prodPermanent4'])
+        inputProdTemporary4 = int(x['prodTemporary4'])
+        inputCostHiring4 = float(x['costHiring4'])
+        inputCostFiring4 = float(x['costFiring4'])
+        inputCostHoldingUnit4 = float(x['costHoldingUnit4'])
+        
+        inputDemand5 = int(x['demand5'])
+        inputNumPermanent5 = int(x['numPermanent5'])
+        inputProdPermanent5 = int(x['prodPermanent5'])
+        inputProdTemporary5 = int(x['prodTemporary5'])
+        inputCostHiring5 = float(x['costHiring5'])
+        inputCostFiring5 = float(x['costFiring5'])
+        inputCostHoldingUnit5 = float(x['costHoldingUnit5'])
+        
+        inputDemand6 = int(x['demand6'])
+        inputNumPermanent6 = int(x['numPermanent6'])
+        inputProdPermanent6 = int(x['prodPermanent6'])
+        inputProdTemporary6 = int(x['prodTemporary6'])
+        inputCostHiring6 = float(x['costHiring6'])
+        inputCostFiring6 = float(x['costFiring6'])
+        inputCostHoldingUnit6 = float(x['costHoldingUnit6'])
+    model = LpProblem("Minimize Cost", LpMinimize)
+    month = list(range(6))
+    ihcDict = LpVariable.dicts(
+        'IHC', month, lowBound=0, cat='Continuous')
+    ihcDict[5] = inputInventoryFinal
+    hcDict = LpVariable.dicts(
+        'HC', month, lowBound=0, cat='Continuous')
+    fcDict = LpVariable.dicts(
+        'FC', month, lowBound=0, cat='Continuous')
+    inputCostHoldingUnitDict = [inputCostHoldingUnit1, inputCostHoldingUnit2, inputCostHoldingUnit3, inputCostHoldingUnit4, inputCostHoldingUnit5, inputCostHoldingUnit6]
+    inputCostHiringDict = [inputCostHiring1, inputCostHiring2, inputCostHiring3, inputCostHiring4, inputCostHiring5, inputCostHiring6]
+    inputCostFiringDict = [inputCostFiring1, inputCostFiring2, inputCostFiring3, inputCostFiring4, inputCostFiring5, inputCostFiring6]
+    model += lpSum([inputCostHoldingUnitDict[i] * ihcDict[i] for i in month]) + lpSum([inputCostHiringDict[i] * hcDict[i] for i in month]) + lpSum([inputCostFiringDict[i] * fcDict[i] for i in month])
+    model.addConstraint(inputInventoryInitial + inputProdTemporary1 * hcDict[0] - inputProdTemporary1 * fcDict[0] - ihcDict[0] == inputDemand1 - (inputNumPermanent1 * inputProdPermanent1))
+    model.addConstraint(ihcDict[0] + inputProdTemporary2 * hcDict[0] - inputProdTemporary2*fcDict[0] + inputProdTemporary2*hcDict[1] - inputProdTemporary2*fcDict[1] - ihcDict[1] == inputDemand2 - (inputNumPermanent2 * inputProdPermanent2))
+    model.addConstraint(ihcDict[1] + inputProdTemporary3 * hcDict[0] - inputProdTemporary3*fcDict[0] + inputProdTemporary3*hcDict[1] - inputProdTemporary3*fcDict[1] + inputProdTemporary3*hcDict[2] - inputProdTemporary3*fcDict[2] - ihcDict[2] == inputDemand3 - (inputNumPermanent3 * inputProdPermanent3))
+    model.addConstraint(ihcDict[2] + inputProdTemporary4 * hcDict[0] - inputProdTemporary4*fcDict[0] + inputProdTemporary4*hcDict[1] - inputProdTemporary4*fcDict[1] + inputProdTemporary4*hcDict[2] - inputProdTemporary4*fcDict[2] + inputProdTemporary4*hcDict[3] - inputProdTemporary4*fcDict[3] - ihcDict[3] == inputDemand4 - (inputNumPermanent4 * inputProdPermanent4))
+    model.addConstraint(ihcDict[3] + inputProdTemporary5 * hcDict[0] - inputProdTemporary5*fcDict[0] + inputProdTemporary5*hcDict[1] - inputProdTemporary5*fcDict[1] + inputProdTemporary5*hcDict[2] - inputProdTemporary5*fcDict[2] + inputProdTemporary5*hcDict[3] - inputProdTemporary5*fcDict[3] + inputProdTemporary5*hcDict[4] - inputProdTemporary5*fcDict[4] - ihcDict[4] == inputDemand5 - (inputNumPermanent5 * inputProdPermanent5))
+    model.addConstraint(ihcDict[4] + inputProdTemporary6 * hcDict[0] - inputProdTemporary6*fcDict[0] + inputProdTemporary6*hcDict[1] - inputProdTemporary6*fcDict[1] + inputProdTemporary6*hcDict[2] - inputProdTemporary6*fcDict[2] + inputProdTemporary6*hcDict[3] - inputProdTemporary6*fcDict[3] + inputProdTemporary6*hcDict[4] - inputProdTemporary6*fcDict[4] + inputProdTemporary6*hcDict[5] - inputProdTemporary6*fcDict[5] - ihcDict[5] == inputDemand6 - (inputNumPermanent6 * inputProdPermanent6))
+    model.solve()
+    models.SixMonthPlan.objects.filter(planName = inputPlanName).update(inventoryInitial = inputInventoryInitial, inventoryFinal = inputInventoryFinal,inventoryMonth1 = ihcDict[0].varValue, inventoryMonth2 = ihcDict[1].varValue, inventoryMonth3 = ihcDict[2].varValue, inventoryMonth4 = ihcDict[3].varValue, inventoryMonth5 = ihcDict[4].varValue, hiredTemporary1 = hcDict[0].varValue, hiredTemporary2 = hcDict[1].varValue, hiredTemporary3 = hcDict[2].varValue, hiredTemporary4 = hcDict[3].varValue, hiredTemporary5 = hcDict[4].varValue, hiredTemporary6 = hcDict[5].varValue, firedTemporary1 = fcDict[0].varValue, firedTemporary2 = fcDict[1].varValue, firedTemporary3 = fcDict[2].varValue, firedTemporary4 = fcDict[3].varValue, firedTemporary5 = fcDict[4].varValue, firedTemporary6 = fcDict[5].varValue, optimalCost = value(model.objective))
+
+
+def optimizeSeven(inputPlanName):
+    qs = models.SevenMonthPlan.objects.filter(planName=inputPlanName).values()
+    for x in qs:
+        inputInventoryInitial = int(x['inventoryInitial'])
+        inputInventoryFinal = x['inventoryFinal']
+        
+        inputDemand1 = int(x['demand1'])
+        inputNumPermanent1 = int(x['numPermanent1'])
+        inputProdPermanent1 = int(x['prodPermanent1'])
+        inputProdTemporary1 = int(x['prodTemporary1'])
+        inputCostHiring1 = float(x['costHiring1'])
+        inputCostFiring1 = float(x['costFiring1'])
+        inputCostHoldingUnit1 = float(x['costHoldingUnit1'])
+        
+        inputDemand2 = int(x['demand2'])
+        inputNumPermanent2 = int(x['numPermanent2'])
+        inputProdPermanent2 = int(x['prodPermanent2'])
+        inputProdTemporary2 = int(x['prodTemporary2'])
+        inputCostHiring2 = float(x['costHiring2'])
+        inputCostFiring2 = float(x['costFiring2'])
+        inputCostHoldingUnit2 = float(x['costHoldingUnit2'])
+        
+        inputDemand3 = int(x['demand3'])
+        inputNumPermanent3 = int(x['numPermanent3'])
+        inputProdPermanent3 = int(x['prodPermanent3'])
+        inputProdTemporary3 = int(x['prodTemporary3'])
+        inputCostHiring3 = float(x['costHiring3'])
+        inputCostFiring3 = float(x['costFiring3'])
+        inputCostHoldingUnit3 = float(x['costHoldingUnit3'])
+        
+        inputDemand4 = int(x['demand4'])
+        inputNumPermanent4 = int(x['numPermanent4'])
+        inputProdPermanent4 = int(x['prodPermanent4'])
+        inputProdTemporary4 = int(x['prodTemporary4'])
+        inputCostHiring4 = float(x['costHiring4'])
+        inputCostFiring4 = float(x['costFiring4'])
+        inputCostHoldingUnit4 = float(x['costHoldingUnit4'])
+        
+        inputDemand5 = int(x['demand5'])
+        inputNumPermanent5 = int(x['numPermanent5'])
+        inputProdPermanent5 = int(x['prodPermanent5'])
+        inputProdTemporary5 = int(x['prodTemporary5'])
+        inputCostHiring5 = float(x['costHiring5'])
+        inputCostFiring5 = float(x['costFiring5'])
+        inputCostHoldingUnit5 = float(x['costHoldingUnit5'])
+        
+        inputDemand6 = int(x['demand6'])
+        inputNumPermanent6 = int(x['numPermanent6'])
+        inputProdPermanent6 = int(x['prodPermanent6'])
+        inputProdTemporary6 = int(x['prodTemporary6'])
+        inputCostHiring6 = float(x['costHiring6'])
+        inputCostFiring6 = float(x['costFiring6'])
+        inputCostHoldingUnit6 = float(x['costHoldingUnit6'])
+        
+        inputDemand7 = int(x['demand7'])
+        inputNumPermanent7 = int(x['numPermanent7'])
+        inputProdPermanent7 = int(x['prodPermanent7'])
+        inputProdTemporary7 = int(x['prodTemporary7'])
+        inputCostHiring7 = float(x['costHiring7'])
+        inputCostFiring7 = float(x['costFiring7'])
+        inputCostHoldingUnit7 = float(x['costHoldingUnit7'])
+    model = LpProblem("Minimize Cost", LpMinimize)
+    month = list(range(7))
+    ihcDict = LpVariable.dicts(
+        'IHC', month, lowBound=0, cat='Continuous')
+    ihcDict[6] = inputInventoryFinal
+    hcDict = LpVariable.dicts(
+        'HC', month, lowBound=0, cat='Continuous')
+    fcDict = LpVariable.dicts(
+        'FC', month, lowBound=0, cat='Continuous')
+    inputCostHoldingUnitDict = [inputCostHoldingUnit1, inputCostHoldingUnit2, inputCostHoldingUnit3, inputCostHoldingUnit4, inputCostHoldingUnit5, inputCostHoldingUnit6, inputCostHoldingUnit7]
+    inputCostHiringDict = [inputCostHiring1, inputCostHiring2, inputCostHiring3, inputCostHiring4, inputCostHiring5, inputCostHiring6, inputCostHiring7]
+    inputCostFiringDict = [inputCostFiring1, inputCostFiring2, inputCostFiring3, inputCostFiring4, inputCostFiring5, inputCostFiring6, inputCostFiring7]
+    model += lpSum([inputCostHoldingUnitDict[i] * ihcDict[i] for i in month]) + lpSum([inputCostHiringDict[i] * hcDict[i] for i in month]) + lpSum([inputCostFiringDict[i] * fcDict[i] for i in month])
+    model.addConstraint(inputInventoryInitial + inputProdTemporary1 * hcDict[0] - inputProdTemporary1 * fcDict[0] - ihcDict[0] == inputDemand1 - (inputNumPermanent1 * inputProdPermanent1))
+    model.addConstraint(ihcDict[0] + inputProdTemporary2 * hcDict[0] - inputProdTemporary2*fcDict[0] + inputProdTemporary2*hcDict[1] - inputProdTemporary2*fcDict[1] - ihcDict[1] == inputDemand2 - (inputNumPermanent2 * inputProdPermanent2))
+    model.addConstraint(ihcDict[1] + inputProdTemporary3 * hcDict[0] - inputProdTemporary3*fcDict[0] + inputProdTemporary3*hcDict[1] - inputProdTemporary3*fcDict[1] + inputProdTemporary3*hcDict[2] - inputProdTemporary3*fcDict[2] - ihcDict[2] == inputDemand3 - (inputNumPermanent3 * inputProdPermanent3))
+    model.addConstraint(ihcDict[2] + inputProdTemporary4 * hcDict[0] - inputProdTemporary4*fcDict[0] + inputProdTemporary4*hcDict[1] - inputProdTemporary4*fcDict[1] + inputProdTemporary4*hcDict[2] - inputProdTemporary4*fcDict[2] + inputProdTemporary4*hcDict[3] - inputProdTemporary4*fcDict[3] - ihcDict[3] == inputDemand4 - (inputNumPermanent4 * inputProdPermanent4))
+    model.addConstraint(ihcDict[3] + inputProdTemporary5 * hcDict[0] - inputProdTemporary5*fcDict[0] + inputProdTemporary5*hcDict[1] - inputProdTemporary5*fcDict[1] + inputProdTemporary5*hcDict[2] - inputProdTemporary5*fcDict[2] + inputProdTemporary5*hcDict[3] - inputProdTemporary5*fcDict[3] + inputProdTemporary5*hcDict[4] - inputProdTemporary5*fcDict[4] - ihcDict[4] == inputDemand5 - (inputNumPermanent5 * inputProdPermanent5))
+    model.addConstraint(ihcDict[4] + inputProdTemporary6 * hcDict[0] - inputProdTemporary6*fcDict[0] + inputProdTemporary6*hcDict[1] - inputProdTemporary6*fcDict[1] + inputProdTemporary6*hcDict[2] - inputProdTemporary6*fcDict[2] + inputProdTemporary6*hcDict[3] - inputProdTemporary6*fcDict[3] + inputProdTemporary6*hcDict[4] - inputProdTemporary6*fcDict[4] + inputProdTemporary6*hcDict[5] - inputProdTemporary6*fcDict[5] - ihcDict[5] == inputDemand6 - (inputNumPermanent6 * inputProdPermanent6))
+    model.addConstraint(ihcDict[5] + inputProdTemporary7 * hcDict[0] - inputProdTemporary7*fcDict[0] + inputProdTemporary7*hcDict[1] - inputProdTemporary7*fcDict[1] + inputProdTemporary7*hcDict[2] - inputProdTemporary7*fcDict[2] + inputProdTemporary7*hcDict[3] - inputProdTemporary7*fcDict[3] + inputProdTemporary7*hcDict[4] - inputProdTemporary7*fcDict[4] + inputProdTemporary7*hcDict[5] - inputProdTemporary7*fcDict[5] + inputProdTemporary7*hcDict[6] - inputProdTemporary7*fcDict[6] - ihcDict[6] == inputDemand7 - (inputNumPermanent7 * inputProdPermanent7))
+    model.solve()
+    models.SevenMonthPlan.objects.filter(planName = inputPlanName).update(inventoryInitial = inputInventoryInitial, inventoryFinal = inputInventoryFinal,inventoryMonth1 = ihcDict[0].varValue, inventoryMonth2 = ihcDict[1].varValue, inventoryMonth3 = ihcDict[2].varValue, inventoryMonth4 = ihcDict[3].varValue, inventoryMonth5 = ihcDict[4].varValue, inventoryMonth6 = ihcDict[5].varValue, hiredTemporary1 = hcDict[0].varValue, hiredTemporary2 = hcDict[1].varValue, hiredTemporary3 = hcDict[2].varValue, hiredTemporary4 = hcDict[3].varValue, hiredTemporary5 = hcDict[4].varValue, hiredTemporary6 = hcDict[5].varValue, hiredTemporary7 = hcDict[6].varValue, firedTemporary1 = fcDict[0].varValue, firedTemporary2 = fcDict[1].varValue, firedTemporary3 = fcDict[2].varValue, firedTemporary4 = fcDict[3].varValue, firedTemporary5 = fcDict[4].varValue, firedTemporary6 = fcDict[5].varValue, firedTemporary7 = fcDict[6].varValue, optimalCost = value(model.objective))
+
+
+def optimizeEight(inputPlanName):
+    qs = models.EightMonthPlan.objects.filter(planName=inputPlanName).values()
+    for x in qs:
+        inputInventoryInitial = int(x['inventoryInitial'])
+        inputInventoryFinal = x['inventoryFinal']
+        
+        inputDemand1 = int(x['demand1'])
+        inputNumPermanent1 = int(x['numPermanent1'])
+        inputProdPermanent1 = int(x['prodPermanent1'])
+        inputProdTemporary1 = int(x['prodTemporary1'])
+        inputCostHiring1 = float(x['costHiring1'])
+        inputCostFiring1 = float(x['costFiring1'])
+        inputCostHoldingUnit1 = float(x['costHoldingUnit1'])
+        
+        inputDemand2 = int(x['demand2'])
+        inputNumPermanent2 = int(x['numPermanent2'])
+        inputProdPermanent2 = int(x['prodPermanent2'])
+        inputProdTemporary2 = int(x['prodTemporary2'])
+        inputCostHiring2 = float(x['costHiring2'])
+        inputCostFiring2 = float(x['costFiring2'])
+        inputCostHoldingUnit2 = float(x['costHoldingUnit2'])
+        
+        inputDemand3 = int(x['demand3'])
+        inputNumPermanent3 = int(x['numPermanent3'])
+        inputProdPermanent3 = int(x['prodPermanent3'])
+        inputProdTemporary3 = int(x['prodTemporary3'])
+        inputCostHiring3 = float(x['costHiring3'])
+        inputCostFiring3 = float(x['costFiring3'])
+        inputCostHoldingUnit3 = float(x['costHoldingUnit3'])
+        
+        inputDemand4 = int(x['demand4'])
+        inputNumPermanent4 = int(x['numPermanent4'])
+        inputProdPermanent4 = int(x['prodPermanent4'])
+        inputProdTemporary4 = int(x['prodTemporary4'])
+        inputCostHiring4 = float(x['costHiring4'])
+        inputCostFiring4 = float(x['costFiring4'])
+        inputCostHoldingUnit4 = float(x['costHoldingUnit4'])
+        
+        inputDemand5 = int(x['demand5'])
+        inputNumPermanent5 = int(x['numPermanent5'])
+        inputProdPermanent5 = int(x['prodPermanent5'])
+        inputProdTemporary5 = int(x['prodTemporary5'])
+        inputCostHiring5 = float(x['costHiring5'])
+        inputCostFiring5 = float(x['costFiring5'])
+        inputCostHoldingUnit5 = float(x['costHoldingUnit5'])
+        
+        inputDemand6 = int(x['demand6'])
+        inputNumPermanent6 = int(x['numPermanent6'])
+        inputProdPermanent6 = int(x['prodPermanent6'])
+        inputProdTemporary6 = int(x['prodTemporary6'])
+        inputCostHiring6 = float(x['costHiring6'])
+        inputCostFiring6 = float(x['costFiring6'])
+        inputCostHoldingUnit6 = float(x['costHoldingUnit6'])
+        
+        inputDemand7 = int(x['demand7'])
+        inputNumPermanent7 = int(x['numPermanent7'])
+        inputProdPermanent7 = int(x['prodPermanent7'])
+        inputProdTemporary7 = int(x['prodTemporary7'])
+        inputCostHiring7 = float(x['costHiring7'])
+        inputCostFiring7 = float(x['costFiring7'])
+        inputCostHoldingUnit7 = float(x['costHoldingUnit7'])
+        
+        inputDemand8 = int(x['demand8'])
+        inputNumPermanent8 = int(x['numPermanent8'])
+        inputProdPermanent8 = int(x['prodPermanent8'])
+        inputProdTemporary8 = int(x['prodTemporary8'])
+        inputCostHiring8 = float(x['costHiring8'])
+        inputCostFiring8 = float(x['costFiring8'])
+        inputCostHoldingUnit8 = float(x['costHoldingUnit8'])
+    model = LpProblem("Minimize Cost", LpMinimize)
+    month = list(range(8))
+    ihcDict = LpVariable.dicts(
+        'IHC', month, lowBound=0, cat='Continuous')
+    ihcDict[7] = inputInventoryFinal
+    hcDict = LpVariable.dicts(
+        'HC', month, lowBound=0, cat='Continuous')
+    fcDict = LpVariable.dicts(
+        'FC', month, lowBound=0, cat='Continuous')
+    inputCostHoldingUnitDict = [inputCostHoldingUnit1, inputCostHoldingUnit2, inputCostHoldingUnit3, inputCostHoldingUnit4, inputCostHoldingUnit5, inputCostHoldingUnit6, inputCostHoldingUnit7, inputCostHoldingUnit8]
+    inputCostHiringDict = [inputCostHiring1, inputCostHiring2, inputCostHiring3, inputCostHiring4, inputCostHiring5, inputCostHiring6, inputCostHiring7, inputCostHiring8]
+    inputCostFiringDict = [inputCostFiring1, inputCostFiring2, inputCostFiring3, inputCostFiring4, inputCostFiring5, inputCostFiring6, inputCostFiring7, inputCostFiring8]
+    model += lpSum([inputCostHoldingUnitDict[i] * ihcDict[i] for i in month]) + lpSum([inputCostHiringDict[i] * hcDict[i] for i in month]) + lpSum([inputCostFiringDict[i] * fcDict[i] for i in month])
+    model.addConstraint(inputInventoryInitial + inputProdTemporary1 * hcDict[0] - inputProdTemporary1 * fcDict[0] - ihcDict[0] == inputDemand1 - (inputNumPermanent1 * inputProdPermanent1))
+    model.addConstraint(ihcDict[0] + inputProdTemporary2 * hcDict[0] - inputProdTemporary2*fcDict[0] + inputProdTemporary2*hcDict[1] - inputProdTemporary2*fcDict[1] - ihcDict[1] == inputDemand2 - (inputNumPermanent2 * inputProdPermanent2))
+    model.addConstraint(ihcDict[1] + inputProdTemporary3 * hcDict[0] - inputProdTemporary3*fcDict[0] + inputProdTemporary3*hcDict[1] - inputProdTemporary3*fcDict[1] + inputProdTemporary3*hcDict[2] - inputProdTemporary3*fcDict[2] - ihcDict[2] == inputDemand3 - (inputNumPermanent3 * inputProdPermanent3))
+    model.addConstraint(ihcDict[2] + inputProdTemporary4 * hcDict[0] - inputProdTemporary4*fcDict[0] + inputProdTemporary4*hcDict[1] - inputProdTemporary4*fcDict[1] + inputProdTemporary4*hcDict[2] - inputProdTemporary4*fcDict[2] + inputProdTemporary4*hcDict[3] - inputProdTemporary4*fcDict[3] - ihcDict[3] == inputDemand4 - (inputNumPermanent4 * inputProdPermanent4))
+    model.addConstraint(ihcDict[3] + inputProdTemporary5 * hcDict[0] - inputProdTemporary5*fcDict[0] + inputProdTemporary5*hcDict[1] - inputProdTemporary5*fcDict[1] + inputProdTemporary5*hcDict[2] - inputProdTemporary5*fcDict[2] + inputProdTemporary5*hcDict[3] - inputProdTemporary5*fcDict[3] + inputProdTemporary5*hcDict[4] - inputProdTemporary5*fcDict[4] - ihcDict[4] == inputDemand5 - (inputNumPermanent5 * inputProdPermanent5))
+    model.addConstraint(ihcDict[4] + inputProdTemporary6 * hcDict[0] - inputProdTemporary6*fcDict[0] + inputProdTemporary6*hcDict[1] - inputProdTemporary6*fcDict[1] + inputProdTemporary6*hcDict[2] - inputProdTemporary6*fcDict[2] + inputProdTemporary6*hcDict[3] - inputProdTemporary6*fcDict[3] + inputProdTemporary6*hcDict[4] - inputProdTemporary6*fcDict[4] + inputProdTemporary6*hcDict[5] - inputProdTemporary6*fcDict[5] - ihcDict[5] == inputDemand6 - (inputNumPermanent6 * inputProdPermanent6))
+    model.addConstraint(ihcDict[5] + inputProdTemporary7 * hcDict[0] - inputProdTemporary7*fcDict[0] + inputProdTemporary7*hcDict[1] - inputProdTemporary7*fcDict[1] + inputProdTemporary7*hcDict[2] - inputProdTemporary7*fcDict[2] + inputProdTemporary7*hcDict[3] - inputProdTemporary7*fcDict[3] + inputProdTemporary7*hcDict[4] - inputProdTemporary7*fcDict[4] + inputProdTemporary7*hcDict[5] - inputProdTemporary7*fcDict[5] + inputProdTemporary7*hcDict[6] - inputProdTemporary7*fcDict[6] - ihcDict[6] == inputDemand7 - (inputNumPermanent7 * inputProdPermanent7))
+    model.addConstraint(ihcDict[6] + inputProdTemporary8 * hcDict[0] - inputProdTemporary8*fcDict[0] + inputProdTemporary8*hcDict[1] - inputProdTemporary8*fcDict[1] + inputProdTemporary8*hcDict[2] - inputProdTemporary8*fcDict[2] + inputProdTemporary8*hcDict[3] - inputProdTemporary8*fcDict[3] + inputProdTemporary8*hcDict[4] - inputProdTemporary8*fcDict[4] + inputProdTemporary8*hcDict[5] - inputProdTemporary8*fcDict[5] + inputProdTemporary8*hcDict[6] - inputProdTemporary8*fcDict[6] + inputProdTemporary8*hcDict[7] - inputProdTemporary8*fcDict[7] - ihcDict[7] == inputDemand8 - (inputNumPermanent8 * inputProdPermanent8))
+    model.solve()
+    models.EightMonthPlan.objects.filter(planName = inputPlanName).update(inventoryInitial = inputInventoryInitial, inventoryFinal = inputInventoryFinal,inventoryMonth1 = ihcDict[0].varValue, inventoryMonth2 = ihcDict[1].varValue, inventoryMonth3 = ihcDict[2].varValue, inventoryMonth4 = ihcDict[3].varValue, inventoryMonth5 = ihcDict[4].varValue, inventoryMonth6 = ihcDict[5].varValue, inventoryMonth7 = ihcDict[6].varValue, hiredTemporary1 = hcDict[0].varValue, hiredTemporary2 = hcDict[1].varValue, hiredTemporary3 = hcDict[2].varValue, hiredTemporary4 = hcDict[3].varValue, hiredTemporary5 = hcDict[4].varValue, hiredTemporary6 = hcDict[5].varValue, hiredTemporary7 = hcDict[6].varValue, hiredTemporary8 = hcDict[7].varValue, firedTemporary1 = fcDict[0].varValue, firedTemporary2 = fcDict[1].varValue, firedTemporary3 = fcDict[2].varValue, firedTemporary4 = fcDict[3].varValue, firedTemporary5 = fcDict[4].varValue, firedTemporary6 = fcDict[5].varValue, firedTemporary7 = fcDict[6].varValue, firedTemporary8 = fcDict[7].varValue, optimalCost = value(model.objective))
+
+
+def optimizeNine(inputPlanName):
+    qs = models.NineMonthPlan.objects.filter(planName=inputPlanName).values()
+    for x in qs:
+        inputInventoryInitial = int(x['inventoryInitial'])
+        inputInventoryFinal = x['inventoryFinal']
+        
+        inputDemand1 = int(x['demand1'])
+        inputNumPermanent1 = int(x['numPermanent1'])
+        inputProdPermanent1 = int(x['prodPermanent1'])
+        inputProdTemporary1 = int(x['prodTemporary1'])
+        inputCostHiring1 = float(x['costHiring1'])
+        inputCostFiring1 = float(x['costFiring1'])
+        inputCostHoldingUnit1 = float(x['costHoldingUnit1'])
+        
+        inputDemand2 = int(x['demand2'])
+        inputNumPermanent2 = int(x['numPermanent2'])
+        inputProdPermanent2 = int(x['prodPermanent2'])
+        inputProdTemporary2 = int(x['prodTemporary2'])
+        inputCostHiring2 = float(x['costHiring2'])
+        inputCostFiring2 = float(x['costFiring2'])
+        inputCostHoldingUnit2 = float(x['costHoldingUnit2'])
+        
+        inputDemand3 = int(x['demand3'])
+        inputNumPermanent3 = int(x['numPermanent3'])
+        inputProdPermanent3 = int(x['prodPermanent3'])
+        inputProdTemporary3 = int(x['prodTemporary3'])
+        inputCostHiring3 = float(x['costHiring3'])
+        inputCostFiring3 = float(x['costFiring3'])
+        inputCostHoldingUnit3 = float(x['costHoldingUnit3'])
+        
+        inputDemand4 = int(x['demand4'])
+        inputNumPermanent4 = int(x['numPermanent4'])
+        inputProdPermanent4 = int(x['prodPermanent4'])
+        inputProdTemporary4 = int(x['prodTemporary4'])
+        inputCostHiring4 = float(x['costHiring4'])
+        inputCostFiring4 = float(x['costFiring4'])
+        inputCostHoldingUnit4 = float(x['costHoldingUnit4'])
+        
+        inputDemand5 = int(x['demand5'])
+        inputNumPermanent5 = int(x['numPermanent5'])
+        inputProdPermanent5 = int(x['prodPermanent5'])
+        inputProdTemporary5 = int(x['prodTemporary5'])
+        inputCostHiring5 = float(x['costHiring5'])
+        inputCostFiring5 = float(x['costFiring5'])
+        inputCostHoldingUnit5 = float(x['costHoldingUnit5'])
+        
+        inputDemand6 = int(x['demand6'])
+        inputNumPermanent6 = int(x['numPermanent6'])
+        inputProdPermanent6 = int(x['prodPermanent6'])
+        inputProdTemporary6 = int(x['prodTemporary6'])
+        inputCostHiring6 = float(x['costHiring6'])
+        inputCostFiring6 = float(x['costFiring6'])
+        inputCostHoldingUnit6 = float(x['costHoldingUnit6'])
+        
+        inputDemand7 = int(x['demand7'])
+        inputNumPermanent7 = int(x['numPermanent7'])
+        inputProdPermanent7 = int(x['prodPermanent7'])
+        inputProdTemporary7 = int(x['prodTemporary7'])
+        inputCostHiring7 = float(x['costHiring7'])
+        inputCostFiring7 = float(x['costFiring7'])
+        inputCostHoldingUnit7 = float(x['costHoldingUnit7'])
+        
+        inputDemand8 = int(x['demand8'])
+        inputNumPermanent8 = int(x['numPermanent8'])
+        inputProdPermanent8 = int(x['prodPermanent8'])
+        inputProdTemporary8 = int(x['prodTemporary8'])
+        inputCostHiring8 = float(x['costHiring8'])
+        inputCostFiring8 = float(x['costFiring8'])
+        inputCostHoldingUnit8 = float(x['costHoldingUnit8'])
+        
+        inputDemand9 = int(x['demand9'])
+        inputNumPermanent9 = int(x['numPermanent9'])
+        inputProdPermanent9 = int(x['prodPermanent9'])
+        inputProdTemporary9 = int(x['prodTemporary9'])
+        inputCostHiring9 = float(x['costHiring9'])
+        inputCostFiring9 = float(x['costFiring9'])
+        inputCostHoldingUnit9 = float(x['costHoldingUnit9'])
+    model = LpProblem("Minimize Cost", LpMinimize)
+    month = list(range(9))
+    ihcDict = LpVariable.dicts(
+        'IHC', month, lowBound=0, cat='Continuous')
+    ihcDict[8] = inputInventoryFinal
+    hcDict = LpVariable.dicts(
+        'HC', month, lowBound=0, cat='Continuous')
+    fcDict = LpVariable.dicts(
+        'FC', month, lowBound=0, cat='Continuous')
+    inputCostHoldingUnitDict = [inputCostHoldingUnit1, inputCostHoldingUnit2, inputCostHoldingUnit3, inputCostHoldingUnit4, inputCostHoldingUnit5, inputCostHoldingUnit6, inputCostHoldingUnit7, inputCostHoldingUnit8, inputCostHoldingUnit9]
+    inputCostHiringDict = [inputCostHiring1, inputCostHiring2, inputCostHiring3, inputCostHiring4, inputCostHiring5, inputCostHiring6, inputCostHiring7, inputCostHiring8, inputCostHiring9]
+    inputCostFiringDict = [inputCostFiring1, inputCostFiring2, inputCostFiring3, inputCostFiring4, inputCostFiring5, inputCostFiring6, inputCostFiring7, inputCostFiring8, inputCostFiring9]
+    model += lpSum([inputCostHoldingUnitDict[i] * ihcDict[i] for i in month]) + lpSum([inputCostHiringDict[i] * hcDict[i] for i in month]) + lpSum([inputCostFiringDict[i] * fcDict[i] for i in month])
+    model.addConstraint(inputInventoryInitial + inputProdTemporary1 * hcDict[0] - inputProdTemporary1 * fcDict[0] - ihcDict[0] == inputDemand1 - (inputNumPermanent1 * inputProdPermanent1))
+    model.addConstraint(ihcDict[0] + inputProdTemporary2 * hcDict[0] - inputProdTemporary2*fcDict[0] + inputProdTemporary2*hcDict[1] - inputProdTemporary2*fcDict[1] - ihcDict[1] == inputDemand2 - (inputNumPermanent2 * inputProdPermanent2))
+    model.addConstraint(ihcDict[1] + inputProdTemporary3 * hcDict[0] - inputProdTemporary3*fcDict[0] + inputProdTemporary3*hcDict[1] - inputProdTemporary3*fcDict[1] + inputProdTemporary3*hcDict[2] - inputProdTemporary3*fcDict[2] - ihcDict[2] == inputDemand3 - (inputNumPermanent3 * inputProdPermanent3))
+    model.addConstraint(ihcDict[2] + inputProdTemporary4 * hcDict[0] - inputProdTemporary4*fcDict[0] + inputProdTemporary4*hcDict[1] - inputProdTemporary4*fcDict[1] + inputProdTemporary4*hcDict[2] - inputProdTemporary4*fcDict[2] + inputProdTemporary4*hcDict[3] - inputProdTemporary4*fcDict[3] - ihcDict[3] == inputDemand4 - (inputNumPermanent4 * inputProdPermanent4))
+    model.addConstraint(ihcDict[3] + inputProdTemporary5 * hcDict[0] - inputProdTemporary5*fcDict[0] + inputProdTemporary5*hcDict[1] - inputProdTemporary5*fcDict[1] + inputProdTemporary5*hcDict[2] - inputProdTemporary5*fcDict[2] + inputProdTemporary5*hcDict[3] - inputProdTemporary5*fcDict[3] + inputProdTemporary5*hcDict[4] - inputProdTemporary5*fcDict[4] - ihcDict[4] == inputDemand5 - (inputNumPermanent5 * inputProdPermanent5))
+    model.addConstraint(ihcDict[4] + inputProdTemporary6 * hcDict[0] - inputProdTemporary6*fcDict[0] + inputProdTemporary6*hcDict[1] - inputProdTemporary6*fcDict[1] + inputProdTemporary6*hcDict[2] - inputProdTemporary6*fcDict[2] + inputProdTemporary6*hcDict[3] - inputProdTemporary6*fcDict[3] + inputProdTemporary6*hcDict[4] - inputProdTemporary6*fcDict[4] + inputProdTemporary6*hcDict[5] - inputProdTemporary6*fcDict[5] - ihcDict[5] == inputDemand6 - (inputNumPermanent6 * inputProdPermanent6))
+    model.addConstraint(ihcDict[5] + inputProdTemporary7 * hcDict[0] - inputProdTemporary7*fcDict[0] + inputProdTemporary7*hcDict[1] - inputProdTemporary7*fcDict[1] + inputProdTemporary7*hcDict[2] - inputProdTemporary7*fcDict[2] + inputProdTemporary7*hcDict[3] - inputProdTemporary7*fcDict[3] + inputProdTemporary7*hcDict[4] - inputProdTemporary7*fcDict[4] + inputProdTemporary7*hcDict[5] - inputProdTemporary7*fcDict[5] + inputProdTemporary7*hcDict[6] - inputProdTemporary7*fcDict[6] - ihcDict[6] == inputDemand7 - (inputNumPermanent7 * inputProdPermanent7))
+    model.addConstraint(ihcDict[6] + inputProdTemporary8 * hcDict[0] - inputProdTemporary8*fcDict[0] + inputProdTemporary8*hcDict[1] - inputProdTemporary8*fcDict[1] + inputProdTemporary8*hcDict[2] - inputProdTemporary8*fcDict[2] + inputProdTemporary8*hcDict[3] - inputProdTemporary8*fcDict[3] + inputProdTemporary8*hcDict[4] - inputProdTemporary8*fcDict[4] + inputProdTemporary8*hcDict[5] - inputProdTemporary8*fcDict[5] + inputProdTemporary8*hcDict[6] - inputProdTemporary8*fcDict[6] + inputProdTemporary8*hcDict[7] - inputProdTemporary8*fcDict[7] - ihcDict[7] == inputDemand8 - (inputNumPermanent8 * inputProdPermanent8))
+    model.addConstraint(ihcDict[7] + inputProdTemporary9 * hcDict[0] - inputProdTemporary9*fcDict[0] + inputProdTemporary9*hcDict[1] - inputProdTemporary9*fcDict[1] + inputProdTemporary9*hcDict[2] - inputProdTemporary9*fcDict[2] + inputProdTemporary9*hcDict[3] - inputProdTemporary9*fcDict[3] + inputProdTemporary9*hcDict[4] - inputProdTemporary9*fcDict[4] + inputProdTemporary9*hcDict[5] - inputProdTemporary9*fcDict[5] + inputProdTemporary9*hcDict[6] - inputProdTemporary9*fcDict[6] + inputProdTemporary9*hcDict[7] - inputProdTemporary9*fcDict[7] + inputProdTemporary9*hcDict[8] - inputProdTemporary9*fcDict[8] - ihcDict[8] == inputDemand9 - (inputNumPermanent9 * inputProdPermanent9))
+    model.solve()
+    models.NineMonthPlan.objects.filter(planName = inputPlanName).update(inventoryInitial = inputInventoryInitial, inventoryFinal = inputInventoryFinal,inventoryMonth1 = ihcDict[0].varValue, inventoryMonth2 = ihcDict[1].varValue, inventoryMonth3 = ihcDict[2].varValue, inventoryMonth4 = ihcDict[3].varValue, inventoryMonth5 = ihcDict[4].varValue, inventoryMonth6 = ihcDict[5].varValue, inventoryMonth7 = ihcDict[6].varValue, inventoryMonth8 = ihcDict[7].varValue, hiredTemporary1 = hcDict[0].varValue, hiredTemporary2 = hcDict[1].varValue, hiredTemporary3 = hcDict[2].varValue, hiredTemporary4 = hcDict[3].varValue, hiredTemporary5 = hcDict[4].varValue, hiredTemporary6 = hcDict[5].varValue, hiredTemporary7 = hcDict[6].varValue, hiredTemporary8 = hcDict[7].varValue, hiredTemporary9 = hcDict[8].varValue, firedTemporary1 = fcDict[0].varValue, firedTemporary2 = fcDict[1].varValue, firedTemporary3 = fcDict[2].varValue, firedTemporary4 = fcDict[3].varValue, firedTemporary5 = fcDict[4].varValue, firedTemporary6 = fcDict[5].varValue, firedTemporary7 = fcDict[6].varValue, firedTemporary8 = fcDict[7].varValue, firedTemporary9 = fcDict[8].varValue, optimalCost = value(model.objective))
+
+
+def optimizeTen(inputPlanName):
+    qs = models.TenMonthPlan.objects.filter(planName=inputPlanName).values()
+    for x in qs:
+        inputInventoryInitial = int(x['inventoryInitial'])
+        inputInventoryFinal = x['inventoryFinal']
+        
+        inputDemand1 = int(x['demand1'])
+        inputNumPermanent1 = int(x['numPermanent1'])
+        inputProdPermanent1 = int(x['prodPermanent1'])
+        inputProdTemporary1 = int(x['prodTemporary1'])
+        inputCostHiring1 = float(x['costHiring1'])
+        inputCostFiring1 = float(x['costFiring1'])
+        inputCostHoldingUnit1 = float(x['costHoldingUnit1'])
+        
+        inputDemand2 = int(x['demand2'])
+        inputNumPermanent2 = int(x['numPermanent2'])
+        inputProdPermanent2 = int(x['prodPermanent2'])
+        inputProdTemporary2 = int(x['prodTemporary2'])
+        inputCostHiring2 = float(x['costHiring2'])
+        inputCostFiring2 = float(x['costFiring2'])
+        inputCostHoldingUnit2 = float(x['costHoldingUnit2'])
+        
+        inputDemand3 = int(x['demand3'])
+        inputNumPermanent3 = int(x['numPermanent3'])
+        inputProdPermanent3 = int(x['prodPermanent3'])
+        inputProdTemporary3 = int(x['prodTemporary3'])
+        inputCostHiring3 = float(x['costHiring3'])
+        inputCostFiring3 = float(x['costFiring3'])
+        inputCostHoldingUnit3 = float(x['costHoldingUnit3'])
+        
+        inputDemand4 = int(x['demand4'])
+        inputNumPermanent4 = int(x['numPermanent4'])
+        inputProdPermanent4 = int(x['prodPermanent4'])
+        inputProdTemporary4 = int(x['prodTemporary4'])
+        inputCostHiring4 = float(x['costHiring4'])
+        inputCostFiring4 = float(x['costFiring4'])
+        inputCostHoldingUnit4 = float(x['costHoldingUnit4'])
+        
+        inputDemand5 = int(x['demand5'])
+        inputNumPermanent5 = int(x['numPermanent5'])
+        inputProdPermanent5 = int(x['prodPermanent5'])
+        inputProdTemporary5 = int(x['prodTemporary5'])
+        inputCostHiring5 = float(x['costHiring5'])
+        inputCostFiring5 = float(x['costFiring5'])
+        inputCostHoldingUnit5 = float(x['costHoldingUnit5'])
+        
+        inputDemand6 = int(x['demand6'])
+        inputNumPermanent6 = int(x['numPermanent6'])
+        inputProdPermanent6 = int(x['prodPermanent6'])
+        inputProdTemporary6 = int(x['prodTemporary6'])
+        inputCostHiring6 = float(x['costHiring6'])
+        inputCostFiring6 = float(x['costFiring6'])
+        inputCostHoldingUnit6 = float(x['costHoldingUnit6'])
+        
+        inputDemand7 = int(x['demand7'])
+        inputNumPermanent7 = int(x['numPermanent7'])
+        inputProdPermanent7 = int(x['prodPermanent7'])
+        inputProdTemporary7 = int(x['prodTemporary7'])
+        inputCostHiring7 = float(x['costHiring7'])
+        inputCostFiring7 = float(x['costFiring7'])
+        inputCostHoldingUnit7 = float(x['costHoldingUnit7'])
+        
+        inputDemand8 = int(x['demand8'])
+        inputNumPermanent8 = int(x['numPermanent8'])
+        inputProdPermanent8 = int(x['prodPermanent8'])
+        inputProdTemporary8 = int(x['prodTemporary8'])
+        inputCostHiring8 = float(x['costHiring8'])
+        inputCostFiring8 = float(x['costFiring8'])
+        inputCostHoldingUnit8 = float(x['costHoldingUnit8'])
+        
+        inputDemand9 = int(x['demand9'])
+        inputNumPermanent9 = int(x['numPermanent9'])
+        inputProdPermanent9 = int(x['prodPermanent9'])
+        inputProdTemporary9 = int(x['prodTemporary9'])
+        inputCostHiring9 = float(x['costHiring9'])
+        inputCostFiring9 = float(x['costFiring9'])
+        inputCostHoldingUnit9 = float(x['costHoldingUnit9'])
+        
+        inputDemand10 = int(x['demand10'])
+        inputNumPermanent10 = int(x['numPermanent10'])
+        inputProdPermanent10 = int(x['prodPermanent10'])
+        inputProdTemporary10 = int(x['prodTemporary10'])
+        inputCostHiring10 = float(x['costHiring10'])
+        inputCostFiring10 = float(x['costFiring10'])
+        inputCostHoldingUnit10 = float(x['costHoldingUnit10'])
+    model = LpProblem("Minimize Cost", LpMinimize)
+    month = list(range(10))
+    ihcDict = LpVariable.dicts(
+        'IHC', month, lowBound=0, cat='Continuous')
+    ihcDict[9] = inputInventoryFinal
+    hcDict = LpVariable.dicts(
+        'HC', month, lowBound=0, cat='Continuous')
+    fcDict = LpVariable.dicts(
+        'FC', month, lowBound=0, cat='Continuous')
+    inputCostHoldingUnitDict = [inputCostHoldingUnit1, inputCostHoldingUnit2, inputCostHoldingUnit3, inputCostHoldingUnit4, inputCostHoldingUnit5, inputCostHoldingUnit6, inputCostHoldingUnit7, inputCostHoldingUnit8, inputCostHoldingUnit9, inputCostHoldingUnit10]
+    inputCostHiringDict = [inputCostHiring1, inputCostHiring2, inputCostHiring3, inputCostHiring4, inputCostHiring5, inputCostHiring6, inputCostHiring7, inputCostHiring8, inputCostHiring9, inputCostHiring10]
+    inputCostFiringDict = [inputCostFiring1, inputCostFiring2, inputCostFiring3, inputCostFiring4, inputCostFiring5, inputCostFiring6, inputCostFiring7, inputCostFiring8, inputCostFiring9, inputCostFiring10]
+    model += lpSum([inputCostHoldingUnitDict[i] * ihcDict[i] for i in month]) + lpSum([inputCostHiringDict[i] * hcDict[i] for i in month]) + lpSum([inputCostFiringDict[i] * fcDict[i] for i in month])
+    model.addConstraint(inputInventoryInitial + inputProdTemporary1 * hcDict[0] - inputProdTemporary1 * fcDict[0] - ihcDict[0] == inputDemand1 - (inputNumPermanent1 * inputProdPermanent1))
+    model.addConstraint(ihcDict[0] + inputProdTemporary2 * hcDict[0] - inputProdTemporary2*fcDict[0] + inputProdTemporary2*hcDict[1] - inputProdTemporary2*fcDict[1] - ihcDict[1] == inputDemand2 - (inputNumPermanent2 * inputProdPermanent2))
+    model.addConstraint(ihcDict[1] + inputProdTemporary3 * hcDict[0] - inputProdTemporary3*fcDict[0] + inputProdTemporary3*hcDict[1] - inputProdTemporary3*fcDict[1] + inputProdTemporary3*hcDict[2] - inputProdTemporary3*fcDict[2] - ihcDict[2] == inputDemand3 - (inputNumPermanent3 * inputProdPermanent3))
+    model.addConstraint(ihcDict[2] + inputProdTemporary4 * hcDict[0] - inputProdTemporary4*fcDict[0] + inputProdTemporary4*hcDict[1] - inputProdTemporary4*fcDict[1] + inputProdTemporary4*hcDict[2] - inputProdTemporary4*fcDict[2] + inputProdTemporary4*hcDict[3] - inputProdTemporary4*fcDict[3] - ihcDict[3] == inputDemand4 - (inputNumPermanent4 * inputProdPermanent4))
+    model.addConstraint(ihcDict[3] + inputProdTemporary5 * hcDict[0] - inputProdTemporary5*fcDict[0] + inputProdTemporary5*hcDict[1] - inputProdTemporary5*fcDict[1] + inputProdTemporary5*hcDict[2] - inputProdTemporary5*fcDict[2] + inputProdTemporary5*hcDict[3] - inputProdTemporary5*fcDict[3] + inputProdTemporary5*hcDict[4] - inputProdTemporary5*fcDict[4] - ihcDict[4] == inputDemand5 - (inputNumPermanent5 * inputProdPermanent5))
+    model.addConstraint(ihcDict[4] + inputProdTemporary6 * hcDict[0] - inputProdTemporary6*fcDict[0] + inputProdTemporary6*hcDict[1] - inputProdTemporary6*fcDict[1] + inputProdTemporary6*hcDict[2] - inputProdTemporary6*fcDict[2] + inputProdTemporary6*hcDict[3] - inputProdTemporary6*fcDict[3] + inputProdTemporary6*hcDict[4] - inputProdTemporary6*fcDict[4] + inputProdTemporary6*hcDict[5] - inputProdTemporary6*fcDict[5] - ihcDict[5] == inputDemand6 - (inputNumPermanent6 * inputProdPermanent6))
+    model.addConstraint(ihcDict[5] + inputProdTemporary7 * hcDict[0] - inputProdTemporary7*fcDict[0] + inputProdTemporary7*hcDict[1] - inputProdTemporary7*fcDict[1] + inputProdTemporary7*hcDict[2] - inputProdTemporary7*fcDict[2] + inputProdTemporary7*hcDict[3] - inputProdTemporary7*fcDict[3] + inputProdTemporary7*hcDict[4] - inputProdTemporary7*fcDict[4] + inputProdTemporary7*hcDict[5] - inputProdTemporary7*fcDict[5] + inputProdTemporary7*hcDict[6] - inputProdTemporary7*fcDict[6] - ihcDict[6] == inputDemand7 - (inputNumPermanent7 * inputProdPermanent7))
+    model.addConstraint(ihcDict[6] + inputProdTemporary8 * hcDict[0] - inputProdTemporary8*fcDict[0] + inputProdTemporary8*hcDict[1] - inputProdTemporary8*fcDict[1] + inputProdTemporary8*hcDict[2] - inputProdTemporary8*fcDict[2] + inputProdTemporary8*hcDict[3] - inputProdTemporary8*fcDict[3] + inputProdTemporary8*hcDict[4] - inputProdTemporary8*fcDict[4] + inputProdTemporary8*hcDict[5] - inputProdTemporary8*fcDict[5] + inputProdTemporary8*hcDict[6] - inputProdTemporary8*fcDict[6] + inputProdTemporary8*hcDict[7] - inputProdTemporary8*fcDict[7] - ihcDict[7] == inputDemand8 - (inputNumPermanent8 * inputProdPermanent8))
+    model.addConstraint(ihcDict[7] + inputProdTemporary9 * hcDict[0] - inputProdTemporary9*fcDict[0] + inputProdTemporary9*hcDict[1] - inputProdTemporary9*fcDict[1] + inputProdTemporary9*hcDict[2] - inputProdTemporary9*fcDict[2] + inputProdTemporary9*hcDict[3] - inputProdTemporary9*fcDict[3] + inputProdTemporary9*hcDict[4] - inputProdTemporary9*fcDict[4] + inputProdTemporary9*hcDict[5] - inputProdTemporary9*fcDict[5] + inputProdTemporary9*hcDict[6] - inputProdTemporary9*fcDict[6] + inputProdTemporary9*hcDict[7] - inputProdTemporary9*fcDict[7] + inputProdTemporary9*hcDict[8] - inputProdTemporary9*fcDict[8] - ihcDict[8] == inputDemand9 - (inputNumPermanent9 * inputProdPermanent9))
+    model.addConstraint(ihcDict[8] + inputProdTemporary10 * hcDict[0] - inputProdTemporary10*fcDict[0] + inputProdTemporary10*hcDict[1] - inputProdTemporary10*fcDict[1] + inputProdTemporary10*hcDict[2] - inputProdTemporary10*fcDict[2] + inputProdTemporary10*hcDict[3] - inputProdTemporary10*fcDict[3] + inputProdTemporary10*hcDict[4] - inputProdTemporary10*fcDict[4] + inputProdTemporary10*hcDict[5] - inputProdTemporary10*fcDict[5] + inputProdTemporary10*hcDict[6] - inputProdTemporary10*fcDict[6] + inputProdTemporary10*hcDict[7] - inputProdTemporary10*fcDict[7] + inputProdTemporary10*hcDict[8] - inputProdTemporary10*fcDict[8] + inputProdTemporary10*hcDict[9] - inputProdTemporary10*fcDict[9] - ihcDict[9] == inputDemand10 - (inputNumPermanent10 * inputProdPermanent10))
+    model.solve()
+    models.TenMonthPlan.objects.filter(planName = inputPlanName).update(inventoryInitial = inputInventoryInitial, inventoryFinal = inputInventoryFinal,inventoryMonth1 = ihcDict[0].varValue, inventoryMonth2 = ihcDict[1].varValue, inventoryMonth3 = ihcDict[2].varValue, inventoryMonth4 = ihcDict[3].varValue, inventoryMonth5 = ihcDict[4].varValue, inventoryMonth6 = ihcDict[5].varValue, inventoryMonth7 = ihcDict[6].varValue, inventoryMonth8 = ihcDict[7].varValue, inventoryMonth9 = ihcDict[8].varValue, hiredTemporary1 = hcDict[0].varValue, hiredTemporary2 = hcDict[1].varValue, hiredTemporary3 = hcDict[2].varValue, hiredTemporary4 = hcDict[3].varValue, hiredTemporary5 = hcDict[4].varValue, hiredTemporary6 = hcDict[5].varValue, hiredTemporary7 = hcDict[6].varValue, hiredTemporary8 = hcDict[7].varValue, hiredTemporary9 = hcDict[8].varValue, hiredTemporary10 = hcDict[9].varValue, firedTemporary1 = fcDict[0].varValue, firedTemporary2 = fcDict[1].varValue, firedTemporary3 = fcDict[2].varValue, firedTemporary4 = fcDict[3].varValue, firedTemporary5 = fcDict[4].varValue, firedTemporary6 = fcDict[5].varValue, firedTemporary7 = fcDict[6].varValue, firedTemporary8 = fcDict[7].varValue, firedTemporary9 = fcDict[8].varValue, firedTemporary10 = fcDict[9].varValue, optimalCost = value(model.objective))
+
+
+def optimizeEleven(inputPlanName):
+    qs = models.ElevenMonthPlan.objects.filter(planName=inputPlanName).values()
+    for x in qs:
+        inputInventoryInitial = int(x['inventoryInitial'])
+        inputInventoryFinal = x['inventoryFinal']
+        
+        inputDemand1 = int(x['demand1'])
+        inputNumPermanent1 = int(x['numPermanent1'])
+        inputProdPermanent1 = int(x['prodPermanent1'])
+        inputProdTemporary1 = int(x['prodTemporary1'])
+        inputCostHiring1 = float(x['costHiring1'])
+        inputCostFiring1 = float(x['costFiring1'])
+        inputCostHoldingUnit1 = float(x['costHoldingUnit1'])
+        
+        inputDemand2 = int(x['demand2'])
+        inputNumPermanent2 = int(x['numPermanent2'])
+        inputProdPermanent2 = int(x['prodPermanent2'])
+        inputProdTemporary2 = int(x['prodTemporary2'])
+        inputCostHiring2 = float(x['costHiring2'])
+        inputCostFiring2 = float(x['costFiring2'])
+        inputCostHoldingUnit2 = float(x['costHoldingUnit2'])
+        
+        inputDemand3 = int(x['demand3'])
+        inputNumPermanent3 = int(x['numPermanent3'])
+        inputProdPermanent3 = int(x['prodPermanent3'])
+        inputProdTemporary3 = int(x['prodTemporary3'])
+        inputCostHiring3 = float(x['costHiring3'])
+        inputCostFiring3 = float(x['costFiring3'])
+        inputCostHoldingUnit3 = float(x['costHoldingUnit3'])
+        
+        inputDemand4 = int(x['demand4'])
+        inputNumPermanent4 = int(x['numPermanent4'])
+        inputProdPermanent4 = int(x['prodPermanent4'])
+        inputProdTemporary4 = int(x['prodTemporary4'])
+        inputCostHiring4 = float(x['costHiring4'])
+        inputCostFiring4 = float(x['costFiring4'])
+        inputCostHoldingUnit4 = float(x['costHoldingUnit4'])
+        
+        inputDemand5 = int(x['demand5'])
+        inputNumPermanent5 = int(x['numPermanent5'])
+        inputProdPermanent5 = int(x['prodPermanent5'])
+        inputProdTemporary5 = int(x['prodTemporary5'])
+        inputCostHiring5 = float(x['costHiring5'])
+        inputCostFiring5 = float(x['costFiring5'])
+        inputCostHoldingUnit5 = float(x['costHoldingUnit5'])
+        
+        inputDemand6 = int(x['demand6'])
+        inputNumPermanent6 = int(x['numPermanent6'])
+        inputProdPermanent6 = int(x['prodPermanent6'])
+        inputProdTemporary6 = int(x['prodTemporary6'])
+        inputCostHiring6 = float(x['costHiring6'])
+        inputCostFiring6 = float(x['costFiring6'])
+        inputCostHoldingUnit6 = float(x['costHoldingUnit6'])
+        
+        inputDemand7 = int(x['demand7'])
+        inputNumPermanent7 = int(x['numPermanent7'])
+        inputProdPermanent7 = int(x['prodPermanent7'])
+        inputProdTemporary7 = int(x['prodTemporary7'])
+        inputCostHiring7 = float(x['costHiring7'])
+        inputCostFiring7 = float(x['costFiring7'])
+        inputCostHoldingUnit7 = float(x['costHoldingUnit7'])
+        
+        inputDemand8 = int(x['demand8'])
+        inputNumPermanent8 = int(x['numPermanent8'])
+        inputProdPermanent8 = int(x['prodPermanent8'])
+        inputProdTemporary8 = int(x['prodTemporary8'])
+        inputCostHiring8 = float(x['costHiring8'])
+        inputCostFiring8 = float(x['costFiring8'])
+        inputCostHoldingUnit8 = float(x['costHoldingUnit8'])
+        
+        inputDemand9 = int(x['demand9'])
+        inputNumPermanent9 = int(x['numPermanent9'])
+        inputProdPermanent9 = int(x['prodPermanent9'])
+        inputProdTemporary9 = int(x['prodTemporary9'])
+        inputCostHiring9 = float(x['costHiring9'])
+        inputCostFiring9 = float(x['costFiring9'])
+        inputCostHoldingUnit9 = float(x['costHoldingUnit9'])
+        
+        inputDemand10 = int(x['demand10'])
+        inputNumPermanent10 = int(x['numPermanent10'])
+        inputProdPermanent10 = int(x['prodPermanent10'])
+        inputProdTemporary10 = int(x['prodTemporary10'])
+        inputCostHiring10 = float(x['costHiring10'])
+        inputCostFiring10 = float(x['costFiring10'])
+        inputCostHoldingUnit10 = float(x['costHoldingUnit10'])
+        
+        inputDemand11 = int(x['demand11'])
+        inputNumPermanent11 = int(x['numPermanent11'])
+        inputProdPermanent11 = int(x['prodPermanent11'])
+        inputProdTemporary11 = int(x['prodTemporary11'])
+        inputCostHiring11 = float(x['costHiring11'])
+        inputCostFiring11 = float(x['costFiring11'])
+        inputCostHoldingUnit11 = float(x['costHoldingUnit11'])
+    model = LpProblem("Minimize Cost", LpMinimize)
+    month = list(range(11))
+    ihcDict = LpVariable.dicts(
+        'IHC', month, lowBound=0, cat='Continuous')
+    ihcDict[10] = inputInventoryFinal
+    hcDict = LpVariable.dicts(
+        'HC', month, lowBound=0, cat='Continuous')
+    fcDict = LpVariable.dicts(
+        'FC', month, lowBound=0, cat='Continuous')
+    inputCostHoldingUnitDict = [inputCostHoldingUnit1, inputCostHoldingUnit2, inputCostHoldingUnit3, inputCostHoldingUnit4, inputCostHoldingUnit5, inputCostHoldingUnit6, inputCostHoldingUnit7, inputCostHoldingUnit8, inputCostHoldingUnit9, inputCostHoldingUnit10, inputCostHoldingUnit11]
+    inputCostHiringDict = [inputCostHiring1, inputCostHiring2, inputCostHiring3, inputCostHiring4, inputCostHiring5, inputCostHiring6, inputCostHiring7, inputCostHiring8, inputCostHiring9, inputCostHiring10, inputCostHiring11]
+    inputCostFiringDict = [inputCostFiring1, inputCostFiring2, inputCostFiring3, inputCostFiring4, inputCostFiring5, inputCostFiring6, inputCostFiring7, inputCostFiring8, inputCostFiring9, inputCostFiring10, inputCostFiring11]
+    model += lpSum([inputCostHoldingUnitDict[i] * ihcDict[i] for i in month]) + lpSum([inputCostHiringDict[i] * hcDict[i] for i in month]) + lpSum([inputCostFiringDict[i] * fcDict[i] for i in month])
+    model.addConstraint(inputInventoryInitial + inputProdTemporary1 * hcDict[0] - inputProdTemporary1 * fcDict[0] - ihcDict[0] == inputDemand1 - (inputNumPermanent1 * inputProdPermanent1))
+    model.addConstraint(ihcDict[0] + inputProdTemporary2 * hcDict[0] - inputProdTemporary2*fcDict[0] + inputProdTemporary2*hcDict[1] - inputProdTemporary2*fcDict[1] - ihcDict[1] == inputDemand2 - (inputNumPermanent2 * inputProdPermanent2))
+    model.addConstraint(ihcDict[1] + inputProdTemporary3 * hcDict[0] - inputProdTemporary3*fcDict[0] + inputProdTemporary3*hcDict[1] - inputProdTemporary3*fcDict[1] + inputProdTemporary3*hcDict[2] - inputProdTemporary3*fcDict[2] - ihcDict[2] == inputDemand3 - (inputNumPermanent3 * inputProdPermanent3))
+    model.addConstraint(ihcDict[2] + inputProdTemporary4 * hcDict[0] - inputProdTemporary4*fcDict[0] + inputProdTemporary4*hcDict[1] - inputProdTemporary4*fcDict[1] + inputProdTemporary4*hcDict[2] - inputProdTemporary4*fcDict[2] + inputProdTemporary4*hcDict[3] - inputProdTemporary4*fcDict[3] - ihcDict[3] == inputDemand4 - (inputNumPermanent4 * inputProdPermanent4))
+    model.addConstraint(ihcDict[3] + inputProdTemporary5 * hcDict[0] - inputProdTemporary5*fcDict[0] + inputProdTemporary5*hcDict[1] - inputProdTemporary5*fcDict[1] + inputProdTemporary5*hcDict[2] - inputProdTemporary5*fcDict[2] + inputProdTemporary5*hcDict[3] - inputProdTemporary5*fcDict[3] + inputProdTemporary5*hcDict[4] - inputProdTemporary5*fcDict[4] - ihcDict[4] == inputDemand5 - (inputNumPermanent5 * inputProdPermanent5))
+    model.addConstraint(ihcDict[4] + inputProdTemporary6 * hcDict[0] - inputProdTemporary6*fcDict[0] + inputProdTemporary6*hcDict[1] - inputProdTemporary6*fcDict[1] + inputProdTemporary6*hcDict[2] - inputProdTemporary6*fcDict[2] + inputProdTemporary6*hcDict[3] - inputProdTemporary6*fcDict[3] + inputProdTemporary6*hcDict[4] - inputProdTemporary6*fcDict[4] + inputProdTemporary6*hcDict[5] - inputProdTemporary6*fcDict[5] - ihcDict[5] == inputDemand6 - (inputNumPermanent6 * inputProdPermanent6))
+    model.addConstraint(ihcDict[5] + inputProdTemporary7 * hcDict[0] - inputProdTemporary7*fcDict[0] + inputProdTemporary7*hcDict[1] - inputProdTemporary7*fcDict[1] + inputProdTemporary7*hcDict[2] - inputProdTemporary7*fcDict[2] + inputProdTemporary7*hcDict[3] - inputProdTemporary7*fcDict[3] + inputProdTemporary7*hcDict[4] - inputProdTemporary7*fcDict[4] + inputProdTemporary7*hcDict[5] - inputProdTemporary7*fcDict[5] + inputProdTemporary7*hcDict[6] - inputProdTemporary7*fcDict[6] - ihcDict[6] == inputDemand7 - (inputNumPermanent7 * inputProdPermanent7))
+    model.addConstraint(ihcDict[6] + inputProdTemporary8 * hcDict[0] - inputProdTemporary8*fcDict[0] + inputProdTemporary8*hcDict[1] - inputProdTemporary8*fcDict[1] + inputProdTemporary8*hcDict[2] - inputProdTemporary8*fcDict[2] + inputProdTemporary8*hcDict[3] - inputProdTemporary8*fcDict[3] + inputProdTemporary8*hcDict[4] - inputProdTemporary8*fcDict[4] + inputProdTemporary8*hcDict[5] - inputProdTemporary8*fcDict[5] + inputProdTemporary8*hcDict[6] - inputProdTemporary8*fcDict[6] + inputProdTemporary8*hcDict[7] - inputProdTemporary8*fcDict[7] - ihcDict[7] == inputDemand8 - (inputNumPermanent8 * inputProdPermanent8))
+    model.addConstraint(ihcDict[7] + inputProdTemporary9 * hcDict[0] - inputProdTemporary9*fcDict[0] + inputProdTemporary9*hcDict[1] - inputProdTemporary9*fcDict[1] + inputProdTemporary9*hcDict[2] - inputProdTemporary9*fcDict[2] + inputProdTemporary9*hcDict[3] - inputProdTemporary9*fcDict[3] + inputProdTemporary9*hcDict[4] - inputProdTemporary9*fcDict[4] + inputProdTemporary9*hcDict[5] - inputProdTemporary9*fcDict[5] + inputProdTemporary9*hcDict[6] - inputProdTemporary9*fcDict[6] + inputProdTemporary9*hcDict[7] - inputProdTemporary9*fcDict[7] + inputProdTemporary9*hcDict[8] - inputProdTemporary9*fcDict[8] - ihcDict[8] == inputDemand9 - (inputNumPermanent9 * inputProdPermanent9))
+    model.addConstraint(ihcDict[8] + inputProdTemporary10 * hcDict[0] - inputProdTemporary10*fcDict[0] + inputProdTemporary10*hcDict[1] - inputProdTemporary10*fcDict[1] + inputProdTemporary10*hcDict[2] - inputProdTemporary10*fcDict[2] + inputProdTemporary10*hcDict[3] - inputProdTemporary10*fcDict[3] + inputProdTemporary10*hcDict[4] - inputProdTemporary10*fcDict[4] + inputProdTemporary10*hcDict[5] - inputProdTemporary10*fcDict[5] + inputProdTemporary10*hcDict[6] - inputProdTemporary10*fcDict[6] + inputProdTemporary10*hcDict[7] - inputProdTemporary10*fcDict[7] + inputProdTemporary10*hcDict[8] - inputProdTemporary10*fcDict[8] + inputProdTemporary10*hcDict[9] - inputProdTemporary10*fcDict[9] - ihcDict[9] == inputDemand10 - (inputNumPermanent10 * inputProdPermanent10))
+    model.addConstraint(ihcDict[9] + inputProdTemporary11 * hcDict[0] - inputProdTemporary11*fcDict[0] + inputProdTemporary11*hcDict[1] - inputProdTemporary11*fcDict[1] + inputProdTemporary11*hcDict[2] - inputProdTemporary11*fcDict[2] + inputProdTemporary11*hcDict[3] - inputProdTemporary11*fcDict[3] + inputProdTemporary11*hcDict[4] - inputProdTemporary11*fcDict[4] + inputProdTemporary11*hcDict[5] - inputProdTemporary11*fcDict[5] + inputProdTemporary11*hcDict[6] - inputProdTemporary11*fcDict[6] + inputProdTemporary11*hcDict[7] - inputProdTemporary11*fcDict[7] + inputProdTemporary11*hcDict[8] - inputProdTemporary11*fcDict[8] + inputProdTemporary11*hcDict[9] - inputProdTemporary11*fcDict[9] + inputProdTemporary11*hcDict[10] - inputProdTemporary11*fcDict[10] - ihcDict[10] == inputDemand11 - (inputNumPermanent11 * inputProdPermanent11))
+    model.solve()
+    models.ElevenMonthPlan.objects.filter(planName = inputPlanName).update(inventoryInitial = inputInventoryInitial, inventoryFinal = inputInventoryFinal,inventoryMonth1 = ihcDict[0].varValue, inventoryMonth2 = ihcDict[1].varValue, inventoryMonth3 = ihcDict[2].varValue, inventoryMonth4 = ihcDict[3].varValue, inventoryMonth5 = ihcDict[4].varValue, inventoryMonth6 = ihcDict[5].varValue, inventoryMonth7 = ihcDict[6].varValue, inventoryMonth8 = ihcDict[7].varValue, inventoryMonth9 = ihcDict[8].varValue, inventoryMonth10 = ihcDict[9].varValue, hiredTemporary1 = hcDict[0].varValue, hiredTemporary2 = hcDict[1].varValue, hiredTemporary3 = hcDict[2].varValue, hiredTemporary4 = hcDict[3].varValue, hiredTemporary5 = hcDict[4].varValue, hiredTemporary6 = hcDict[5].varValue, hiredTemporary7 = hcDict[6].varValue, hiredTemporary8 = hcDict[7].varValue, hiredTemporary9 = hcDict[8].varValue, hiredTemporary10 = hcDict[9].varValue, hiredTemporary11 = hcDict[10].varValue, firedTemporary1 = fcDict[0].varValue, firedTemporary2 = fcDict[1].varValue, firedTemporary3 = fcDict[2].varValue, firedTemporary4 = fcDict[3].varValue, firedTemporary5 = fcDict[4].varValue, firedTemporary6 = fcDict[5].varValue, firedTemporary7 = fcDict[6].varValue, firedTemporary8 = fcDict[7].varValue, firedTemporary9 = fcDict[8].varValue, firedTemporary10 = fcDict[9].varValue, firedTemporary11 = fcDict[10].varValue, optimalCost = value(model.objective))
+
+
+def optimizeTwelve(inputPlanName):
+    qs = models.TwelveMonthPlan.objects.filter(planName=inputPlanName).values()
+    for x in qs:
+        inputInventoryInitial = int(x['inventoryInitial'])
+        inputInventoryFinal = x['inventoryFinal']
+        
+        inputDemand1 = int(x['demand1'])
+        inputNumPermanent1 = int(x['numPermanent1'])
+        inputProdPermanent1 = int(x['prodPermanent1'])
+        inputProdTemporary1 = int(x['prodTemporary1'])
+        inputCostHiring1 = float(x['costHiring1'])
+        inputCostFiring1 = float(x['costFiring1'])
+        inputCostHoldingUnit1 = float(x['costHoldingUnit1'])
+        
+        inputDemand2 = int(x['demand2'])
+        inputNumPermanent2 = int(x['numPermanent2'])
+        inputProdPermanent2 = int(x['prodPermanent2'])
+        inputProdTemporary2 = int(x['prodTemporary2'])
+        inputCostHiring2 = float(x['costHiring2'])
+        inputCostFiring2 = float(x['costFiring2'])
+        inputCostHoldingUnit2 = float(x['costHoldingUnit2'])
+        
+        inputDemand3 = int(x['demand3'])
+        inputNumPermanent3 = int(x['numPermanent3'])
+        inputProdPermanent3 = int(x['prodPermanent3'])
+        inputProdTemporary3 = int(x['prodTemporary3'])
+        inputCostHiring3 = float(x['costHiring3'])
+        inputCostFiring3 = float(x['costFiring3'])
+        inputCostHoldingUnit3 = float(x['costHoldingUnit3'])
+        
+        inputDemand4 = int(x['demand4'])
+        inputNumPermanent4 = int(x['numPermanent4'])
+        inputProdPermanent4 = int(x['prodPermanent4'])
+        inputProdTemporary4 = int(x['prodTemporary4'])
+        inputCostHiring4 = float(x['costHiring4'])
+        inputCostFiring4 = float(x['costFiring4'])
+        inputCostHoldingUnit4 = float(x['costHoldingUnit4'])
+        
+        inputDemand5 = int(x['demand5'])
+        inputNumPermanent5 = int(x['numPermanent5'])
+        inputProdPermanent5 = int(x['prodPermanent5'])
+        inputProdTemporary5 = int(x['prodTemporary5'])
+        inputCostHiring5 = float(x['costHiring5'])
+        inputCostFiring5 = float(x['costFiring5'])
+        inputCostHoldingUnit5 = float(x['costHoldingUnit5'])
+        
+        inputDemand6 = int(x['demand6'])
+        inputNumPermanent6 = int(x['numPermanent6'])
+        inputProdPermanent6 = int(x['prodPermanent6'])
+        inputProdTemporary6 = int(x['prodTemporary6'])
+        inputCostHiring6 = float(x['costHiring6'])
+        inputCostFiring6 = float(x['costFiring6'])
+        inputCostHoldingUnit6 = float(x['costHoldingUnit6'])
+        
+        inputDemand7 = int(x['demand7'])
+        inputNumPermanent7 = int(x['numPermanent7'])
+        inputProdPermanent7 = int(x['prodPermanent7'])
+        inputProdTemporary7 = int(x['prodTemporary7'])
+        inputCostHiring7 = float(x['costHiring7'])
+        inputCostFiring7 = float(x['costFiring7'])
+        inputCostHoldingUnit7 = float(x['costHoldingUnit7'])
+        
+        inputDemand8 = int(x['demand8'])
+        inputNumPermanent8 = int(x['numPermanent8'])
+        inputProdPermanent8 = int(x['prodPermanent8'])
+        inputProdTemporary8 = int(x['prodTemporary8'])
+        inputCostHiring8 = float(x['costHiring8'])
+        inputCostFiring8 = float(x['costFiring8'])
+        inputCostHoldingUnit8 = float(x['costHoldingUnit8'])
+        
+        inputDemand9 = int(x['demand9'])
+        inputNumPermanent9 = int(x['numPermanent9'])
+        inputProdPermanent9 = int(x['prodPermanent9'])
+        inputProdTemporary9 = int(x['prodTemporary9'])
+        inputCostHiring9 = float(x['costHiring9'])
+        inputCostFiring9 = float(x['costFiring9'])
+        inputCostHoldingUnit9 = float(x['costHoldingUnit9'])
+        
+        inputDemand10 = int(x['demand10'])
+        inputNumPermanent10 = int(x['numPermanent10'])
+        inputProdPermanent10 = int(x['prodPermanent10'])
+        inputProdTemporary10 = int(x['prodTemporary10'])
+        inputCostHiring10 = float(x['costHiring10'])
+        inputCostFiring10 = float(x['costFiring10'])
+        inputCostHoldingUnit10 = float(x['costHoldingUnit10'])
+        
+        inputDemand11 = int(x['demand11'])
+        inputNumPermanent11 = int(x['numPermanent11'])
+        inputProdPermanent11 = int(x['prodPermanent11'])
+        inputProdTemporary11 = int(x['prodTemporary11'])
+        inputCostHiring11 = float(x['costHiring11'])
+        inputCostFiring11 = float(x['costFiring11'])
+        inputCostHoldingUnit11 = float(x['costHoldingUnit11'])
+        
+        inputDemand12 = int(x['demand12'])
+        inputNumPermanent12 = int(x['numPermanent12'])
+        inputProdPermanent12 = int(x['prodPermanent12'])
+        inputProdTemporary12 = int(x['prodTemporary12'])
+        inputCostHiring12 = float(x['costHiring12'])
+        inputCostFiring12 = float(x['costFiring12'])
+        inputCostHoldingUnit12 = float(x['costHoldingUnit12'])
+    model = LpProblem("Minimize Cost", LpMinimize)
+    month = list(range(12))
+    ihcDict = LpVariable.dicts(
+        'IHC', month, lowBound=0, cat='Continuous')
+    ihcDict[11] = inputInventoryFinal
+    hcDict = LpVariable.dicts(
+        'HC', month, lowBound=0, cat='Continuous')
+    fcDict = LpVariable.dicts(
+        'FC', month, lowBound=0, cat='Continuous')
+    inputCostHoldingUnitDict = [inputCostHoldingUnit1, inputCostHoldingUnit2, inputCostHoldingUnit3, inputCostHoldingUnit4, inputCostHoldingUnit5, inputCostHoldingUnit6, inputCostHoldingUnit7, inputCostHoldingUnit8, inputCostHoldingUnit9, inputCostHoldingUnit10, inputCostHoldingUnit11, inputCostHoldingUnit12]
+    inputCostHiringDict = [inputCostHiring1, inputCostHiring2, inputCostHiring3, inputCostHiring4, inputCostHiring5, inputCostHiring6, inputCostHiring7, inputCostHiring8, inputCostHiring9, inputCostHiring10, inputCostHiring11, inputCostHiring12]
+    inputCostFiringDict = [inputCostFiring1, inputCostFiring2, inputCostFiring3, inputCostFiring4, inputCostFiring5, inputCostFiring6, inputCostFiring7, inputCostFiring8, inputCostFiring9, inputCostFiring10, inputCostFiring11, inputCostFiring12]
+    model += lpSum([inputCostHoldingUnitDict[i] * ihcDict[i] for i in month]) + lpSum([inputCostHiringDict[i] * hcDict[i] for i in month]) + lpSum([inputCostFiringDict[i] * fcDict[i] for i in month])
+    model.addConstraint(inputInventoryInitial + inputProdTemporary1 * hcDict[0] - inputProdTemporary1 * fcDict[0] - ihcDict[0] == inputDemand1 - (inputNumPermanent1 * inputProdPermanent1))
+    model.addConstraint(ihcDict[0] + inputProdTemporary2 * hcDict[0] - inputProdTemporary2*fcDict[0] + inputProdTemporary2*hcDict[1] - inputProdTemporary2*fcDict[1] - ihcDict[1] == inputDemand2 - (inputNumPermanent2 * inputProdPermanent2))
+    model.addConstraint(ihcDict[1] + inputProdTemporary3 * hcDict[0] - inputProdTemporary3*fcDict[0] + inputProdTemporary3*hcDict[1] - inputProdTemporary3*fcDict[1] + inputProdTemporary3*hcDict[2] - inputProdTemporary3*fcDict[2] - ihcDict[2] == inputDemand3 - (inputNumPermanent3 * inputProdPermanent3))
+    model.addConstraint(ihcDict[2] + inputProdTemporary4 * hcDict[0] - inputProdTemporary4*fcDict[0] + inputProdTemporary4*hcDict[1] - inputProdTemporary4*fcDict[1] + inputProdTemporary4*hcDict[2] - inputProdTemporary4*fcDict[2] + inputProdTemporary4*hcDict[3] - inputProdTemporary4*fcDict[3] - ihcDict[3] == inputDemand4 - (inputNumPermanent4 * inputProdPermanent4))
+    model.addConstraint(ihcDict[3] + inputProdTemporary5 * hcDict[0] - inputProdTemporary5*fcDict[0] + inputProdTemporary5*hcDict[1] - inputProdTemporary5*fcDict[1] + inputProdTemporary5*hcDict[2] - inputProdTemporary5*fcDict[2] + inputProdTemporary5*hcDict[3] - inputProdTemporary5*fcDict[3] + inputProdTemporary5*hcDict[4] - inputProdTemporary5*fcDict[4] - ihcDict[4] == inputDemand5 - (inputNumPermanent5 * inputProdPermanent5))
+    model.addConstraint(ihcDict[4] + inputProdTemporary6 * hcDict[0] - inputProdTemporary6*fcDict[0] + inputProdTemporary6*hcDict[1] - inputProdTemporary6*fcDict[1] + inputProdTemporary6*hcDict[2] - inputProdTemporary6*fcDict[2] + inputProdTemporary6*hcDict[3] - inputProdTemporary6*fcDict[3] + inputProdTemporary6*hcDict[4] - inputProdTemporary6*fcDict[4] + inputProdTemporary6*hcDict[5] - inputProdTemporary6*fcDict[5] - ihcDict[5] == inputDemand6 - (inputNumPermanent6 * inputProdPermanent6))
+    model.addConstraint(ihcDict[5] + inputProdTemporary7 * hcDict[0] - inputProdTemporary7*fcDict[0] + inputProdTemporary7*hcDict[1] - inputProdTemporary7*fcDict[1] + inputProdTemporary7*hcDict[2] - inputProdTemporary7*fcDict[2] + inputProdTemporary7*hcDict[3] - inputProdTemporary7*fcDict[3] + inputProdTemporary7*hcDict[4] - inputProdTemporary7*fcDict[4] + inputProdTemporary7*hcDict[5] - inputProdTemporary7*fcDict[5] + inputProdTemporary7*hcDict[6] - inputProdTemporary7*fcDict[6] - ihcDict[6] == inputDemand7 - (inputNumPermanent7 * inputProdPermanent7))
+    model.addConstraint(ihcDict[6] + inputProdTemporary8 * hcDict[0] - inputProdTemporary8*fcDict[0] + inputProdTemporary8*hcDict[1] - inputProdTemporary8*fcDict[1] + inputProdTemporary8*hcDict[2] - inputProdTemporary8*fcDict[2] + inputProdTemporary8*hcDict[3] - inputProdTemporary8*fcDict[3] + inputProdTemporary8*hcDict[4] - inputProdTemporary8*fcDict[4] + inputProdTemporary8*hcDict[5] - inputProdTemporary8*fcDict[5] + inputProdTemporary8*hcDict[6] - inputProdTemporary8*fcDict[6] + inputProdTemporary8*hcDict[7] - inputProdTemporary8*fcDict[7] - ihcDict[7] == inputDemand8 - (inputNumPermanent8 * inputProdPermanent8))
+    model.addConstraint(ihcDict[7] + inputProdTemporary9 * hcDict[0] - inputProdTemporary9*fcDict[0] + inputProdTemporary9*hcDict[1] - inputProdTemporary9*fcDict[1] + inputProdTemporary9*hcDict[2] - inputProdTemporary9*fcDict[2] + inputProdTemporary9*hcDict[3] - inputProdTemporary9*fcDict[3] + inputProdTemporary9*hcDict[4] - inputProdTemporary9*fcDict[4] + inputProdTemporary9*hcDict[5] - inputProdTemporary9*fcDict[5] + inputProdTemporary9*hcDict[6] - inputProdTemporary9*fcDict[6] + inputProdTemporary9*hcDict[7] - inputProdTemporary9*fcDict[7] + inputProdTemporary9*hcDict[8] - inputProdTemporary9*fcDict[8] - ihcDict[8] == inputDemand9 - (inputNumPermanent9 * inputProdPermanent9))
+    model.addConstraint(ihcDict[8] + inputProdTemporary10 * hcDict[0] - inputProdTemporary10*fcDict[0] + inputProdTemporary10*hcDict[1] - inputProdTemporary10*fcDict[1] + inputProdTemporary10*hcDict[2] - inputProdTemporary10*fcDict[2] + inputProdTemporary10*hcDict[3] - inputProdTemporary10*fcDict[3] + inputProdTemporary10*hcDict[4] - inputProdTemporary10*fcDict[4] + inputProdTemporary10*hcDict[5] - inputProdTemporary10*fcDict[5] + inputProdTemporary10*hcDict[6] - inputProdTemporary10*fcDict[6] + inputProdTemporary10*hcDict[7] - inputProdTemporary10*fcDict[7] + inputProdTemporary10*hcDict[8] - inputProdTemporary10*fcDict[8] + inputProdTemporary10*hcDict[9] - inputProdTemporary10*fcDict[9] - ihcDict[9] == inputDemand10 - (inputNumPermanent10 * inputProdPermanent10))
+    model.addConstraint(ihcDict[9] + inputProdTemporary11 * hcDict[0] - inputProdTemporary11*fcDict[0] + inputProdTemporary11*hcDict[1] - inputProdTemporary11*fcDict[1] + inputProdTemporary11*hcDict[2] - inputProdTemporary11*fcDict[2] + inputProdTemporary11*hcDict[3] - inputProdTemporary11*fcDict[3] + inputProdTemporary11*hcDict[4] - inputProdTemporary11*fcDict[4] + inputProdTemporary11*hcDict[5] - inputProdTemporary11*fcDict[5] + inputProdTemporary11*hcDict[6] - inputProdTemporary11*fcDict[6] + inputProdTemporary11*hcDict[7] - inputProdTemporary11*fcDict[7] + inputProdTemporary11*hcDict[8] - inputProdTemporary11*fcDict[8] + inputProdTemporary11*hcDict[9] - inputProdTemporary11*fcDict[9] + inputProdTemporary11*hcDict[10] - inputProdTemporary11*fcDict[10] - ihcDict[10] == inputDemand11 - (inputNumPermanent11 * inputProdPermanent11))
+    model.addConstraint(ihcDict[10] + inputProdTemporary12 * hcDict[0] - inputProdTemporary12*fcDict[0] + inputProdTemporary12*hcDict[1] - inputProdTemporary12*fcDict[1] + inputProdTemporary12*hcDict[2] - inputProdTemporary12*fcDict[2] + inputProdTemporary12*hcDict[3] - inputProdTemporary12*fcDict[3] + inputProdTemporary12*hcDict[4] - inputProdTemporary12*fcDict[4] + inputProdTemporary12*hcDict[5] - inputProdTemporary12*fcDict[5] + inputProdTemporary12*hcDict[6] - inputProdTemporary12*fcDict[6] + inputProdTemporary12*hcDict[7] - inputProdTemporary12*fcDict[7] + inputProdTemporary12*hcDict[8] - inputProdTemporary12*fcDict[8] + inputProdTemporary12*hcDict[9] - inputProdTemporary12*fcDict[9] + inputProdTemporary12*hcDict[10] - inputProdTemporary12*fcDict[10] + inputProdTemporary12*hcDict[11] - inputProdTemporary12*fcDict[11] - ihcDict[11] == inputDemand12 - (inputNumPermanent12 * inputProdPermanent12))
+    model.solve()
+    models.TwelveMonthPlan.objects.filter(planName = inputPlanName).update(inventoryInitial = inputInventoryInitial, inventoryFinal = inputInventoryFinal,inventoryMonth1 = ihcDict[0].varValue, inventoryMonth2 = ihcDict[1].varValue, inventoryMonth3 = ihcDict[2].varValue, inventoryMonth4 = ihcDict[3].varValue, inventoryMonth5 = ihcDict[4].varValue, inventoryMonth6 = ihcDict[5].varValue, inventoryMonth7 = ihcDict[6].varValue, inventoryMonth8 = ihcDict[7].varValue, inventoryMonth9 = ihcDict[8].varValue, inventoryMonth10 = ihcDict[9].varValue, inventoryMonth11 = ihcDict[10].varValue, hiredTemporary1 = hcDict[0].varValue, hiredTemporary2 = hcDict[1].varValue, hiredTemporary3 = hcDict[2].varValue, hiredTemporary4 = hcDict[3].varValue, hiredTemporary5 = hcDict[4].varValue, hiredTemporary6 = hcDict[5].varValue, hiredTemporary7 = hcDict[6].varValue, hiredTemporary8 = hcDict[7].varValue, hiredTemporary9 = hcDict[8].varValue, hiredTemporary10 = hcDict[9].varValue, hiredTemporary11 = hcDict[10].varValue, hiredTemporary12 = hcDict[11].varValue, firedTemporary1 = fcDict[0].varValue, firedTemporary2 = fcDict[1].varValue, firedTemporary3 = fcDict[2].varValue, firedTemporary4 = fcDict[3].varValue, firedTemporary5 = fcDict[4].varValue, firedTemporary6 = fcDict[5].varValue, firedTemporary7 = fcDict[6].varValue, firedTemporary8 = fcDict[7].varValue, firedTemporary9 = fcDict[8].varValue, firedTemporary10 = fcDict[9].varValue, firedTemporary11 = fcDict[10].varValue, firedTemporary12 = fcDict[11].varValue, optimalCost = value(model.objective))
+
+
+def demandFour(request, plan_Name):
+    if request.method == "POST":
+        inputDemand1 = request.POST.get('demand1')
+        inputDemand2 = request.POST.get('demand2')
+        inputDemand3 = request.POST.get('demand3')
+        inputDemand4 = request.POST.get('demand4')
+        models.FourMonthPlan.objects.filter(planName=plan_Name).update(demand1 = inputDemand1, 
+                                                                             demand2 = inputDemand2, 
+                                                                             demand3 = inputDemand3, 
+                                                                             demand4 = inputDemand4
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FourMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Four/demandFour.html',{'detail' : detail})
+
+
+def numPermanentFour(request, plan_Name):
+    if request.method == "POST":
+        inputNumPermanent1 = request.POST.get('numPermanent1')
+        inputNumPermanent2 = request.POST.get('numPermanent2')
+        inputNumPermanent3 = request.POST.get('numPermanent3')
+        inputNumPermanent4 = request.POST.get('numPermanent4')
+        models.FourMonthPlan.objects.filter(planName=plan_Name).update(numPermanent1 = inputNumPermanent1, 
+                                                                             numPermanent2 = inputNumPermanent2, 
+                                                                             numPermanent3 = inputNumPermanent3, 
+                                                                             numPermanent4 = inputNumPermanent4
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FourMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Four/numPermanentFour.html',{'detail' : detail})
+
+
+def prodPermanentFour(request, plan_Name):
+    if request.method == "POST":
+        inputProdPermanent1 = request.POST.get('prodPermanent1')
+        inputProdPermanent2 = request.POST.get('prodPermanent2')
+        inputProdPermanent3 = request.POST.get('prodPermanent3')
+        inputProdPermanent4 = request.POST.get('prodPermanent4')
+        models.FourMonthPlan.objects.filter(planName=plan_Name).update(prodPermanent1 = inputProdPermanent1, 
+                                                                             prodPermanent2 = inputProdPermanent2, 
+                                                                             prodPermanent3 = inputProdPermanent3, 
+                                                                             prodPermanent4 = inputProdPermanent4
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FourMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Four/prodPermanentFour.html',{'detail' : detail})
+
+
+def prodTemporaryFour(request, plan_Name):
+    if request.method == "POST":
+        inputProdTemporary1 = request.POST.get('prodTemporary1')
+        inputProdTemporary2 = request.POST.get('prodTemporary2')
+        inputProdTemporary3 = request.POST.get('prodTemporary3')
+        inputProdTemporary4 = request.POST.get('prodTemporary4')
+        models.FourMonthPlan.objects.filter(planName=plan_Name).update(prodTemporary1 = inputProdTemporary1, 
+                                                                             prodTemporary2 = inputProdTemporary2, 
+                                                                             prodTemporary3 = inputProdTemporary3, 
+                                                                             prodTemporary4 = inputProdTemporary4
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FourMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Four/prodTemporaryFour.html',{'detail' : detail})
+
+
+def costHiringFour(request, plan_Name):
+    if request.method == "POST":
+        inputCostHiring1 = request.POST.get('costHiring1')
+        inputCostHiring2 = request.POST.get('costHiring2')
+        inputCostHiring3 = request.POST.get('costHiring3')
+        inputCostHiring4 = request.POST.get('costHiring4')
+        models.FourMonthPlan.objects.filter(planName=plan_Name).update(costHiring1 = inputCostHiring1, 
+                                                                             costHiring2 = inputCostHiring2, 
+                                                                             costHiring3 = inputCostHiring3, 
+                                                                             costHiring4 = inputCostHiring4
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FourMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Four/costHiringFour.html',{'detail' : detail})
+
+
+def costFiringFour(request, plan_Name):
+    if request.method == "POST":
+        inputCostFiring1 = request.POST.get('costFiring1')
+        inputCostFiring2 = request.POST.get('costFiring2')
+        inputCostFiring3 = request.POST.get('costFiring3')
+        inputCostFiring4 = request.POST.get('costFiring4')
+        models.FourMonthPlan.objects.filter(planName=plan_Name).update(costFiring1 = inputCostFiring1, 
+                                                                             costFiring2 = inputCostFiring2, 
+                                                                             costFiring3 = inputCostFiring3, 
+                                                                             costFiring4 = inputCostFiring4
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FourMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Four/costFiringFour.html',{'detail' : detail})
+
+
+def costHoldingUnitFour(request, plan_Name):
+    if request.method == "POST":
+        inputCostHoldingUnit1 = request.POST.get('costHoldingUnit1')
+        inputCostHoldingUnit2 = request.POST.get('costHoldingUnit2')
+        inputCostHoldingUnit3 = request.POST.get('costHoldingUnit3')
+        inputCostHoldingUnit4 = request.POST.get('costHoldingUnit4')
+        models.FourMonthPlan.objects.filter(planName=plan_Name).update(costHoldingUnit1 = inputCostHoldingUnit1, 
+                                                                             costHoldingUnit2 = inputCostHoldingUnit2, 
+                                                                             costHoldingUnit3 = inputCostHoldingUnit3, 
+                                                                             costHoldingUnit4 = inputCostHoldingUnit4
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FourMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Four/costHoldingUnitFour.html',{'detail' : detail})
+
+
+def demandFive(request, plan_Name):
+    if request.method == "POST":
+        inputDemand1 = request.POST.get('demand1')
+        inputDemand2 = request.POST.get('demand2')
+        inputDemand3 = request.POST.get('demand3')
+        inputDemand4 = request.POST.get('demand4')
+        inputDemand5 = request.POST.get('demand5')
+        models.FiveMonthPlan.objects.filter(planName=plan_Name).update(demand1 = inputDemand1, 
+                                                                             demand2 = inputDemand2, 
+                                                                             demand3 = inputDemand3, 
+                                                                             demand4 = inputDemand4, 
+                                                                             demand5 = inputDemand5
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FiveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Five/demandFive.html',{'detail' : detail})
+
+
+def numPermanentFive(request, plan_Name):
+    if request.method == "POST":
+        inputNumPermanent1 = request.POST.get('numPermanent1')
+        inputNumPermanent2 = request.POST.get('numPermanent2')
+        inputNumPermanent3 = request.POST.get('numPermanent3')
+        inputNumPermanent4 = request.POST.get('numPermanent4')
+        inputNumPermanent5 = request.POST.get('numPermanent5')
+        models.FiveMonthPlan.objects.filter(planName=plan_Name).update(numPermanent1 = inputNumPermanent1, 
+                                                                             numPermanent2 = inputNumPermanent2, 
+                                                                             numPermanent3 = inputNumPermanent3, 
+                                                                             numPermanent4 = inputNumPermanent4, 
+                                                                             numPermanent5 = inputNumPermanent5
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FiveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Five/numPermanentFive.html',{'detail' : detail})
+
+
+def prodPermanentFive(request, plan_Name):
+    if request.method == "POST":
+        inputProdPermanent1 = request.POST.get('prodPermanent1')
+        inputProdPermanent2 = request.POST.get('prodPermanent2')
+        inputProdPermanent3 = request.POST.get('prodPermanent3')
+        inputProdPermanent4 = request.POST.get('prodPermanent4')
+        inputProdPermanent5 = request.POST.get('prodPermanent5')
+        models.FiveMonthPlan.objects.filter(planName=plan_Name).update(prodPermanent1 = inputProdPermanent1, 
+                                                                             prodPermanent2 = inputProdPermanent2, 
+                                                                             prodPermanent3 = inputProdPermanent3, 
+                                                                             prodPermanent4 = inputProdPermanent4, 
+                                                                             prodPermanent5 = inputProdPermanent5
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FiveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Five/prodPermanentFive.html',{'detail' : detail})
+
+
+def prodTemporaryFive(request, plan_Name):
+    if request.method == "POST":
+        inputProdTemporary1 = request.POST.get('prodTemporary1')
+        inputProdTemporary2 = request.POST.get('prodTemporary2')
+        inputProdTemporary3 = request.POST.get('prodTemporary3')
+        inputProdTemporary4 = request.POST.get('prodTemporary4')
+        inputProdTemporary5 = request.POST.get('prodTemporary5')
+        models.FiveMonthPlan.objects.filter(planName=plan_Name).update(prodTemporary1 = inputProdTemporary1, 
+                                                                             prodTemporary2 = inputProdTemporary2, 
+                                                                             prodTemporary3 = inputProdTemporary3, 
+                                                                             prodTemporary4 = inputProdTemporary4, 
+                                                                             prodTemporary5 = inputProdTemporary5
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FiveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Five/prodTemporaryFive.html',{'detail' : detail})
+
+
+def costHiringFive(request, plan_Name):
+    if request.method == "POST":
+        inputCostHiring1 = request.POST.get('costHiring1')
+        inputCostHiring2 = request.POST.get('costHiring2')
+        inputCostHiring3 = request.POST.get('costHiring3')
+        inputCostHiring4 = request.POST.get('costHiring4')
+        inputCostHiring5 = request.POST.get('costHiring5')
+        models.FiveMonthPlan.objects.filter(planName=plan_Name).update(costHiring1 = inputCostHiring1, 
+                                                                             costHiring2 = inputCostHiring2, 
+                                                                             costHiring3 = inputCostHiring3, 
+                                                                             costHiring4 = inputCostHiring4, 
+                                                                             costHiring5 = inputCostHiring5
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FiveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Five/costHiringFive.html',{'detail' : detail})
+
+
+def costFiringFive(request, plan_Name):
+    if request.method == "POST":
+        inputCostFiring1 = request.POST.get('costFiring1')
+        inputCostFiring2 = request.POST.get('costFiring2')
+        inputCostFiring3 = request.POST.get('costFiring3')
+        inputCostFiring4 = request.POST.get('costFiring4')
+        inputCostFiring5 = request.POST.get('costFiring5')
+        models.FiveMonthPlan.objects.filter(planName=plan_Name).update(costFiring1 = inputCostFiring1, 
+                                                                             costFiring2 = inputCostFiring2, 
+                                                                             costFiring3 = inputCostFiring3, 
+                                                                             costFiring4 = inputCostFiring4, 
+                                                                             costFiring5 = inputCostFiring5
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FiveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Five/costFiringFive.html',{'detail' : detail})
+
+
+def costHoldingUnitFive(request, plan_Name):
+    if request.method == "POST":
+        inputCostHoldingUnit1 = request.POST.get('costHoldingUnit1')
+        inputCostHoldingUnit2 = request.POST.get('costHoldingUnit2')
+        inputCostHoldingUnit3 = request.POST.get('costHoldingUnit3')
+        inputCostHoldingUnit4 = request.POST.get('costHoldingUnit4')
+        inputCostHoldingUnit5 = request.POST.get('costHoldingUnit5')
+        models.FiveMonthPlan.objects.filter(planName=plan_Name).update(costHoldingUnit1 = inputCostHoldingUnit1, 
+                                                                             costHoldingUnit2 = inputCostHoldingUnit2, 
+                                                                             costHoldingUnit3 = inputCostHoldingUnit3, 
+                                                                             costHoldingUnit4 = inputCostHoldingUnit4, 
+                                                                             costHoldingUnit5 = inputCostHoldingUnit5
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.FiveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Five/costHoldingUnitFive.html',{'detail' : detail})
+
+
+def demandSix(request, plan_Name):
+    if request.method == "POST":
+        inputDemand1 = request.POST.get('demand1')
+        inputDemand2 = request.POST.get('demand2')
+        inputDemand3 = request.POST.get('demand3')
+        inputDemand4 = request.POST.get('demand4')
+        inputDemand5 = request.POST.get('demand5')
+        inputDemand6 = request.POST.get('demand6')
+        models.SixMonthPlan.objects.filter(planName=plan_Name).update(demand1 = inputDemand1, 
+                                                                             demand2 = inputDemand2, 
+                                                                             demand3 = inputDemand3, 
+                                                                             demand4 = inputDemand4, 
+                                                                             demand5 = inputDemand5, 
+                                                                             demand6 = inputDemand6
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SixMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Six/demandSix.html',{'detail' : detail})
+
+
+def numPermanentSix(request, plan_Name):
+    if request.method == "POST":
+        inputNumPermanent1 = request.POST.get('numPermanent1')
+        inputNumPermanent2 = request.POST.get('numPermanent2')
+        inputNumPermanent3 = request.POST.get('numPermanent3')
+        inputNumPermanent4 = request.POST.get('numPermanent4')
+        inputNumPermanent5 = request.POST.get('numPermanent5')
+        inputNumPermanent6 = request.POST.get('numPermanent6')
+        models.SixMonthPlan.objects.filter(planName=plan_Name).update(numPermanent1 = inputNumPermanent1, 
+                                                                             numPermanent2 = inputNumPermanent2, 
+                                                                             numPermanent3 = inputNumPermanent3, 
+                                                                             numPermanent4 = inputNumPermanent4, 
+                                                                             numPermanent5 = inputNumPermanent5, 
+                                                                             numPermanent6 = inputNumPermanent6
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SixMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Six/numPermanentSix.html',{'detail' : detail})
+
+
+def prodPermanentSix(request, plan_Name):
+    if request.method == "POST":
+        inputProdPermanent1 = request.POST.get('prodPermanent1')
+        inputProdPermanent2 = request.POST.get('prodPermanent2')
+        inputProdPermanent3 = request.POST.get('prodPermanent3')
+        inputProdPermanent4 = request.POST.get('prodPermanent4')
+        inputProdPermanent5 = request.POST.get('prodPermanent5')
+        inputProdPermanent6 = request.POST.get('prodPermanent6')
+        models.SixMonthPlan.objects.filter(planName=plan_Name).update(prodPermanent1 = inputProdPermanent1, 
+                                                                             prodPermanent2 = inputProdPermanent2, 
+                                                                             prodPermanent3 = inputProdPermanent3, 
+                                                                             prodPermanent4 = inputProdPermanent4, 
+                                                                             prodPermanent5 = inputProdPermanent5, 
+                                                                             prodPermanent6 = inputProdPermanent6
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SixMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Six/prodPermanentSix.html',{'detail' : detail})
+
+
+def prodTemporarySix(request, plan_Name):
+    if request.method == "POST":
+        inputProdTemporary1 = request.POST.get('prodTemporary1')
+        inputProdTemporary2 = request.POST.get('prodTemporary2')
+        inputProdTemporary3 = request.POST.get('prodTemporary3')
+        inputProdTemporary4 = request.POST.get('prodTemporary4')
+        inputProdTemporary5 = request.POST.get('prodTemporary5')
+        inputProdTemporary6 = request.POST.get('prodTemporary6')
+        models.SixMonthPlan.objects.filter(planName=plan_Name).update(prodTemporary1 = inputProdTemporary1, 
+                                                                             prodTemporary2 = inputProdTemporary2, 
+                                                                             prodTemporary3 = inputProdTemporary3, 
+                                                                             prodTemporary4 = inputProdTemporary4, 
+                                                                             prodTemporary5 = inputProdTemporary5, 
+                                                                             prodTemporary6 = inputProdTemporary6
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SixMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Six/prodTemporarySix.html',{'detail' : detail})
+
+
+def costHiringSix(request, plan_Name):
+    if request.method == "POST":
+        inputCostHiring1 = request.POST.get('costHiring1')
+        inputCostHiring2 = request.POST.get('costHiring2')
+        inputCostHiring3 = request.POST.get('costHiring3')
+        inputCostHiring4 = request.POST.get('costHiring4')
+        inputCostHiring5 = request.POST.get('costHiring5')
+        inputCostHiring6 = request.POST.get('costHiring6')
+        models.SixMonthPlan.objects.filter(planName=plan_Name).update(costHiring1 = inputCostHiring1, 
+                                                                             costHiring2 = inputCostHiring2, 
+                                                                             costHiring3 = inputCostHiring3, 
+                                                                             costHiring4 = inputCostHiring4, 
+                                                                             costHiring5 = inputCostHiring5, 
+                                                                             costHiring6 = inputCostHiring6
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SixMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Six/costHiringSix.html',{'detail' : detail})
+
+
+def costFiringSix(request, plan_Name):
+    if request.method == "POST":
+        inputCostFiring1 = request.POST.get('costFiring1')
+        inputCostFiring2 = request.POST.get('costFiring2')
+        inputCostFiring3 = request.POST.get('costFiring3')
+        inputCostFiring4 = request.POST.get('costFiring4')
+        inputCostFiring5 = request.POST.get('costFiring5')
+        inputCostFiring6 = request.POST.get('costFiring6')
+        models.SixMonthPlan.objects.filter(planName=plan_Name).update(costFiring1 = inputCostFiring1, 
+                                                                             costFiring2 = inputCostFiring2, 
+                                                                             costFiring3 = inputCostFiring3, 
+                                                                             costFiring4 = inputCostFiring4, 
+                                                                             costFiring5 = inputCostFiring5, 
+                                                                             costFiring6 = inputCostFiring6
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SixMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Six/costFiringSix.html',{'detail' : detail})
+
+
+def costHoldingUnitSix(request, plan_Name):
+    if request.method == "POST":
+        inputCostHoldingUnit1 = request.POST.get('costHoldingUnit1')
+        inputCostHoldingUnit2 = request.POST.get('costHoldingUnit2')
+        inputCostHoldingUnit3 = request.POST.get('costHoldingUnit3')
+        inputCostHoldingUnit4 = request.POST.get('costHoldingUnit4')
+        inputCostHoldingUnit5 = request.POST.get('costHoldingUnit5')
+        inputCostHoldingUnit6 = request.POST.get('costHoldingUnit6')
+        models.SixMonthPlan.objects.filter(planName=plan_Name).update(costHoldingUnit1 = inputCostHoldingUnit1, 
+                                                                             costHoldingUnit2 = inputCostHoldingUnit2, 
+                                                                             costHoldingUnit3 = inputCostHoldingUnit3, 
+                                                                             costHoldingUnit4 = inputCostHoldingUnit4, 
+                                                                             costHoldingUnit5 = inputCostHoldingUnit5, 
+                                                                             costHoldingUnit6 = inputCostHoldingUnit6
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SixMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Six/costHoldingUnitSix.html',{'detail' : detail})
+
+
+def demandSeven(request, plan_Name):
+    if request.method == "POST":
+        inputDemand1 = request.POST.get('demand1')
+        inputDemand2 = request.POST.get('demand2')
+        inputDemand3 = request.POST.get('demand3')
+        inputDemand4 = request.POST.get('demand4')
+        inputDemand5 = request.POST.get('demand5')
+        inputDemand6 = request.POST.get('demand6')
+        inputDemand7 = request.POST.get('demand7')
+        models.SevenMonthPlan.objects.filter(planName=plan_Name).update(demand1 = inputDemand1, 
+                                                                             demand2 = inputDemand2, 
+                                                                             demand3 = inputDemand3, 
+                                                                             demand4 = inputDemand4, 
+                                                                             demand5 = inputDemand5, 
+                                                                             demand6 = inputDemand6, 
+                                                                             demand7 = inputDemand7
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Seven/demandSeven.html',{'detail' : detail})
+
+
+def numPermanentSeven(request, plan_Name):
+    if request.method == "POST":
+        inputNumPermanent1 = request.POST.get('numPermanent1')
+        inputNumPermanent2 = request.POST.get('numPermanent2')
+        inputNumPermanent3 = request.POST.get('numPermanent3')
+        inputNumPermanent4 = request.POST.get('numPermanent4')
+        inputNumPermanent5 = request.POST.get('numPermanent5')
+        inputNumPermanent6 = request.POST.get('numPermanent6')
+        inputNumPermanent7 = request.POST.get('numPermanent7')
+        models.SevenMonthPlan.objects.filter(planName=plan_Name).update(numPermanent1 = inputNumPermanent1, 
+                                                                             numPermanent2 = inputNumPermanent2, 
+                                                                             numPermanent3 = inputNumPermanent3, 
+                                                                             numPermanent4 = inputNumPermanent4, 
+                                                                             numPermanent5 = inputNumPermanent5, 
+                                                                             numPermanent6 = inputNumPermanent6, 
+                                                                             numPermanent7 = inputNumPermanent7
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Seven/numPermanentSeven.html',{'detail' : detail})
+
+
+def prodPermanentSeven(request, plan_Name):
+    if request.method == "POST":
+        inputProdPermanent1 = request.POST.get('prodPermanent1')
+        inputProdPermanent2 = request.POST.get('prodPermanent2')
+        inputProdPermanent3 = request.POST.get('prodPermanent3')
+        inputProdPermanent4 = request.POST.get('prodPermanent4')
+        inputProdPermanent5 = request.POST.get('prodPermanent5')
+        inputProdPermanent6 = request.POST.get('prodPermanent6')
+        inputProdPermanent7 = request.POST.get('prodPermanent7')
+        models.SevenMonthPlan.objects.filter(planName=plan_Name).update(prodPermanent1 = inputProdPermanent1, 
+                                                                             prodPermanent2 = inputProdPermanent2, 
+                                                                             prodPermanent3 = inputProdPermanent3, 
+                                                                             prodPermanent4 = inputProdPermanent4, 
+                                                                             prodPermanent5 = inputProdPermanent5, 
+                                                                             prodPermanent6 = inputProdPermanent6, 
+                                                                             prodPermanent7 = inputProdPermanent7
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Seven/prodPermanentSeven.html',{'detail' : detail})
+
+
+def prodTemporarySeven(request, plan_Name):
+    if request.method == "POST":
+        inputProdTemporary1 = request.POST.get('prodTemporary1')
+        inputProdTemporary2 = request.POST.get('prodTemporary2')
+        inputProdTemporary3 = request.POST.get('prodTemporary3')
+        inputProdTemporary4 = request.POST.get('prodTemporary4')
+        inputProdTemporary5 = request.POST.get('prodTemporary5')
+        inputProdTemporary6 = request.POST.get('prodTemporary6')
+        inputProdTemporary7 = request.POST.get('prodTemporary7')
+        models.SevenMonthPlan.objects.filter(planName=plan_Name).update(prodTemporary1 = inputProdTemporary1, 
+                                                                             prodTemporary2 = inputProdTemporary2, 
+                                                                             prodTemporary3 = inputProdTemporary3, 
+                                                                             prodTemporary4 = inputProdTemporary4, 
+                                                                             prodTemporary5 = inputProdTemporary5, 
+                                                                             prodTemporary6 = inputProdTemporary6, 
+                                                                             prodTemporary7 = inputProdTemporary7
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Seven/prodTemporarySeven.html',{'detail' : detail})
+
+
+def costHiringSeven(request, plan_Name):
+    if request.method == "POST":
+        inputCostHiring1 = request.POST.get('costHiring1')
+        inputCostHiring2 = request.POST.get('costHiring2')
+        inputCostHiring3 = request.POST.get('costHiring3')
+        inputCostHiring4 = request.POST.get('costHiring4')
+        inputCostHiring5 = request.POST.get('costHiring5')
+        inputCostHiring6 = request.POST.get('costHiring6')
+        inputCostHiring7 = request.POST.get('costHiring7')
+        models.SevenMonthPlan.objects.filter(planName=plan_Name).update(costHiring1 = inputCostHiring1, 
+                                                                             costHiring2 = inputCostHiring2, 
+                                                                             costHiring3 = inputCostHiring3, 
+                                                                             costHiring4 = inputCostHiring4, 
+                                                                             costHiring5 = inputCostHiring5, 
+                                                                             costHiring6 = inputCostHiring6, 
+                                                                             costHiring7 = inputCostHiring7
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Seven/costHiringSeven.html',{'detail' : detail})
+
+
+def costFiringSeven(request, plan_Name):
+    if request.method == "POST":
+        inputCostFiring1 = request.POST.get('costFiring1')
+        inputCostFiring2 = request.POST.get('costFiring2')
+        inputCostFiring3 = request.POST.get('costFiring3')
+        inputCostFiring4 = request.POST.get('costFiring4')
+        inputCostFiring5 = request.POST.get('costFiring5')
+        inputCostFiring6 = request.POST.get('costFiring6')
+        inputCostFiring7 = request.POST.get('costFiring7')
+        models.SevenMonthPlan.objects.filter(planName=plan_Name).update(costFiring1 = inputCostFiring1, 
+                                                                             costFiring2 = inputCostFiring2, 
+                                                                             costFiring3 = inputCostFiring3, 
+                                                                             costFiring4 = inputCostFiring4, 
+                                                                             costFiring5 = inputCostFiring5, 
+                                                                             costFiring6 = inputCostFiring6, 
+                                                                             costFiring7 = inputCostFiring7
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Seven/costFiringSeven.html',{'detail' : detail})
+
+
+def costHoldingUnitSeven(request, plan_Name):
+    if request.method == "POST":
+        inputCostHoldingUnit1 = request.POST.get('costHoldingUnit1')
+        inputCostHoldingUnit2 = request.POST.get('costHoldingUnit2')
+        inputCostHoldingUnit3 = request.POST.get('costHoldingUnit3')
+        inputCostHoldingUnit4 = request.POST.get('costHoldingUnit4')
+        inputCostHoldingUnit5 = request.POST.get('costHoldingUnit5')
+        inputCostHoldingUnit6 = request.POST.get('costHoldingUnit6')
+        inputCostHoldingUnit7 = request.POST.get('costHoldingUnit7')
+        models.SevenMonthPlan.objects.filter(planName=plan_Name).update(costHoldingUnit1 = inputCostHoldingUnit1, 
+                                                                             costHoldingUnit2 = inputCostHoldingUnit2, 
+                                                                             costHoldingUnit3 = inputCostHoldingUnit3, 
+                                                                             costHoldingUnit4 = inputCostHoldingUnit4, 
+                                                                             costHoldingUnit5 = inputCostHoldingUnit5, 
+                                                                             costHoldingUnit6 = inputCostHoldingUnit6, 
+                                                                             costHoldingUnit7 = inputCostHoldingUnit7
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.SevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Seven/costHoldingUnitSeven.html',{'detail' : detail})
+
+
+def demandEight(request, plan_Name):
+    if request.method == "POST":
+        inputDemand1 = request.POST.get('demand1')
+        inputDemand2 = request.POST.get('demand2')
+        inputDemand3 = request.POST.get('demand3')
+        inputDemand4 = request.POST.get('demand4')
+        inputDemand5 = request.POST.get('demand5')
+        inputDemand6 = request.POST.get('demand6')
+        inputDemand7 = request.POST.get('demand7')
+        inputDemand8 = request.POST.get('demand8')
+        models.EightMonthPlan.objects.filter(planName=plan_Name).update(demand1 = inputDemand1, 
+                                                                             demand2 = inputDemand2, 
+                                                                             demand3 = inputDemand3, 
+                                                                             demand4 = inputDemand4, 
+                                                                             demand5 = inputDemand5, 
+                                                                             demand6 = inputDemand6, 
+                                                                             demand7 = inputDemand7, 
+                                                                             demand8 = inputDemand8
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.EightMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eight/demandEight.html',{'detail' : detail})
+
+
+def numPermanentEight(request, plan_Name):
+    if request.method == "POST":
+        inputNumPermanent1 = request.POST.get('numPermanent1')
+        inputNumPermanent2 = request.POST.get('numPermanent2')
+        inputNumPermanent3 = request.POST.get('numPermanent3')
+        inputNumPermanent4 = request.POST.get('numPermanent4')
+        inputNumPermanent5 = request.POST.get('numPermanent5')
+        inputNumPermanent6 = request.POST.get('numPermanent6')
+        inputNumPermanent7 = request.POST.get('numPermanent7')
+        inputNumPermanent8 = request.POST.get('numPermanent8')
+        models.EightMonthPlan.objects.filter(planName=plan_Name).update(numPermanent1 = inputNumPermanent1, 
+                                                                             numPermanent2 = inputNumPermanent2, 
+                                                                             numPermanent3 = inputNumPermanent3, 
+                                                                             numPermanent4 = inputNumPermanent4, 
+                                                                             numPermanent5 = inputNumPermanent5, 
+                                                                             numPermanent6 = inputNumPermanent6, 
+                                                                             numPermanent7 = inputNumPermanent7, 
+                                                                             numPermanent8 = inputNumPermanent8
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.EightMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eight/numPermanentEight.html',{'detail' : detail})
+
+
+def prodPermanentEight(request, plan_Name):
+    if request.method == "POST":
+        inputProdPermanent1 = request.POST.get('prodPermanent1')
+        inputProdPermanent2 = request.POST.get('prodPermanent2')
+        inputProdPermanent3 = request.POST.get('prodPermanent3')
+        inputProdPermanent4 = request.POST.get('prodPermanent4')
+        inputProdPermanent5 = request.POST.get('prodPermanent5')
+        inputProdPermanent6 = request.POST.get('prodPermanent6')
+        inputProdPermanent7 = request.POST.get('prodPermanent7')
+        inputProdPermanent8 = request.POST.get('prodPermanent8')
+        models.EightMonthPlan.objects.filter(planName=plan_Name).update(prodPermanent1 = inputProdPermanent1, 
+                                                                             prodPermanent2 = inputProdPermanent2, 
+                                                                             prodPermanent3 = inputProdPermanent3, 
+                                                                             prodPermanent4 = inputProdPermanent4, 
+                                                                             prodPermanent5 = inputProdPermanent5, 
+                                                                             prodPermanent6 = inputProdPermanent6, 
+                                                                             prodPermanent7 = inputProdPermanent7, 
+                                                                             prodPermanent8 = inputProdPermanent8
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.EightMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eight/prodPermanentEight.html',{'detail' : detail})
+
+
+def prodTemporaryEight(request, plan_Name):
+    if request.method == "POST":
+        inputProdTemporary1 = request.POST.get('prodTemporary1')
+        inputProdTemporary2 = request.POST.get('prodTemporary2')
+        inputProdTemporary3 = request.POST.get('prodTemporary3')
+        inputProdTemporary4 = request.POST.get('prodTemporary4')
+        inputProdTemporary5 = request.POST.get('prodTemporary5')
+        inputProdTemporary6 = request.POST.get('prodTemporary6')
+        inputProdTemporary7 = request.POST.get('prodTemporary7')
+        inputProdTemporary8 = request.POST.get('prodTemporary8')
+        models.EightMonthPlan.objects.filter(planName=plan_Name).update(prodTemporary1 = inputProdTemporary1, 
+                                                                             prodTemporary2 = inputProdTemporary2, 
+                                                                             prodTemporary3 = inputProdTemporary3, 
+                                                                             prodTemporary4 = inputProdTemporary4, 
+                                                                             prodTemporary5 = inputProdTemporary5, 
+                                                                             prodTemporary6 = inputProdTemporary6, 
+                                                                             prodTemporary7 = inputProdTemporary7, 
+                                                                             prodTemporary8 = inputProdTemporary8
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.EightMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eight/prodTemporaryEight.html',{'detail' : detail})
+
+
+def costHiringEight(request, plan_Name):
+    if request.method == "POST":
+        inputCostHiring1 = request.POST.get('costHiring1')
+        inputCostHiring2 = request.POST.get('costHiring2')
+        inputCostHiring3 = request.POST.get('costHiring3')
+        inputCostHiring4 = request.POST.get('costHiring4')
+        inputCostHiring5 = request.POST.get('costHiring5')
+        inputCostHiring6 = request.POST.get('costHiring6')
+        inputCostHiring7 = request.POST.get('costHiring7')
+        inputCostHiring8 = request.POST.get('costHiring8')
+        models.EightMonthPlan.objects.filter(planName=plan_Name).update(costHiring1 = inputCostHiring1, 
+                                                                             costHiring2 = inputCostHiring2, 
+                                                                             costHiring3 = inputCostHiring3, 
+                                                                             costHiring4 = inputCostHiring4, 
+                                                                             costHiring5 = inputCostHiring5, 
+                                                                             costHiring6 = inputCostHiring6, 
+                                                                             costHiring7 = inputCostHiring7, 
+                                                                             costHiring8 = inputCostHiring8
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.EightMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eight/costHiringEight.html',{'detail' : detail})
+
+
+def costFiringEight(request, plan_Name):
+    if request.method == "POST":
+        inputCostFiring1 = request.POST.get('costFiring1')
+        inputCostFiring2 = request.POST.get('costFiring2')
+        inputCostFiring3 = request.POST.get('costFiring3')
+        inputCostFiring4 = request.POST.get('costFiring4')
+        inputCostFiring5 = request.POST.get('costFiring5')
+        inputCostFiring6 = request.POST.get('costFiring6')
+        inputCostFiring7 = request.POST.get('costFiring7')
+        inputCostFiring8 = request.POST.get('costFiring8')
+        models.EightMonthPlan.objects.filter(planName=plan_Name).update(costFiring1 = inputCostFiring1, 
+                                                                             costFiring2 = inputCostFiring2, 
+                                                                             costFiring3 = inputCostFiring3, 
+                                                                             costFiring4 = inputCostFiring4, 
+                                                                             costFiring5 = inputCostFiring5, 
+                                                                             costFiring6 = inputCostFiring6, 
+                                                                             costFiring7 = inputCostFiring7, 
+                                                                             costFiring8 = inputCostFiring8
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.EightMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eight/costFiringEight.html',{'detail' : detail})
+
+
+def costHoldingUnitEight(request, plan_Name):
+    if request.method == "POST":
+        inputCostHoldingUnit1 = request.POST.get('costHoldingUnit1')
+        inputCostHoldingUnit2 = request.POST.get('costHoldingUnit2')
+        inputCostHoldingUnit3 = request.POST.get('costHoldingUnit3')
+        inputCostHoldingUnit4 = request.POST.get('costHoldingUnit4')
+        inputCostHoldingUnit5 = request.POST.get('costHoldingUnit5')
+        inputCostHoldingUnit6 = request.POST.get('costHoldingUnit6')
+        inputCostHoldingUnit7 = request.POST.get('costHoldingUnit7')
+        inputCostHoldingUnit8 = request.POST.get('costHoldingUnit8')
+        models.EightMonthPlan.objects.filter(planName=plan_Name).update(costHoldingUnit1 = inputCostHoldingUnit1, 
+                                                                             costHoldingUnit2 = inputCostHoldingUnit2, 
+                                                                             costHoldingUnit3 = inputCostHoldingUnit3, 
+                                                                             costHoldingUnit4 = inputCostHoldingUnit4, 
+                                                                             costHoldingUnit5 = inputCostHoldingUnit5, 
+                                                                             costHoldingUnit6 = inputCostHoldingUnit6, 
+                                                                             costHoldingUnit7 = inputCostHoldingUnit7, 
+                                                                             costHoldingUnit8 = inputCostHoldingUnit8
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.EightMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eight/costHoldingUnitEight.html',{'detail' : detail})
+
+
+def demandNine(request, plan_Name):
+    if request.method == "POST":
+        inputDemand1 = request.POST.get('demand1')
+        inputDemand2 = request.POST.get('demand2')
+        inputDemand3 = request.POST.get('demand3')
+        inputDemand4 = request.POST.get('demand4')
+        inputDemand5 = request.POST.get('demand5')
+        inputDemand6 = request.POST.get('demand6')
+        inputDemand7 = request.POST.get('demand7')
+        inputDemand8 = request.POST.get('demand8')
+        inputDemand9 = request.POST.get('demand9')
+        models.NineMonthPlan.objects.filter(planName=plan_Name).update(demand1 = inputDemand1, 
+                                                                             demand2 = inputDemand2, 
+                                                                             demand3 = inputDemand3, 
+                                                                             demand4 = inputDemand4, 
+                                                                             demand5 = inputDemand5, 
+                                                                             demand6 = inputDemand6, 
+                                                                             demand7 = inputDemand7, 
+                                                                             demand8 = inputDemand8, 
+                                                                             demand9 = inputDemand9
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.NineMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Nine/demandNine.html',{'detail' : detail})
+
+
+def numPermanentNine(request, plan_Name):
+    if request.method == "POST":
+        inputNumPermanent1 = request.POST.get('numPermanent1')
+        inputNumPermanent2 = request.POST.get('numPermanent2')
+        inputNumPermanent3 = request.POST.get('numPermanent3')
+        inputNumPermanent4 = request.POST.get('numPermanent4')
+        inputNumPermanent5 = request.POST.get('numPermanent5')
+        inputNumPermanent6 = request.POST.get('numPermanent6')
+        inputNumPermanent7 = request.POST.get('numPermanent7')
+        inputNumPermanent8 = request.POST.get('numPermanent8')
+        inputNumPermanent9 = request.POST.get('numPermanent9')
+        models.NineMonthPlan.objects.filter(planName=plan_Name).update(numPermanent1 = inputNumPermanent1, 
+                                                                             numPermanent2 = inputNumPermanent2, 
+                                                                             numPermanent3 = inputNumPermanent3, 
+                                                                             numPermanent4 = inputNumPermanent4, 
+                                                                             numPermanent5 = inputNumPermanent5, 
+                                                                             numPermanent6 = inputNumPermanent6, 
+                                                                             numPermanent7 = inputNumPermanent7, 
+                                                                             numPermanent8 = inputNumPermanent8, 
+                                                                             numPermanent9 = inputNumPermanent9
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.NineMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Nine/numPermanentNine.html',{'detail' : detail})
+
+
+def prodPermanentNine(request, plan_Name):
+    if request.method == "POST":
+        inputProdPermanent1 = request.POST.get('prodPermanent1')
+        inputProdPermanent2 = request.POST.get('prodPermanent2')
+        inputProdPermanent3 = request.POST.get('prodPermanent3')
+        inputProdPermanent4 = request.POST.get('prodPermanent4')
+        inputProdPermanent5 = request.POST.get('prodPermanent5')
+        inputProdPermanent6 = request.POST.get('prodPermanent6')
+        inputProdPermanent7 = request.POST.get('prodPermanent7')
+        inputProdPermanent8 = request.POST.get('prodPermanent8')
+        inputProdPermanent9 = request.POST.get('prodPermanent9')
+        models.NineMonthPlan.objects.filter(planName=plan_Name).update(prodPermanent1 = inputProdPermanent1, 
+                                                                             prodPermanent2 = inputProdPermanent2, 
+                                                                             prodPermanent3 = inputProdPermanent3, 
+                                                                             prodPermanent4 = inputProdPermanent4, 
+                                                                             prodPermanent5 = inputProdPermanent5, 
+                                                                             prodPermanent6 = inputProdPermanent6, 
+                                                                             prodPermanent7 = inputProdPermanent7, 
+                                                                             prodPermanent8 = inputProdPermanent8, 
+                                                                             prodPermanent9 = inputProdPermanent9
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.NineMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Nine/prodPermanentNine.html',{'detail' : detail})
+
+
+def prodTemporaryNine(request, plan_Name):
+    if request.method == "POST":
+        inputProdTemporary1 = request.POST.get('prodTemporary1')
+        inputProdTemporary2 = request.POST.get('prodTemporary2')
+        inputProdTemporary3 = request.POST.get('prodTemporary3')
+        inputProdTemporary4 = request.POST.get('prodTemporary4')
+        inputProdTemporary5 = request.POST.get('prodTemporary5')
+        inputProdTemporary6 = request.POST.get('prodTemporary6')
+        inputProdTemporary7 = request.POST.get('prodTemporary7')
+        inputProdTemporary8 = request.POST.get('prodTemporary8')
+        inputProdTemporary9 = request.POST.get('prodTemporary9')
+        models.NineMonthPlan.objects.filter(planName=plan_Name).update(prodTemporary1 = inputProdTemporary1, 
+                                                                             prodTemporary2 = inputProdTemporary2, 
+                                                                             prodTemporary3 = inputProdTemporary3, 
+                                                                             prodTemporary4 = inputProdTemporary4, 
+                                                                             prodTemporary5 = inputProdTemporary5, 
+                                                                             prodTemporary6 = inputProdTemporary6, 
+                                                                             prodTemporary7 = inputProdTemporary7, 
+                                                                             prodTemporary8 = inputProdTemporary8, 
+                                                                             prodTemporary9 = inputProdTemporary9
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.NineMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Nine/prodTemporaryNine.html',{'detail' : detail})
+
+
+def costHiringNine(request, plan_Name):
+    if request.method == "POST":
+        inputCostHiring1 = request.POST.get('costHiring1')
+        inputCostHiring2 = request.POST.get('costHiring2')
+        inputCostHiring3 = request.POST.get('costHiring3')
+        inputCostHiring4 = request.POST.get('costHiring4')
+        inputCostHiring5 = request.POST.get('costHiring5')
+        inputCostHiring6 = request.POST.get('costHiring6')
+        inputCostHiring7 = request.POST.get('costHiring7')
+        inputCostHiring8 = request.POST.get('costHiring8')
+        inputCostHiring9 = request.POST.get('costHiring9')
+        models.NineMonthPlan.objects.filter(planName=plan_Name).update(costHiring1 = inputCostHiring1, 
+                                                                             costHiring2 = inputCostHiring2, 
+                                                                             costHiring3 = inputCostHiring3, 
+                                                                             costHiring4 = inputCostHiring4, 
+                                                                             costHiring5 = inputCostHiring5, 
+                                                                             costHiring6 = inputCostHiring6, 
+                                                                             costHiring7 = inputCostHiring7, 
+                                                                             costHiring8 = inputCostHiring8, 
+                                                                             costHiring9 = inputCostHiring9
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.NineMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Nine/costHiringNine.html',{'detail' : detail})
+
+
+def costFiringNine(request, plan_Name):
+    if request.method == "POST":
+        inputCostFiring1 = request.POST.get('costFiring1')
+        inputCostFiring2 = request.POST.get('costFiring2')
+        inputCostFiring3 = request.POST.get('costFiring3')
+        inputCostFiring4 = request.POST.get('costFiring4')
+        inputCostFiring5 = request.POST.get('costFiring5')
+        inputCostFiring6 = request.POST.get('costFiring6')
+        inputCostFiring7 = request.POST.get('costFiring7')
+        inputCostFiring8 = request.POST.get('costFiring8')
+        inputCostFiring9 = request.POST.get('costFiring9')
+        models.NineMonthPlan.objects.filter(planName=plan_Name).update(costFiring1 = inputCostFiring1, 
+                                                                             costFiring2 = inputCostFiring2, 
+                                                                             costFiring3 = inputCostFiring3, 
+                                                                             costFiring4 = inputCostFiring4, 
+                                                                             costFiring5 = inputCostFiring5, 
+                                                                             costFiring6 = inputCostFiring6, 
+                                                                             costFiring7 = inputCostFiring7, 
+                                                                             costFiring8 = inputCostFiring8, 
+                                                                             costFiring9 = inputCostFiring9
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.NineMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Nine/costFiringNine.html',{'detail' : detail})
+
+
+def costHoldingUnitNine(request, plan_Name):
+    if request.method == "POST":
+        inputCostHoldingUnit1 = request.POST.get('costHoldingUnit1')
+        inputCostHoldingUnit2 = request.POST.get('costHoldingUnit2')
+        inputCostHoldingUnit3 = request.POST.get('costHoldingUnit3')
+        inputCostHoldingUnit4 = request.POST.get('costHoldingUnit4')
+        inputCostHoldingUnit5 = request.POST.get('costHoldingUnit5')
+        inputCostHoldingUnit6 = request.POST.get('costHoldingUnit6')
+        inputCostHoldingUnit7 = request.POST.get('costHoldingUnit7')
+        inputCostHoldingUnit8 = request.POST.get('costHoldingUnit8')
+        inputCostHoldingUnit9 = request.POST.get('costHoldingUnit9')
+        models.NineMonthPlan.objects.filter(planName=plan_Name).update(costHoldingUnit1 = inputCostHoldingUnit1, 
+                                                                             costHoldingUnit2 = inputCostHoldingUnit2, 
+                                                                             costHoldingUnit3 = inputCostHoldingUnit3, 
+                                                                             costHoldingUnit4 = inputCostHoldingUnit4, 
+                                                                             costHoldingUnit5 = inputCostHoldingUnit5, 
+                                                                             costHoldingUnit6 = inputCostHoldingUnit6, 
+                                                                             costHoldingUnit7 = inputCostHoldingUnit7, 
+                                                                             costHoldingUnit8 = inputCostHoldingUnit8, 
+                                                                             costHoldingUnit9 = inputCostHoldingUnit9
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.NineMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Nine/costHoldingUnitNine.html',{'detail' : detail})
+
+
+def demandTen(request, plan_Name):
+    if request.method == "POST":
+        inputDemand1 = request.POST.get('demand1')
+        inputDemand2 = request.POST.get('demand2')
+        inputDemand3 = request.POST.get('demand3')
+        inputDemand4 = request.POST.get('demand4')
+        inputDemand5 = request.POST.get('demand5')
+        inputDemand6 = request.POST.get('demand6')
+        inputDemand7 = request.POST.get('demand7')
+        inputDemand8 = request.POST.get('demand8')
+        inputDemand9 = request.POST.get('demand9')
+        inputDemand10 = request.POST.get('demand10')
+        models.TenMonthPlan.objects.filter(planName=plan_Name).update(demand1 = inputDemand1, 
+                                                                             demand2 = inputDemand2, 
+                                                                             demand3 = inputDemand3, 
+                                                                             demand4 = inputDemand4, 
+                                                                             demand5 = inputDemand5, 
+                                                                             demand6 = inputDemand6, 
+                                                                             demand7 = inputDemand7, 
+                                                                             demand8 = inputDemand8, 
+                                                                             demand9 = inputDemand9, 
+                                                                             demand10 = inputDemand10
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Ten/demandTen.html',{'detail' : detail})
+
+
+def numPermanentTen(request, plan_Name):
+    if request.method == "POST":
+        inputNumPermanent1 = request.POST.get('numPermanent1')
+        inputNumPermanent2 = request.POST.get('numPermanent2')
+        inputNumPermanent3 = request.POST.get('numPermanent3')
+        inputNumPermanent4 = request.POST.get('numPermanent4')
+        inputNumPermanent5 = request.POST.get('numPermanent5')
+        inputNumPermanent6 = request.POST.get('numPermanent6')
+        inputNumPermanent7 = request.POST.get('numPermanent7')
+        inputNumPermanent8 = request.POST.get('numPermanent8')
+        inputNumPermanent9 = request.POST.get('numPermanent9')
+        inputNumPermanent10 = request.POST.get('numPermanent10')
+        models.TenMonthPlan.objects.filter(planName=plan_Name).update(numPermanent1 = inputNumPermanent1, 
+                                                                             numPermanent2 = inputNumPermanent2, 
+                                                                             numPermanent3 = inputNumPermanent3, 
+                                                                             numPermanent4 = inputNumPermanent4, 
+                                                                             numPermanent5 = inputNumPermanent5, 
+                                                                             numPermanent6 = inputNumPermanent6, 
+                                                                             numPermanent7 = inputNumPermanent7, 
+                                                                             numPermanent8 = inputNumPermanent8, 
+                                                                             numPermanent9 = inputNumPermanent9, 
+                                                                             numPermanent10 = inputNumPermanent10
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Ten/numPermanentTen.html',{'detail' : detail})
+
+
+def prodPermanentTen(request, plan_Name):
+    if request.method == "POST":
+        inputProdPermanent1 = request.POST.get('prodPermanent1')
+        inputProdPermanent2 = request.POST.get('prodPermanent2')
+        inputProdPermanent3 = request.POST.get('prodPermanent3')
+        inputProdPermanent4 = request.POST.get('prodPermanent4')
+        inputProdPermanent5 = request.POST.get('prodPermanent5')
+        inputProdPermanent6 = request.POST.get('prodPermanent6')
+        inputProdPermanent7 = request.POST.get('prodPermanent7')
+        inputProdPermanent8 = request.POST.get('prodPermanent8')
+        inputProdPermanent9 = request.POST.get('prodPermanent9')
+        inputProdPermanent10 = request.POST.get('prodPermanent10')
+        models.TenMonthPlan.objects.filter(planName=plan_Name).update(prodPermanent1 = inputProdPermanent1, 
+                                                                             prodPermanent2 = inputProdPermanent2, 
+                                                                             prodPermanent3 = inputProdPermanent3, 
+                                                                             prodPermanent4 = inputProdPermanent4, 
+                                                                             prodPermanent5 = inputProdPermanent5, 
+                                                                             prodPermanent6 = inputProdPermanent6, 
+                                                                             prodPermanent7 = inputProdPermanent7, 
+                                                                             prodPermanent8 = inputProdPermanent8, 
+                                                                             prodPermanent9 = inputProdPermanent9, 
+                                                                             prodPermanent10 = inputProdPermanent10
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Ten/prodPermanentTen.html',{'detail' : detail})
+
+
+def prodTemporaryTen(request, plan_Name):
+    if request.method == "POST":
+        inputProdTemporary1 = request.POST.get('prodTemporary1')
+        inputProdTemporary2 = request.POST.get('prodTemporary2')
+        inputProdTemporary3 = request.POST.get('prodTemporary3')
+        inputProdTemporary4 = request.POST.get('prodTemporary4')
+        inputProdTemporary5 = request.POST.get('prodTemporary5')
+        inputProdTemporary6 = request.POST.get('prodTemporary6')
+        inputProdTemporary7 = request.POST.get('prodTemporary7')
+        inputProdTemporary8 = request.POST.get('prodTemporary8')
+        inputProdTemporary9 = request.POST.get('prodTemporary9')
+        inputProdTemporary10 = request.POST.get('prodTemporary10')
+        models.TenMonthPlan.objects.filter(planName=plan_Name).update(prodTemporary1 = inputProdTemporary1, 
+                                                                             prodTemporary2 = inputProdTemporary2, 
+                                                                             prodTemporary3 = inputProdTemporary3, 
+                                                                             prodTemporary4 = inputProdTemporary4, 
+                                                                             prodTemporary5 = inputProdTemporary5, 
+                                                                             prodTemporary6 = inputProdTemporary6, 
+                                                                             prodTemporary7 = inputProdTemporary7, 
+                                                                             prodTemporary8 = inputProdTemporary8, 
+                                                                             prodTemporary9 = inputProdTemporary9, 
+                                                                             prodTemporary10 = inputProdTemporary10
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Ten/prodTemporaryTen.html',{'detail' : detail})
+
+
+def costHiringTen(request, plan_Name):
+    if request.method == "POST":
+        inputCostHiring1 = request.POST.get('costHiring1')
+        inputCostHiring2 = request.POST.get('costHiring2')
+        inputCostHiring3 = request.POST.get('costHiring3')
+        inputCostHiring4 = request.POST.get('costHiring4')
+        inputCostHiring5 = request.POST.get('costHiring5')
+        inputCostHiring6 = request.POST.get('costHiring6')
+        inputCostHiring7 = request.POST.get('costHiring7')
+        inputCostHiring8 = request.POST.get('costHiring8')
+        inputCostHiring9 = request.POST.get('costHiring9')
+        inputCostHiring10 = request.POST.get('costHiring10')
+        models.TenMonthPlan.objects.filter(planName=plan_Name).update(costHiring1 = inputCostHiring1, 
+                                                                             costHiring2 = inputCostHiring2, 
+                                                                             costHiring3 = inputCostHiring3, 
+                                                                             costHiring4 = inputCostHiring4, 
+                                                                             costHiring5 = inputCostHiring5, 
+                                                                             costHiring6 = inputCostHiring6, 
+                                                                             costHiring7 = inputCostHiring7, 
+                                                                             costHiring8 = inputCostHiring8, 
+                                                                             costHiring9 = inputCostHiring9, 
+                                                                             costHiring10 = inputCostHiring10
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Ten/costHiringTen.html',{'detail' : detail})
+
+
+def costFiringTen(request, plan_Name):
+    if request.method == "POST":
+        inputCostFiring1 = request.POST.get('costFiring1')
+        inputCostFiring2 = request.POST.get('costFiring2')
+        inputCostFiring3 = request.POST.get('costFiring3')
+        inputCostFiring4 = request.POST.get('costFiring4')
+        inputCostFiring5 = request.POST.get('costFiring5')
+        inputCostFiring6 = request.POST.get('costFiring6')
+        inputCostFiring7 = request.POST.get('costFiring7')
+        inputCostFiring8 = request.POST.get('costFiring8')
+        inputCostFiring9 = request.POST.get('costFiring9')
+        inputCostFiring10 = request.POST.get('costFiring10')
+        models.TenMonthPlan.objects.filter(planName=plan_Name).update(costFiring1 = inputCostFiring1, 
+                                                                             costFiring2 = inputCostFiring2, 
+                                                                             costFiring3 = inputCostFiring3, 
+                                                                             costFiring4 = inputCostFiring4, 
+                                                                             costFiring5 = inputCostFiring5, 
+                                                                             costFiring6 = inputCostFiring6, 
+                                                                             costFiring7 = inputCostFiring7, 
+                                                                             costFiring8 = inputCostFiring8, 
+                                                                             costFiring9 = inputCostFiring9, 
+                                                                             costFiring10 = inputCostFiring10
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Ten/costFiringTen.html',{'detail' : detail})
+
+
+def costHoldingUnitTen(request, plan_Name):
+    if request.method == "POST":
+        inputCostHoldingUnit1 = request.POST.get('costHoldingUnit1')
+        inputCostHoldingUnit2 = request.POST.get('costHoldingUnit2')
+        inputCostHoldingUnit3 = request.POST.get('costHoldingUnit3')
+        inputCostHoldingUnit4 = request.POST.get('costHoldingUnit4')
+        inputCostHoldingUnit5 = request.POST.get('costHoldingUnit5')
+        inputCostHoldingUnit6 = request.POST.get('costHoldingUnit6')
+        inputCostHoldingUnit7 = request.POST.get('costHoldingUnit7')
+        inputCostHoldingUnit8 = request.POST.get('costHoldingUnit8')
+        inputCostHoldingUnit9 = request.POST.get('costHoldingUnit9')
+        inputCostHoldingUnit10 = request.POST.get('costHoldingUnit10')
+        models.TenMonthPlan.objects.filter(planName=plan_Name).update(costHoldingUnit1 = inputCostHoldingUnit1, 
+                                                                             costHoldingUnit2 = inputCostHoldingUnit2, 
+                                                                             costHoldingUnit3 = inputCostHoldingUnit3, 
+                                                                             costHoldingUnit4 = inputCostHoldingUnit4, 
+                                                                             costHoldingUnit5 = inputCostHoldingUnit5, 
+                                                                             costHoldingUnit6 = inputCostHoldingUnit6, 
+                                                                             costHoldingUnit7 = inputCostHoldingUnit7, 
+                                                                             costHoldingUnit8 = inputCostHoldingUnit8, 
+                                                                             costHoldingUnit9 = inputCostHoldingUnit9, 
+                                                                             costHoldingUnit10 = inputCostHoldingUnit10
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Ten/costHoldingUnitTen.html',{'detail' : detail})
+
+
+def demandEleven(request, plan_Name):
+    if request.method == "POST":
+        inputDemand1 = request.POST.get('demand1')
+        inputDemand2 = request.POST.get('demand2')
+        inputDemand3 = request.POST.get('demand3')
+        inputDemand4 = request.POST.get('demand4')
+        inputDemand5 = request.POST.get('demand5')
+        inputDemand6 = request.POST.get('demand6')
+        inputDemand7 = request.POST.get('demand7')
+        inputDemand8 = request.POST.get('demand8')
+        inputDemand9 = request.POST.get('demand9')
+        inputDemand10 = request.POST.get('demand10')
+        inputDemand11 = request.POST.get('demand11')
+        models.ElevenMonthPlan.objects.filter(planName=plan_Name).update(demand1 = inputDemand1, 
+                                                                             demand2 = inputDemand2, 
+                                                                             demand3 = inputDemand3, 
+                                                                             demand4 = inputDemand4, 
+                                                                             demand5 = inputDemand5, 
+                                                                             demand6 = inputDemand6, 
+                                                                             demand7 = inputDemand7, 
+                                                                             demand8 = inputDemand8, 
+                                                                             demand9 = inputDemand9, 
+                                                                             demand10 = inputDemand10, 
+                                                                             demand11 = inputDemand11
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.ElevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eleven/demandEleven.html',{'detail' : detail})
+
+
+def numPermanentEleven(request, plan_Name):
+    if request.method == "POST":
+        inputNumPermanent1 = request.POST.get('numPermanent1')
+        inputNumPermanent2 = request.POST.get('numPermanent2')
+        inputNumPermanent3 = request.POST.get('numPermanent3')
+        inputNumPermanent4 = request.POST.get('numPermanent4')
+        inputNumPermanent5 = request.POST.get('numPermanent5')
+        inputNumPermanent6 = request.POST.get('numPermanent6')
+        inputNumPermanent7 = request.POST.get('numPermanent7')
+        inputNumPermanent8 = request.POST.get('numPermanent8')
+        inputNumPermanent9 = request.POST.get('numPermanent9')
+        inputNumPermanent10 = request.POST.get('numPermanent10')
+        inputNumPermanent11 = request.POST.get('numPermanent11')
+        models.ElevenMonthPlan.objects.filter(planName=plan_Name).update(numPermanent1 = inputNumPermanent1, 
+                                                                             numPermanent2 = inputNumPermanent2, 
+                                                                             numPermanent3 = inputNumPermanent3, 
+                                                                             numPermanent4 = inputNumPermanent4, 
+                                                                             numPermanent5 = inputNumPermanent5, 
+                                                                             numPermanent6 = inputNumPermanent6, 
+                                                                             numPermanent7 = inputNumPermanent7, 
+                                                                             numPermanent8 = inputNumPermanent8, 
+                                                                             numPermanent9 = inputNumPermanent9, 
+                                                                             numPermanent10 = inputNumPermanent10, 
+                                                                             numPermanent11 = inputNumPermanent11
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.ElevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eleven/numPermanentEleven.html',{'detail' : detail})
+
+
+def prodPermanentEleven(request, plan_Name):
+    if request.method == "POST":
+        inputProdPermanent1 = request.POST.get('prodPermanent1')
+        inputProdPermanent2 = request.POST.get('prodPermanent2')
+        inputProdPermanent3 = request.POST.get('prodPermanent3')
+        inputProdPermanent4 = request.POST.get('prodPermanent4')
+        inputProdPermanent5 = request.POST.get('prodPermanent5')
+        inputProdPermanent6 = request.POST.get('prodPermanent6')
+        inputProdPermanent7 = request.POST.get('prodPermanent7')
+        inputProdPermanent8 = request.POST.get('prodPermanent8')
+        inputProdPermanent9 = request.POST.get('prodPermanent9')
+        inputProdPermanent10 = request.POST.get('prodPermanent10')
+        inputProdPermanent11 = request.POST.get('prodPermanent11')
+        models.ElevenMonthPlan.objects.filter(planName=plan_Name).update(prodPermanent1 = inputProdPermanent1, 
+                                                                             prodPermanent2 = inputProdPermanent2, 
+                                                                             prodPermanent3 = inputProdPermanent3, 
+                                                                             prodPermanent4 = inputProdPermanent4, 
+                                                                             prodPermanent5 = inputProdPermanent5, 
+                                                                             prodPermanent6 = inputProdPermanent6, 
+                                                                             prodPermanent7 = inputProdPermanent7, 
+                                                                             prodPermanent8 = inputProdPermanent8, 
+                                                                             prodPermanent9 = inputProdPermanent9, 
+                                                                             prodPermanent10 = inputProdPermanent10, 
+                                                                             prodPermanent11 = inputProdPermanent11
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.ElevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eleven/prodPermanentEleven.html',{'detail' : detail})
+
+
+def prodTemporaryEleven(request, plan_Name):
+    if request.method == "POST":
+        inputProdTemporary1 = request.POST.get('prodTemporary1')
+        inputProdTemporary2 = request.POST.get('prodTemporary2')
+        inputProdTemporary3 = request.POST.get('prodTemporary3')
+        inputProdTemporary4 = request.POST.get('prodTemporary4')
+        inputProdTemporary5 = request.POST.get('prodTemporary5')
+        inputProdTemporary6 = request.POST.get('prodTemporary6')
+        inputProdTemporary7 = request.POST.get('prodTemporary7')
+        inputProdTemporary8 = request.POST.get('prodTemporary8')
+        inputProdTemporary9 = request.POST.get('prodTemporary9')
+        inputProdTemporary10 = request.POST.get('prodTemporary10')
+        inputProdTemporary11 = request.POST.get('prodTemporary11')
+        models.ElevenMonthPlan.objects.filter(planName=plan_Name).update(prodTemporary1 = inputProdTemporary1, 
+                                                                             prodTemporary2 = inputProdTemporary2, 
+                                                                             prodTemporary3 = inputProdTemporary3, 
+                                                                             prodTemporary4 = inputProdTemporary4, 
+                                                                             prodTemporary5 = inputProdTemporary5, 
+                                                                             prodTemporary6 = inputProdTemporary6, 
+                                                                             prodTemporary7 = inputProdTemporary7, 
+                                                                             prodTemporary8 = inputProdTemporary8, 
+                                                                             prodTemporary9 = inputProdTemporary9, 
+                                                                             prodTemporary10 = inputProdTemporary10, 
+                                                                             prodTemporary11 = inputProdTemporary11
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.ElevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eleven/prodTemporaryEleven.html',{'detail' : detail})
+
+
+def costHiringEleven(request, plan_Name):
+    if request.method == "POST":
+        inputCostHiring1 = request.POST.get('costHiring1')
+        inputCostHiring2 = request.POST.get('costHiring2')
+        inputCostHiring3 = request.POST.get('costHiring3')
+        inputCostHiring4 = request.POST.get('costHiring4')
+        inputCostHiring5 = request.POST.get('costHiring5')
+        inputCostHiring6 = request.POST.get('costHiring6')
+        inputCostHiring7 = request.POST.get('costHiring7')
+        inputCostHiring8 = request.POST.get('costHiring8')
+        inputCostHiring9 = request.POST.get('costHiring9')
+        inputCostHiring10 = request.POST.get('costHiring10')
+        inputCostHiring11 = request.POST.get('costHiring11')
+        models.ElevenMonthPlan.objects.filter(planName=plan_Name).update(costHiring1 = inputCostHiring1, 
+                                                                             costHiring2 = inputCostHiring2, 
+                                                                             costHiring3 = inputCostHiring3, 
+                                                                             costHiring4 = inputCostHiring4, 
+                                                                             costHiring5 = inputCostHiring5, 
+                                                                             costHiring6 = inputCostHiring6, 
+                                                                             costHiring7 = inputCostHiring7, 
+                                                                             costHiring8 = inputCostHiring8, 
+                                                                             costHiring9 = inputCostHiring9, 
+                                                                             costHiring10 = inputCostHiring10, 
+                                                                             costHiring11 = inputCostHiring11
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.ElevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eleven/costHiringEleven.html',{'detail' : detail})
+
+
+def costFiringEleven(request, plan_Name):
+    if request.method == "POST":
+        inputCostFiring1 = request.POST.get('costFiring1')
+        inputCostFiring2 = request.POST.get('costFiring2')
+        inputCostFiring3 = request.POST.get('costFiring3')
+        inputCostFiring4 = request.POST.get('costFiring4')
+        inputCostFiring5 = request.POST.get('costFiring5')
+        inputCostFiring6 = request.POST.get('costFiring6')
+        inputCostFiring7 = request.POST.get('costFiring7')
+        inputCostFiring8 = request.POST.get('costFiring8')
+        inputCostFiring9 = request.POST.get('costFiring9')
+        inputCostFiring10 = request.POST.get('costFiring10')
+        inputCostFiring11 = request.POST.get('costFiring11')
+        models.ElevenMonthPlan.objects.filter(planName=plan_Name).update(costFiring1 = inputCostFiring1, 
+                                                                             costFiring2 = inputCostFiring2, 
+                                                                             costFiring3 = inputCostFiring3, 
+                                                                             costFiring4 = inputCostFiring4, 
+                                                                             costFiring5 = inputCostFiring5, 
+                                                                             costFiring6 = inputCostFiring6, 
+                                                                             costFiring7 = inputCostFiring7, 
+                                                                             costFiring8 = inputCostFiring8, 
+                                                                             costFiring9 = inputCostFiring9, 
+                                                                             costFiring10 = inputCostFiring10, 
+                                                                             costFiring11 = inputCostFiring11
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.ElevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eleven/costFiringEleven.html',{'detail' : detail})
+
+
+def costHoldingUnitEleven(request, plan_Name):
+    if request.method == "POST":
+        inputCostHoldingUnit1 = request.POST.get('costHoldingUnit1')
+        inputCostHoldingUnit2 = request.POST.get('costHoldingUnit2')
+        inputCostHoldingUnit3 = request.POST.get('costHoldingUnit3')
+        inputCostHoldingUnit4 = request.POST.get('costHoldingUnit4')
+        inputCostHoldingUnit5 = request.POST.get('costHoldingUnit5')
+        inputCostHoldingUnit6 = request.POST.get('costHoldingUnit6')
+        inputCostHoldingUnit7 = request.POST.get('costHoldingUnit7')
+        inputCostHoldingUnit8 = request.POST.get('costHoldingUnit8')
+        inputCostHoldingUnit9 = request.POST.get('costHoldingUnit9')
+        inputCostHoldingUnit10 = request.POST.get('costHoldingUnit10')
+        inputCostHoldingUnit11 = request.POST.get('costHoldingUnit11')
+        models.ElevenMonthPlan.objects.filter(planName=plan_Name).update(costHoldingUnit1 = inputCostHoldingUnit1, 
+                                                                             costHoldingUnit2 = inputCostHoldingUnit2, 
+                                                                             costHoldingUnit3 = inputCostHoldingUnit3, 
+                                                                             costHoldingUnit4 = inputCostHoldingUnit4, 
+                                                                             costHoldingUnit5 = inputCostHoldingUnit5, 
+                                                                             costHoldingUnit6 = inputCostHoldingUnit6, 
+                                                                             costHoldingUnit7 = inputCostHoldingUnit7, 
+                                                                             costHoldingUnit8 = inputCostHoldingUnit8, 
+                                                                             costHoldingUnit9 = inputCostHoldingUnit9, 
+                                                                             costHoldingUnit10 = inputCostHoldingUnit10, 
+                                                                             costHoldingUnit11 = inputCostHoldingUnit11 
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.ElevenMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Eleven/costHoldingUnitEleven.html',{'detail' : detail})
+
+
+def demandTwelve(request, plan_Name):
+    if request.method == "POST":
+        inputDemand1 = request.POST.get('demand1')
+        inputDemand2 = request.POST.get('demand2')
+        inputDemand3 = request.POST.get('demand3')
+        inputDemand4 = request.POST.get('demand4')
+        inputDemand5 = request.POST.get('demand5')
+        inputDemand6 = request.POST.get('demand6')
+        inputDemand7 = request.POST.get('demand7')
+        inputDemand8 = request.POST.get('demand8')
+        inputDemand9 = request.POST.get('demand9')
+        inputDemand10 = request.POST.get('demand10')
+        inputDemand11 = request.POST.get('demand11')
+        inputDemand12 = request.POST.get('demand12')
+        models.TwelveMonthPlan.objects.filter(planName=plan_Name).update(demand1 = inputDemand1, 
+                                                                             demand2 = inputDemand2, 
+                                                                             demand3 = inputDemand3, 
+                                                                             demand4 = inputDemand4, 
+                                                                             demand5 = inputDemand5, 
+                                                                             demand6 = inputDemand6, 
+                                                                             demand7 = inputDemand7, 
+                                                                             demand8 = inputDemand8, 
+                                                                             demand9 = inputDemand9, 
+                                                                             demand10 = inputDemand10, 
+                                                                             demand11 = inputDemand11, 
+                                                                             demand12 = inputDemand12
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TwelveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Twelve/demandTwelve.html',{'detail' : detail})
+
+
+def numPermanentTwelve(request, plan_Name):
+    if request.method == "POST":
+        inputNumPermanent1 = request.POST.get('numPermanent1')
+        inputNumPermanent2 = request.POST.get('numPermanent2')
+        inputNumPermanent3 = request.POST.get('numPermanent3')
+        inputNumPermanent4 = request.POST.get('numPermanent4')
+        inputNumPermanent5 = request.POST.get('numPermanent5')
+        inputNumPermanent6 = request.POST.get('numPermanent6')
+        inputNumPermanent7 = request.POST.get('numPermanent7')
+        inputNumPermanent8 = request.POST.get('numPermanent8')
+        inputNumPermanent9 = request.POST.get('numPermanent9')
+        inputNumPermanent10 = request.POST.get('numPermanent10')
+        inputNumPermanent11 = request.POST.get('numPermanent11')
+        inputNumPermanent12 = request.POST.get('numPermanent12')
+        models.TwelveMonthPlan.objects.filter(planName=plan_Name).update(numPermanent1 = inputNumPermanent1, 
+                                                                             numPermanent2 = inputNumPermanent2, 
+                                                                             numPermanent3 = inputNumPermanent3, 
+                                                                             numPermanent4 = inputNumPermanent4, 
+                                                                             numPermanent5 = inputNumPermanent5, 
+                                                                             numPermanent6 = inputNumPermanent6, 
+                                                                             numPermanent7 = inputNumPermanent7, 
+                                                                             numPermanent8 = inputNumPermanent8, 
+                                                                             numPermanent9 = inputNumPermanent9, 
+                                                                             numPermanent10 = inputNumPermanent10, 
+                                                                             numPermanent11 = inputNumPermanent11, 
+                                                                             numPermanent12 = inputNumPermanent12
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TwelveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Twelve/numPermanentTwelve.html',{'detail' : detail})
+
+
+def prodPermanentTwelve(request, plan_Name):
+    if request.method == "POST":
+        inputProdPermanent1 = request.POST.get('prodPermanent1')
+        inputProdPermanent2 = request.POST.get('prodPermanent2')
+        inputProdPermanent3 = request.POST.get('prodPermanent3')
+        inputProdPermanent4 = request.POST.get('prodPermanent4')
+        inputProdPermanent5 = request.POST.get('prodPermanent5')
+        inputProdPermanent6 = request.POST.get('prodPermanent6')
+        inputProdPermanent7 = request.POST.get('prodPermanent7')
+        inputProdPermanent8 = request.POST.get('prodPermanent8')
+        inputProdPermanent9 = request.POST.get('prodPermanent9')
+        inputProdPermanent10 = request.POST.get('prodPermanent10')
+        inputProdPermanent11 = request.POST.get('prodPermanent11')
+        inputProdPermanent12 = request.POST.get('prodPermanent12')
+        models.TwelveMonthPlan.objects.filter(planName=plan_Name).update(prodPermanent1 = inputProdPermanent1, 
+                                                                             prodPermanent2 = inputProdPermanent2, 
+                                                                             prodPermanent3 = inputProdPermanent3, 
+                                                                             prodPermanent4 = inputProdPermanent4, 
+                                                                             prodPermanent5 = inputProdPermanent5, 
+                                                                             prodPermanent6 = inputProdPermanent6, 
+                                                                             prodPermanent7 = inputProdPermanent7, 
+                                                                             prodPermanent8 = inputProdPermanent8, 
+                                                                             prodPermanent9 = inputProdPermanent9, 
+                                                                             prodPermanent10 = inputProdPermanent10, 
+                                                                             prodPermanent11 = inputProdPermanent11, 
+                                                                             prodPermanent12 = inputProdPermanent12
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TwelveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Twelve/prodPermanentTwelve.html',{'detail' : detail})
+
+
+def prodTemporaryTwelve(request, plan_Name):
+    if request.method == "POST":
+        inputProdTemporary1 = request.POST.get('prodTemporary1')
+        inputProdTemporary2 = request.POST.get('prodTemporary2')
+        inputProdTemporary3 = request.POST.get('prodTemporary3')
+        inputProdTemporary4 = request.POST.get('prodTemporary4')
+        inputProdTemporary5 = request.POST.get('prodTemporary5')
+        inputProdTemporary6 = request.POST.get('prodTemporary6')
+        inputProdTemporary7 = request.POST.get('prodTemporary7')
+        inputProdTemporary8 = request.POST.get('prodTemporary8')
+        inputProdTemporary9 = request.POST.get('prodTemporary9')
+        inputProdTemporary10 = request.POST.get('prodTemporary10')
+        inputProdTemporary11 = request.POST.get('prodTemporary11')
+        inputProdTemporary12 = request.POST.get('prodTemporary12')
+        models.TwelveMonthPlan.objects.filter(planName=plan_Name).update(prodTemporary1 = inputProdTemporary1, 
+                                                                             prodTemporary2 = inputProdTemporary2, 
+                                                                             prodTemporary3 = inputProdTemporary3, 
+                                                                             prodTemporary4 = inputProdTemporary4, 
+                                                                             prodTemporary5 = inputProdTemporary5, 
+                                                                             prodTemporary6 = inputProdTemporary6, 
+                                                                             prodTemporary7 = inputProdTemporary7, 
+                                                                             prodTemporary8 = inputProdTemporary8, 
+                                                                             prodTemporary9 = inputProdTemporary9, 
+                                                                             prodTemporary10 = inputProdTemporary10, 
+                                                                             prodTemporary11 = inputProdTemporary11, 
+                                                                             prodTemporary12 = inputProdTemporary12
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TwelveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Twelve/prodTemporaryTwelve.html',{'detail' : detail})
+
+
+def costHiringTwelve(request, plan_Name):
+    if request.method == "POST":
+        inputCostHiring1 = request.POST.get('costHiring1')
+        inputCostHiring2 = request.POST.get('costHiring2')
+        inputCostHiring3 = request.POST.get('costHiring3')
+        inputCostHiring4 = request.POST.get('costHiring4')
+        inputCostHiring5 = request.POST.get('costHiring5')
+        inputCostHiring6 = request.POST.get('costHiring6')
+        inputCostHiring7 = request.POST.get('costHiring7')
+        inputCostHiring8 = request.POST.get('costHiring8')
+        inputCostHiring9 = request.POST.get('costHiring9')
+        inputCostHiring10 = request.POST.get('costHiring10')
+        inputCostHiring11 = request.POST.get('costHiring11')
+        inputCostHiring12 = request.POST.get('costHiring12')
+        models.TwelveMonthPlan.objects.filter(planName=plan_Name).update(costHiring1 = inputCostHiring1, 
+                                                                             costHiring2 = inputCostHiring2, 
+                                                                             costHiring3 = inputCostHiring3, 
+                                                                             costHiring4 = inputCostHiring4, 
+                                                                             costHiring5 = inputCostHiring5, 
+                                                                             costHiring6 = inputCostHiring6, 
+                                                                             costHiring7 = inputCostHiring7, 
+                                                                             costHiring8 = inputCostHiring8, 
+                                                                             costHiring9 = inputCostHiring9, 
+                                                                             costHiring10 = inputCostHiring10, 
+                                                                             costHiring11 = inputCostHiring11, 
+                                                                             costHiring12 = inputCostHiring12
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TwelveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Twelve/costHiringTwelve.html',{'detail' : detail})
+
+
+def costFiringTwelve(request, plan_Name):
+    if request.method == "POST":
+        inputCostFiring1 = request.POST.get('costFiring1')
+        inputCostFiring2 = request.POST.get('costFiring2')
+        inputCostFiring3 = request.POST.get('costFiring3')
+        inputCostFiring4 = request.POST.get('costFiring4')
+        inputCostFiring5 = request.POST.get('costFiring5')
+        inputCostFiring6 = request.POST.get('costFiring6')
+        inputCostFiring7 = request.POST.get('costFiring7')
+        inputCostFiring8 = request.POST.get('costFiring8')
+        inputCostFiring9 = request.POST.get('costFiring9')
+        inputCostFiring10 = request.POST.get('costFiring10')
+        inputCostFiring11 = request.POST.get('costFiring11')
+        inputCostFiring12 = request.POST.get('costFiring12')
+        models.TwelveMonthPlan.objects.filter(planName=plan_Name).update(costFiring1 = inputCostFiring1, 
+                                                                             costFiring2 = inputCostFiring2, 
+                                                                             costFiring3 = inputCostFiring3, 
+                                                                             costFiring4 = inputCostFiring4, 
+                                                                             costFiring5 = inputCostFiring5, 
+                                                                             costFiring6 = inputCostFiring6, 
+                                                                             costFiring7 = inputCostFiring7, 
+                                                                             costFiring8 = inputCostFiring8, 
+                                                                             costFiring9 = inputCostFiring9, 
+                                                                             costFiring10 = inputCostFiring10, 
+                                                                             costFiring11 = inputCostFiring11, 
+                                                                             costFiring12 = inputCostFiring12
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TwelveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Twelve/costFiringTwelve.html',{'detail' : detail})
+
+
+def costHoldingUnitTwelve(request, plan_Name):
+    if request.method == "POST":
+        inputCostHoldingUnit1 = request.POST.get('costHoldingUnit1')
+        inputCostHoldingUnit2 = request.POST.get('costHoldingUnit2')
+        inputCostHoldingUnit3 = request.POST.get('costHoldingUnit3')
+        inputCostHoldingUnit4 = request.POST.get('costHoldingUnit4')
+        inputCostHoldingUnit5 = request.POST.get('costHoldingUnit5')
+        inputCostHoldingUnit6 = request.POST.get('costHoldingUnit6')
+        inputCostHoldingUnit7 = request.POST.get('costHoldingUnit7')
+        inputCostHoldingUnit8 = request.POST.get('costHoldingUnit8')
+        inputCostHoldingUnit9 = request.POST.get('costHoldingUnit9')
+        inputCostHoldingUnit10 = request.POST.get('costHoldingUnit10')
+        inputCostHoldingUnit11 = request.POST.get('costHoldingUnit11')
+        inputCostHoldingUnit12 = request.POST.get('costHoldingUnit12')
+        models.TwelveMonthPlan.objects.filter(planName=plan_Name).update(costHoldingUnit1 = inputCostHoldingUnit1, 
+                                                                             costHoldingUnit2 = inputCostHoldingUnit2, 
+                                                                             costHoldingUnit3 = inputCostHoldingUnit3, 
+                                                                             costHoldingUnit4 = inputCostHoldingUnit4, 
+                                                                             costHoldingUnit5 = inputCostHoldingUnit5, 
+                                                                             costHoldingUnit6 = inputCostHoldingUnit6, 
+                                                                             costHoldingUnit7 = inputCostHoldingUnit7, 
+                                                                             costHoldingUnit8 = inputCostHoldingUnit8, 
+                                                                             costHoldingUnit9 = inputCostHoldingUnit9, 
+                                                                             costHoldingUnit10 = inputCostHoldingUnit10, 
+                                                                             costHoldingUnit11 = inputCostHoldingUnit11, 
+                                                                             costHoldingUnit12 = inputCostHoldingUnit12
+                                                                             )
+        return redirect('history')
+    else:
+        detail = models.TwelveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/Twelve/costHoldingUnitTwelve.html',{'detail' : detail})

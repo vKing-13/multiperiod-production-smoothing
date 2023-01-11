@@ -67,9 +67,3 @@ class BossExtraForm(forms.ModelForm):
 #     fields=['month','productionTempWorker']
 #     labels = {"month": "Month",
 #               "productionTempWorker": "Production of Temporary Worker"}
-
-class PlanningForm(forms.ModelForm):
-    class Meta:
-        model = models.PlanDatabase
-        fields = ['planName', 'demand1', 'demand2', 'demand3', 'demand4','numPermanent','prodPermanent', 'prodTemporary', 'costHiring', 'costFiring', 'costHoldingUnit', 'inventoryInitial', 'inventoryFinal']
-
