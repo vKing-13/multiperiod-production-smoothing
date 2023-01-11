@@ -17,6 +17,11 @@ pip install django-widget-tweaks
 pip install django_compressor
 ```
 
+## Install python XLWT library
+```
+pip install xlwt
+```
+
 ## Run Server
 
 ```
