@@ -114,24 +114,6 @@ def formula(request):
 
     return render(request, "main/formula.html")
 
-def contact(request):
-    if request.method == 'POST':
-        form = ContactForm(request.POST)
-        if form.is_valid():
-            name=form.cleaned_data['name']
-            email=form.cleaned_data['email']
-            content=form.cleaned_data['content']
-            html=render_to_string('main/contactform.html',{
-                'name':name,
-                'email':email,
-                'content':content
-            })
-            send_mail('Multiperiod Production Smoothing Inquiry',content,email,['vicolee49@gmail.com'])
-            return redirect ("home")
-    form = ContactForm()
-    context = {'form': form}
-    return render(request, 'main/contact.html', context)
-
 
 def logout_view(request):
     logout(request)
@@ -5264,3 +5246,21 @@ def downloadTwelve(request,plan_Name):
     response.write(output.getvalue()) 
 
     return response
+
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name=form.cleaned_data['name']
+            email=form.cleaned_data['email']
+            content=form.cleaned_data['content']
+            html=render_to_string('main/contactform.html',{
+                'name':name,
+                'email':email,
+                'content':content
+            })
+            send_mail('Multiperiod Production Smoothing Inquiry',content,email,['vicolee49@gmail.com'])
+            return redirect ("home")
+    form = ContactForm()
+    context = {'form': form}
+    return render(request, 'main/contact.html', context)
