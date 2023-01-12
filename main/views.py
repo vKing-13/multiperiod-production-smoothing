@@ -96,7 +96,7 @@ def index(request):
             return redirect('login')
     return render(request, 'main/index.html')
 
-
+@login_required(login_url='login/')
 def history(request):
     historyListFour = models.FourMonthPlan.objects.all().values
     historyListFive = models.FiveMonthPlan.objects.all().values
@@ -109,7 +109,7 @@ def history(request):
     historyListTwelve = models.TwelveMonthPlan.objects.all().values
     return render(request, "main/history.html", {'historyListFour': historyListFour, 'historyListFive': historyListFive, 'historyListSix': historyListSix, 'historyListSeven': historyListSeven, 'historyListEight': historyListEight, 'historyListNine': historyListNine, 'historyListTen': historyListTen, 'historyListEleven': historyListEleven, 'historyListTwelve': historyListTwelve})
 
-
+@login_required(login_url='login/')
 def formula(request):
 
     return render(request, "main/formula.html")
@@ -119,7 +119,7 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect('/')
 
-
+@login_required(login_url='login/')
 def viewDetailFour(request,plan_Name):
     optimizeFour(plan_Name)
     detail = models.FourMonthPlan.objects.filter(planName=plan_Name).values()
@@ -169,7 +169,7 @@ def viewDetailFour(request,plan_Name):
         ei4 = x['inventoryFinal']
     return render(request, "main/four/viewDetailFour.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
 
-
+@login_required(login_url='login/')
 def viewDetailFive(request,plan_Name):
     optimizeFive(plan_Name)
     detail = models.FiveMonthPlan.objects.filter(planName=plan_Name).values()
@@ -229,7 +229,7 @@ def viewDetailFive(request,plan_Name):
         ei5 = x['inventoryFinal']
     return render(request, "main/five/viewDetailFive.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
 
-
+@login_required(login_url='login/')
 def viewDetailSix(request,plan_Name):
     optimizeSix(plan_Name)
     detail = models.SixMonthPlan.objects.filter(planName=plan_Name).values()
@@ -299,7 +299,7 @@ def viewDetailSix(request,plan_Name):
         ei6 = x['inventoryFinal']
     return render(request, "main/six/viewDetailSix.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6,'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6,'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6,'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6,'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6,'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6,'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6,'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6,'thC': thC, 'tfC': tfC, 'tihC': tihC})
 
-
+@login_required(login_url='login/')
 def viewDetailSeven(request,plan_Name):
     optimizeSeven(plan_Name)
     detail = models.SevenMonthPlan.objects.filter(planName=plan_Name).values()
@@ -379,7 +379,7 @@ def viewDetailSeven(request,plan_Name):
         ei7 = x['inventoryFinal']
     return render(request, "main/seven/viewDetailSeven.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
 
-
+@login_required(login_url='login/')
 def viewDetailEight(request,plan_Name):
     optimizeEight(plan_Name)
     detail = models.EightMonthPlan.objects.filter(planName=plan_Name).values()
@@ -469,7 +469,7 @@ def viewDetailEight(request,plan_Name):
         ei8 = x['inventoryFinal']
     return render(request, "main/eight/viewDetailEight.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'rd8': rd8, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ntw8': ntw8, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ihc8': ihc8, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwH8':ntwH8, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'ntwF8':ntwF8, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'hC8': hC8, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'fC8': fC8, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'ei8': ei8, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
 
-
+@login_required(login_url='login/')
 def viewDetailNine(request,plan_Name):
     optimizeNine(plan_Name)
     detail = models.NineMonthPlan.objects.filter(planName=plan_Name).values()
@@ -569,7 +569,7 @@ def viewDetailNine(request,plan_Name):
         ei9 = x['inventoryFinal']
     return render(request, "main/nine/viewDetailNine.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'rd8': rd8, 'rd9': rd9,'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ntw8': ntw8, 'ntw9': ntw9,'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ihc8': ihc8, 'ihc9': ihc9,'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwH8':ntwH8, 'ntwH9':ntwH9,'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'ntwF8':ntwF8, 'ntwF9':ntwF9,'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'hC8': hC8, 'hC9': hC9,'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'fC8': fC8, 'fC9': fC9,'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'ei8': ei8, 'ei9': ei9,'thC': thC, 'tfC': tfC, 'tihC': tihC})
 
-
+@login_required(login_url='login/')
 def viewDetailTen(request,plan_Name):
     optimizeTen(plan_Name)
     detail = models.TenMonthPlan.objects.filter(planName=plan_Name).values()
@@ -679,7 +679,7 @@ def viewDetailTen(request,plan_Name):
         ei10 = x['inventoryFinal']
     return render(request, "main/ten/viewDetailTen.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'rd8': rd8, 'rd9': rd9, 'rd10': rd10, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ntw8': ntw8, 'ntw9': ntw9, 'ntw10': ntw10, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ihc8': ihc8, 'ihc9': ihc9, 'ihc10': ihc10, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwH8':ntwH8, 'ntwH9':ntwH9, 'ntwH10':ntwH10, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'ntwF8':ntwF8, 'ntwF9':ntwF9, 'ntwF10':ntwF10, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'hC8': hC8, 'hC9': hC9, 'hC10': hC10, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'fC8': fC8, 'fC9': fC9, 'fC10': fC10, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'ei8': ei8, 'ei9': ei9, 'ei10': ei10, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
 
-
+@login_required(login_url='login/')
 def viewDetailEleven(request,plan_Name):
     optimizeEleven(plan_Name)
     detail = models.ElevenMonthPlan.objects.filter(planName=plan_Name).values()
@@ -799,7 +799,7 @@ def viewDetailEleven(request,plan_Name):
         ei11 = x['inventoryFinal']
     return render(request, "main/eleven/viewDetailEleven.html", {'detail': detail, 'rd1': rd1, 'rd2': rd2, 'rd3': rd3, 'rd4': rd4, 'rd5': rd5, 'rd6': rd6, 'rd7': rd7, 'rd8': rd8, 'rd9': rd9, 'rd10': rd10, 'rd11': rd11, 'ntw1': ntw1, 'ntw2': ntw2, 'ntw3': ntw3, 'ntw4': ntw4, 'ntw5': ntw5, 'ntw6': ntw6, 'ntw7': ntw7, 'ntw8': ntw8, 'ntw9': ntw9, 'ntw10': ntw10, 'ntw11': ntw11, 'ihc1': ihc1, 'ihc2': ihc2, 'ihc3': ihc3, 'ihc4': ihc4, 'ihc5': ihc5, 'ihc6': ihc6, 'ihc7': ihc7, 'ihc8': ihc8, 'ihc9': ihc9, 'ihc10': ihc10, 'ihc11': ihc11, 'ntwH1':ntwH1, 'ntwH2':ntwH2, 'ntwH3':ntwH3, 'ntwH4':ntwH4, 'ntwH5':ntwH5, 'ntwH6':ntwH6, 'ntwH7':ntwH7, 'ntwH8':ntwH8, 'ntwH9':ntwH9, 'ntwH10':ntwH10, 'ntwH11':ntwH11, 'ntwF1':ntwF1, 'ntwF2':ntwF2, 'ntwF3':ntwF3, 'ntwF4':ntwF4, 'ntwF5':ntwF5, 'ntwF6':ntwF6, 'ntwF7':ntwF7, 'ntwF8':ntwF8, 'ntwF9':ntwF9, 'ntwF10':ntwF10, 'ntwF11':ntwF11, 'hC1': hC1, 'hC2': hC2, 'hC3': hC3, 'hC4': hC4, 'hC5': hC5, 'hC6': hC6, 'hC7': hC7, 'hC8': hC8, 'hC9': hC9, 'hC10': hC10, 'hC11': hC11, 'fC1': fC1, 'fC2': fC2, 'fC3': fC3, 'fC4': fC4, 'fC5': fC5, 'fC6': fC6, 'fC7': fC7, 'fC8': fC8, 'fC9': fC9, 'fC10': fC10, 'fC11': fC11, 'ei1': ei1, 'ei2': ei2, 'ei3': ei3, 'ei4': ei4, 'ei5': ei5, 'ei6': ei6, 'ei7': ei7, 'ei8': ei8, 'ei9': ei9, 'ei10': ei10, 'ei11': ei11, 'thC': thC, 'tfC': tfC, 'tihC': tihC})
 
-
+@login_required(login_url='login/')
 def viewDetailTwelve(request,plan_Name):
     optimizeTwelve(plan_Name)
     detail = models.TwelveMonthPlan.objects.filter(planName=plan_Name).values()
