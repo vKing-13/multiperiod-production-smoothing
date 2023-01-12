@@ -8,6 +8,9 @@ from pulp import *
 from .forms import ContactForm
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+import xlwt
+from io import StringIO,BytesIO
+import csv
 # Create your views here.
 def is_admin(user):
     return user.is_superuser
@@ -3418,3 +3421,1846 @@ def costHoldingUnitTwelve(request, plan_Name):
     else:
         detail = models.TwelveMonthPlan.objects.filter(planName = plan_Name).values()
     return render(request, 'main/Twelve/costHoldingUnitTwelve.html',{'detail' : detail})
+
+style_head_row = xlwt.easyxf("""    
+        align:
+        wrap off,
+        vert center,
+        horiz center;
+        borders:
+        left THIN,
+        right THIN,
+        top THIN,
+        bottom THIN;
+        font:
+        name Arial,
+        colour_index white,
+        bold on,
+        height 0xA0;
+        pattern:
+        pattern solid,
+        fore-colour 0x19;
+        """
+    )
+
+    # Define worksheet data row style. 
+style_data_row = xlwt.easyxf("""
+        align:
+        wrap on,
+        vert center,
+        horiz left;
+        font:
+        name Arial,
+        bold off,
+        height 0XA0;
+        borders:
+        left THIN,
+        right THIN,
+        top THIN,
+        bottom THIN;
+        """
+    )
+
+
+# Define a green color style.
+style_green = xlwt.easyxf(" pattern: fore-colour 0x11, pattern solid;")
+
+# Define a red color style.
+style_red = xlwt.easyxf(" pattern: fore-colour 0x0A, pattern solid;")
+
+def downloadFour(request,plan_Name):
+    response = HttpResponse(content_type='application/vnd.ms-excel') 
+    response['Content-Disposition'] = 'attachment;filename=viewFour.xls'
+    work_book = xlwt.Workbook(encoding = 'utf-8') 
+    work_sheet = work_book.add_sheet(u'plan details')
+
+    
+     
+    plan = models.FourMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in plan:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        thC = hC1 + hC2 + hC3 + hC4
+        tfC = fC1 + fC2 + fC3 + fC4
+        tihC = ihc1 + ihc2 + ihc3 + ihc4
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryFinal']
+        optimalCost= x['optimalCost']
+    work_sheet.write(0,0, 'MONTH', style_head_row) 
+    work_sheet.write(0,1, 'REMAINING DEMAND', style_head_row) 
+    work_sheet.write(0,2, 'ENDING INVENTORY UNIT(S)', style_head_row) 
+    work_sheet.write(0,3, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row) 
+    work_sheet.write(0,4, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row) 
+    work_sheet.write(0,5, 'NUMBER OF TEMPORARY WORKER(S)', style_head_row) 
+    work_sheet.write(0,6, 'HIRING COST', style_head_row) 
+    work_sheet.write(0,7, 'FIRING COST', style_head_row) 
+    work_sheet.write(0,8, 'INVENTORY HOLDING COST', style_head_row)
+
+    work_sheet.write(1,0, 'MONTH 1', style_data_row) 
+    work_sheet.write(1,1, rd1, style_data_row) 
+    work_sheet.write(1,2, ei1, style_data_row) 
+    work_sheet.write(1,3, ntwH1, style_data_row) 
+    work_sheet.write(1,4, ntwF1, style_data_row) 
+    work_sheet.write(1,5,ntw1, style_data_row) 
+    work_sheet.write(1,6, hC1, style_data_row) 
+    work_sheet.write(1,7, fC1, style_data_row) 
+    work_sheet.write(1,8, ihc1, style_data_row)
+
+    work_sheet.write(2,0, 'MONTH 2', style_data_row) 
+    work_sheet.write(2,1, rd2, style_data_row) 
+    work_sheet.write(2,2, ei2, style_data_row) 
+    work_sheet.write(2,3, ntwH2, style_data_row) 
+    work_sheet.write(2,4, ntwF2, style_data_row) 
+    work_sheet.write(2,5,ntw2, style_data_row) 
+    work_sheet.write(2,6, hC2, style_data_row) 
+    work_sheet.write(2,7, fC2, style_data_row) 
+    work_sheet.write(2,8, ihc2, style_data_row)
+
+    work_sheet.write(3,0, 'MONTH 3', style_data_row) 
+    work_sheet.write(3,1, rd3, style_data_row) 
+    work_sheet.write(3,2, ei3, style_data_row) 
+    work_sheet.write(3,3, ntwH3, style_data_row) 
+    work_sheet.write(3,4, ntwF3, style_data_row) 
+    work_sheet.write(3,5,ntw3, style_data_row) 
+    work_sheet.write(3,6, hC3, style_data_row) 
+    work_sheet.write(3,7, fC3, style_data_row) 
+    work_sheet.write(3,8, ihc3, style_data_row)
+
+    work_sheet.write(4,0, 'MONTH 4', style_data_row) 
+    work_sheet.write(4,1, rd4, style_data_row) 
+    work_sheet.write(4,2, ei4, style_data_row) 
+    work_sheet.write(4,3, ntwH4, style_data_row) 
+    work_sheet.write(4,4, ntwF4, style_data_row) 
+    work_sheet.write(4,5, ntw4, style_data_row) 
+    work_sheet.write(4,6, hC4, style_data_row) 
+    work_sheet.write(4,7, fC4, style_data_row) 
+    work_sheet.write(4,8, ihc4, style_data_row)
+
+    work_sheet.write(5,0,'TOTAL INDIVIDUAL COSTS',style_data_row)
+    work_sheet.write(5,6,thC,style_data_row)
+    work_sheet.write(5,7,tfC,style_data_row)
+    work_sheet.write(5,8,tihC,style_data_row)
+
+    work_sheet.write(6,0,"OPTIMIZED FINAL COST FOR MULTI-PERIOD PLANNING",style_data_row)
+    work_sheet.write(6,7,optimalCost,style_data_row)
+
+    output = BytesIO()
+    work_book.save(output)
+    output.seek(0)
+    response.write(output.getvalue()) 
+
+    return response
+
+def downloadFive(request,plan_Name):
+    response = HttpResponse(content_type='application/vnd.ms-excel') 
+    response['Content-Disposition'] = 'attachment;filename=viewFive.xls'
+    work_book = xlwt.Workbook(encoding = 'utf-8') 
+    work_sheet = work_book.add_sheet(u'plan details')
+
+    
+     
+    plan = models.FiveMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in plan:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        thC = hC1 + hC2 + hC3 + hC4 + hC5
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryFinal']
+        optimalCost= x['optimalCost']
+    work_sheet.write(0,0, 'MONTH', style_head_row) 
+    work_sheet.write(0,1, 'REMAINING DEMAND', style_head_row) 
+    work_sheet.write(0,2, 'ENDING INVENTORY UNIT(S)', style_head_row) 
+    work_sheet.write(0,3, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row) 
+    work_sheet.write(0,4, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row) 
+    work_sheet.write(0,5, 'NUMBER OF TEMPORARY WORKER(S)', style_head_row) 
+    work_sheet.write(0,6, 'HIRING COST', style_head_row) 
+    work_sheet.write(0,7, 'FIRING COST', style_head_row) 
+    work_sheet.write(0,8, 'INVENTORY HOLDING COST', style_head_row)
+
+    work_sheet.write(1,0, 'MONTH 1', style_data_row) 
+    work_sheet.write(1,1, rd1, style_data_row) 
+    work_sheet.write(1,2, ei1, style_data_row) 
+    work_sheet.write(1,3, ntwH1, style_data_row) 
+    work_sheet.write(1,4, ntwF1, style_data_row) 
+    work_sheet.write(1,5,ntw1, style_data_row) 
+    work_sheet.write(1,6, hC1, style_data_row) 
+    work_sheet.write(1,7, fC1, style_data_row) 
+    work_sheet.write(1,8, ihc1, style_data_row)
+
+    work_sheet.write(2,0, 'MONTH 2', style_data_row) 
+    work_sheet.write(2,1, rd2, style_data_row) 
+    work_sheet.write(2,2, ei2, style_data_row) 
+    work_sheet.write(2,3, ntwH2, style_data_row) 
+    work_sheet.write(2,4, ntwF2, style_data_row) 
+    work_sheet.write(2,5,ntw2, style_data_row) 
+    work_sheet.write(2,6, hC2, style_data_row) 
+    work_sheet.write(2,7, fC2, style_data_row) 
+    work_sheet.write(2,8, ihc2, style_data_row)
+
+    work_sheet.write(3,0, 'MONTH 3', style_data_row) 
+    work_sheet.write(3,1, rd3, style_data_row) 
+    work_sheet.write(3,2, ei3, style_data_row) 
+    work_sheet.write(3,3, ntwH3, style_data_row) 
+    work_sheet.write(3,4, ntwF3, style_data_row) 
+    work_sheet.write(3,5,ntw3, style_data_row) 
+    work_sheet.write(3,6, hC3, style_data_row) 
+    work_sheet.write(3,7, fC3, style_data_row) 
+    work_sheet.write(3,8, ihc3, style_data_row)
+
+    work_sheet.write(4,0, 'MONTH 4', style_data_row) 
+    work_sheet.write(4,1, rd4, style_data_row) 
+    work_sheet.write(4,2, ei4, style_data_row) 
+    work_sheet.write(4,3, ntwH4, style_data_row) 
+    work_sheet.write(4,4, ntwF4, style_data_row) 
+    work_sheet.write(4,5, ntw4, style_data_row) 
+    work_sheet.write(4,6, hC4, style_data_row) 
+    work_sheet.write(4,7, fC4, style_data_row) 
+    work_sheet.write(4,8, ihc4, style_data_row)
+
+    work_sheet.write(5,0, 'MONTH 5', style_data_row) 
+    work_sheet.write(5,1, rd5, style_data_row) 
+    work_sheet.write(5,2, ei5, style_data_row) 
+    work_sheet.write(5,3, ntwH5, style_data_row) 
+    work_sheet.write(5,4, ntwF5, style_data_row) 
+    work_sheet.write(5,5, ntw5, style_data_row) 
+    work_sheet.write(5,6, hC5, style_data_row) 
+    work_sheet.write(5,7, fC5, style_data_row) 
+    work_sheet.write(5,8, ihc5, style_data_row)
+    work_sheet.write(6,0,'TOTAL INDIVIDUAL COSTS',style_data_row)
+    work_sheet.write(6,6,thC,style_data_row)
+    work_sheet.write(6,7,tfC,style_data_row)
+    work_sheet.write(6,8,tihC,style_data_row)
+
+    work_sheet.write(7,0,"OPTIMIZED FINAL COST FOR MULTI-PERIOD PLANNING",style_data_row)
+    work_sheet.write(7,7,optimalCost,style_data_row)
+
+    output = BytesIO()
+    work_book.save(output)
+    output.seek(0)
+    response.write(output.getvalue()) 
+
+    return response
+
+
+def downloadSix(request,plan_Name):
+    response = HttpResponse(content_type='application/vnd.ms-excel') 
+    response['Content-Disposition'] = 'attachment;filename=viewSix.xls'
+    work_book = xlwt.Workbook(encoding = 'utf-8') 
+    work_sheet = work_book.add_sheet(u'plan details')
+
+    
+     
+    plan = models.SixMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in plan:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryFinal']
+        optimalCost= x['optimalCost']
+    work_sheet.write(0,0, 'MONTH', style_head_row) 
+    work_sheet.write(0,1, 'REMAINING DEMAND', style_head_row) 
+    work_sheet.write(0,2, 'ENDING INVENTORY UNIT(S)', style_head_row) 
+    work_sheet.write(0,3, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row) 
+    work_sheet.write(0,4, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row) 
+    work_sheet.write(0,5, 'NUMBER OF TEMPORARY WORKER(S)', style_head_row) 
+    work_sheet.write(0,6, 'HIRING COST', style_head_row) 
+    work_sheet.write(0,7, 'FIRING COST', style_head_row) 
+    work_sheet.write(0,8, 'INVENTORY HOLDING COST', style_head_row)
+
+    work_sheet.write(1,0, 'MONTH 1', style_data_row) 
+    work_sheet.write(1,1, rd1, style_data_row) 
+    work_sheet.write(1,2, ei1, style_data_row) 
+    work_sheet.write(1,3, ntwH1, style_data_row) 
+    work_sheet.write(1,4, ntwF1, style_data_row) 
+    work_sheet.write(1,5,ntw1, style_data_row) 
+    work_sheet.write(1,6, hC1, style_data_row) 
+    work_sheet.write(1,7, fC1, style_data_row) 
+    work_sheet.write(1,8, ihc1, style_data_row)
+
+    work_sheet.write(2,0, 'MONTH 2', style_data_row) 
+    work_sheet.write(2,1, rd2, style_data_row) 
+    work_sheet.write(2,2, ei2, style_data_row) 
+    work_sheet.write(2,3, ntwH2, style_data_row) 
+    work_sheet.write(2,4, ntwF2, style_data_row) 
+    work_sheet.write(2,5,ntw2, style_data_row) 
+    work_sheet.write(2,6, hC2, style_data_row) 
+    work_sheet.write(2,7, fC2, style_data_row) 
+    work_sheet.write(2,8, ihc2, style_data_row)
+
+    work_sheet.write(3,0, 'MONTH 3', style_data_row) 
+    work_sheet.write(3,1, rd3, style_data_row) 
+    work_sheet.write(3,2, ei3, style_data_row) 
+    work_sheet.write(3,3, ntwH3, style_data_row) 
+    work_sheet.write(3,4, ntwF3, style_data_row) 
+    work_sheet.write(3,5,ntw3, style_data_row) 
+    work_sheet.write(3,6, hC3, style_data_row) 
+    work_sheet.write(3,7, fC3, style_data_row) 
+    work_sheet.write(3,8, ihc3, style_data_row)
+
+    work_sheet.write(4,0, 'MONTH 4', style_data_row) 
+    work_sheet.write(4,1, rd4, style_data_row) 
+    work_sheet.write(4,2, ei4, style_data_row) 
+    work_sheet.write(4,3, ntwH4, style_data_row) 
+    work_sheet.write(4,4, ntwF4, style_data_row) 
+    work_sheet.write(4,5, ntw4, style_data_row) 
+    work_sheet.write(4,6, hC4, style_data_row) 
+    work_sheet.write(4,7, fC4, style_data_row) 
+    work_sheet.write(4,8, ihc4, style_data_row)
+
+    work_sheet.write(5,0, 'MONTH 5', style_data_row) 
+    work_sheet.write(5,1, rd5, style_data_row) 
+    work_sheet.write(5,2, ei5, style_data_row) 
+    work_sheet.write(5,3, ntwH5, style_data_row) 
+    work_sheet.write(5,4, ntwF5, style_data_row) 
+    work_sheet.write(5,5, ntw5, style_data_row) 
+    work_sheet.write(5,6, hC5, style_data_row) 
+    work_sheet.write(5,7, fC5, style_data_row) 
+    work_sheet.write(5,8, ihc5, style_data_row)
+
+    work_sheet.write(6,0, 'MONTH 6', style_data_row) 
+    work_sheet.write(6,1, rd6, style_data_row) 
+    work_sheet.write(6,2, ei6, style_data_row) 
+    work_sheet.write(6,3, ntwH6, style_data_row) 
+    work_sheet.write(6,4, ntwF6, style_data_row) 
+    work_sheet.write(6,5, ntw6, style_data_row) 
+    work_sheet.write(6,6, hC6, style_data_row) 
+    work_sheet.write(6,7, fC6, style_data_row) 
+    work_sheet.write(6,8, ihc6, style_data_row)
+
+    work_sheet.write(7,0,'TOTAL INDIVIDUAL COSTS',style_data_row)
+    work_sheet.write(7,6,thC,style_data_row)
+    work_sheet.write(7,7,tfC,style_data_row)
+    work_sheet.write(7,8,tihC,style_data_row)
+
+    work_sheet.write(8,0,"OPTIMIZED FINAL COST FOR MULTI-PERIOD PLANNING",style_data_row)
+    work_sheet.write(8,7,optimalCost,style_data_row)
+
+    output = BytesIO()
+    work_book.save(output)
+    output.seek(0)
+    response.write(output.getvalue()) 
+
+    return response
+
+def downloadSeven(request,plan_Name):
+    response = HttpResponse(content_type='application/vnd.ms-excel') 
+    response['Content-Disposition'] = 'attachment;filename=viewSeven.xls'
+    work_book = xlwt.Workbook(encoding = 'utf-8') 
+    work_sheet = work_book.add_sheet(u'plan details')
+
+    
+     
+    plan = models.SevenMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in plan:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryFinal']
+        optimalCost= x['optimalCost']
+
+    work_sheet.write(0,0, 'MONTH', style_head_row) 
+    work_sheet.write(0,1, 'REMAINING DEMAND', style_head_row) 
+    work_sheet.write(0,2, 'ENDING INVENTORY UNIT(S)', style_head_row) 
+    work_sheet.write(0,3, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row) 
+    work_sheet.write(0,4, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row) 
+    work_sheet.write(0,5, 'NUMBER OF TEMPORARY WORKER(S)', style_head_row) 
+    work_sheet.write(0,6, 'HIRING COST', style_head_row) 
+    work_sheet.write(0,7, 'FIRING COST', style_head_row) 
+    work_sheet.write(0,8, 'INVENTORY HOLDING COST', style_head_row)
+
+    work_sheet.write(1,0, 'MONTH 1', style_data_row) 
+    work_sheet.write(1,1, rd1, style_data_row) 
+    work_sheet.write(1,2, ei1, style_data_row) 
+    work_sheet.write(1,3, ntwH1, style_data_row) 
+    work_sheet.write(1,4, ntwF1, style_data_row) 
+    work_sheet.write(1,5,ntw1, style_data_row) 
+    work_sheet.write(1,6, hC1, style_data_row) 
+    work_sheet.write(1,7, fC1, style_data_row) 
+    work_sheet.write(1,8, ihc1, style_data_row)
+
+    work_sheet.write(2,0, 'MONTH 2', style_data_row) 
+    work_sheet.write(2,1, rd2, style_data_row) 
+    work_sheet.write(2,2, ei2, style_data_row) 
+    work_sheet.write(2,3, ntwH2, style_data_row) 
+    work_sheet.write(2,4, ntwF2, style_data_row) 
+    work_sheet.write(2,5,ntw2, style_data_row) 
+    work_sheet.write(2,6, hC2, style_data_row) 
+    work_sheet.write(2,7, fC2, style_data_row) 
+    work_sheet.write(2,8, ihc2, style_data_row)
+
+    work_sheet.write(3,0, 'MONTH 3', style_data_row) 
+    work_sheet.write(3,1, rd3, style_data_row) 
+    work_sheet.write(3,2, ei3, style_data_row) 
+    work_sheet.write(3,3, ntwH3, style_data_row) 
+    work_sheet.write(3,4, ntwF3, style_data_row) 
+    work_sheet.write(3,5,ntw3, style_data_row) 
+    work_sheet.write(3,6, hC3, style_data_row) 
+    work_sheet.write(3,7, fC3, style_data_row) 
+    work_sheet.write(3,8, ihc3, style_data_row)
+
+    work_sheet.write(4,0, 'MONTH 4', style_data_row) 
+    work_sheet.write(4,1, rd4, style_data_row) 
+    work_sheet.write(4,2, ei4, style_data_row) 
+    work_sheet.write(4,3, ntwH4, style_data_row) 
+    work_sheet.write(4,4, ntwF4, style_data_row) 
+    work_sheet.write(4,5, ntw4, style_data_row) 
+    work_sheet.write(4,6, hC4, style_data_row) 
+    work_sheet.write(4,7, fC4, style_data_row) 
+    work_sheet.write(4,8, ihc4, style_data_row)
+
+    work_sheet.write(5,0, 'MONTH 5', style_data_row) 
+    work_sheet.write(5,1, rd5, style_data_row) 
+    work_sheet.write(5,2, ei5, style_data_row) 
+    work_sheet.write(5,3, ntwH5, style_data_row) 
+    work_sheet.write(5,4, ntwF5, style_data_row) 
+    work_sheet.write(5,5, ntw5, style_data_row) 
+    work_sheet.write(5,6, hC5, style_data_row) 
+    work_sheet.write(5,7, fC5, style_data_row) 
+    work_sheet.write(5,8, ihc5, style_data_row)
+
+    work_sheet.write(6,0, 'MONTH 6', style_data_row) 
+    work_sheet.write(6,1, rd6, style_data_row) 
+    work_sheet.write(6,2, ei6, style_data_row) 
+    work_sheet.write(6,3, ntwH6, style_data_row) 
+    work_sheet.write(6,4, ntwF6, style_data_row) 
+    work_sheet.write(6,5, ntw6, style_data_row) 
+    work_sheet.write(6,6, hC6, style_data_row) 
+    work_sheet.write(6,7, fC6, style_data_row) 
+    work_sheet.write(6,8, ihc6, style_data_row)
+
+    work_sheet.write(7,0, 'MONTH 7', style_data_row) 
+    work_sheet.write(7,1, rd7, style_data_row) 
+    work_sheet.write(7,2, ei7, style_data_row) 
+    work_sheet.write(7,3, ntwH7, style_data_row) 
+    work_sheet.write(7,4, ntwF7, style_data_row) 
+    work_sheet.write(7,5, ntw7, style_data_row) 
+    work_sheet.write(7,6, hC7, style_data_row) 
+    work_sheet.write(7,7, fC7, style_data_row) 
+    work_sheet.write(7,8, ihc7, style_data_row)
+
+    work_sheet.write(8,0,'TOTAL INDIVIDUAL COSTS',style_data_row)
+    work_sheet.write(8,6,thC,style_data_row)
+    work_sheet.write(8,7,tfC,style_data_row)
+    work_sheet.write(8,8,tihC,style_data_row)
+
+    work_sheet.write(9,0,"OPTIMIZED FINAL COST FOR MULTI-PERIOD PLANNING",style_data_row)
+    work_sheet.write(9,7,optimalCost,style_data_row)
+
+    output = BytesIO()
+    work_book.save(output)
+    output.seek(0)
+    response.write(output.getvalue()) 
+
+    return response
+
+def downloadEight(request,plan_Name):
+    response = HttpResponse(content_type='application/vnd.ms-excel') 
+    response['Content-Disposition'] = 'attachment;filename=viewEight.xls'
+    work_book = xlwt.Workbook(encoding = 'utf-8') 
+    work_sheet = work_book.add_sheet(u'plan details')
+
+    
+     
+    plan = models.EightMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in plan:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        ntwH8 = x['hiredTemporary8']
+        ntwF8 = x['firedTemporary8']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryMonth7']
+        rd8 = x['demand8'] - (x['numPermanent8'] * x['prodPermanent8'])
+        if rd8 < 0:
+            rd8 = 0
+        hC8 = ntwH8 * x['costHiring8']
+        fC8 = ntwF8 * x['costFiring8']
+        ihc8 = x['costHoldingUnit8'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        ntw8 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7 + hC8
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7 + fC8
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7 + ihc8
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryMonth7']
+        ei8 = x['inventoryFinal']
+        optimalCost= x['optimalCost']
+
+    work_sheet.write(0,0, 'MONTH', style_head_row) 
+    work_sheet.write(0,1, 'REMAINING DEMAND', style_head_row) 
+    work_sheet.write(0,2, 'ENDING INVENTORY UNIT(S)', style_head_row) 
+    work_sheet.write(0,3, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row) 
+    work_sheet.write(0,4, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row) 
+    work_sheet.write(0,5, 'NUMBER OF TEMPORARY WORKER(S)', style_head_row) 
+    work_sheet.write(0,6, 'HIRING COST', style_head_row) 
+    work_sheet.write(0,7, 'FIRING COST', style_head_row) 
+    work_sheet.write(0,8, 'INVENTORY HOLDING COST', style_head_row)
+
+    work_sheet.write(1,0, 'MONTH 1', style_data_row) 
+    work_sheet.write(1,1, rd1, style_data_row) 
+    work_sheet.write(1,2, ei1, style_data_row) 
+    work_sheet.write(1,3, ntwH1, style_data_row) 
+    work_sheet.write(1,4, ntwF1, style_data_row) 
+    work_sheet.write(1,5,ntw1, style_data_row) 
+    work_sheet.write(1,6, hC1, style_data_row) 
+    work_sheet.write(1,7, fC1, style_data_row) 
+    work_sheet.write(1,8, ihc1, style_data_row)
+
+    work_sheet.write(2,0, 'MONTH 2', style_data_row) 
+    work_sheet.write(2,1, rd2, style_data_row) 
+    work_sheet.write(2,2, ei2, style_data_row) 
+    work_sheet.write(2,3, ntwH2, style_data_row) 
+    work_sheet.write(2,4, ntwF2, style_data_row) 
+    work_sheet.write(2,5,ntw2, style_data_row) 
+    work_sheet.write(2,6, hC2, style_data_row) 
+    work_sheet.write(2,7, fC2, style_data_row) 
+    work_sheet.write(2,8, ihc2, style_data_row)
+
+    work_sheet.write(3,0, 'MONTH 3', style_data_row) 
+    work_sheet.write(3,1, rd3, style_data_row) 
+    work_sheet.write(3,2, ei3, style_data_row) 
+    work_sheet.write(3,3, ntwH3, style_data_row) 
+    work_sheet.write(3,4, ntwF3, style_data_row) 
+    work_sheet.write(3,5,ntw3, style_data_row) 
+    work_sheet.write(3,6, hC3, style_data_row) 
+    work_sheet.write(3,7, fC3, style_data_row) 
+    work_sheet.write(3,8, ihc3, style_data_row)
+
+    work_sheet.write(4,0, 'MONTH 4', style_data_row) 
+    work_sheet.write(4,1, rd4, style_data_row) 
+    work_sheet.write(4,2, ei4, style_data_row) 
+    work_sheet.write(4,3, ntwH4, style_data_row) 
+    work_sheet.write(4,4, ntwF4, style_data_row) 
+    work_sheet.write(4,5, ntw4, style_data_row) 
+    work_sheet.write(4,6, hC4, style_data_row) 
+    work_sheet.write(4,7, fC4, style_data_row) 
+    work_sheet.write(4,8, ihc4, style_data_row)
+
+    work_sheet.write(5,0, 'MONTH 5', style_data_row) 
+    work_sheet.write(5,1, rd5, style_data_row) 
+    work_sheet.write(5,2, ei5, style_data_row) 
+    work_sheet.write(5,3, ntwH5, style_data_row) 
+    work_sheet.write(5,4, ntwF5, style_data_row) 
+    work_sheet.write(5,5, ntw5, style_data_row) 
+    work_sheet.write(5,6, hC5, style_data_row) 
+    work_sheet.write(5,7, fC5, style_data_row) 
+    work_sheet.write(5,8, ihc5, style_data_row)
+
+    work_sheet.write(6,0, 'MONTH 6', style_data_row) 
+    work_sheet.write(6,1, rd6, style_data_row) 
+    work_sheet.write(6,2, ei6, style_data_row) 
+    work_sheet.write(6,3, ntwH6, style_data_row) 
+    work_sheet.write(6,4, ntwF6, style_data_row) 
+    work_sheet.write(6,5, ntw6, style_data_row) 
+    work_sheet.write(6,6, hC6, style_data_row) 
+    work_sheet.write(6,7, fC6, style_data_row) 
+    work_sheet.write(6,8, ihc6, style_data_row)
+
+    work_sheet.write(7,0, 'MONTH 7', style_data_row) 
+    work_sheet.write(7,1, rd7, style_data_row) 
+    work_sheet.write(7,2, ei7, style_data_row) 
+    work_sheet.write(7,3, ntwH7, style_data_row) 
+    work_sheet.write(7,4, ntwF7, style_data_row) 
+    work_sheet.write(7,5, ntw7, style_data_row) 
+    work_sheet.write(7,6, hC7, style_data_row) 
+    work_sheet.write(7,7, fC7, style_data_row) 
+    work_sheet.write(7,8, ihc7, style_data_row)
+
+    work_sheet.write(8,0, 'MONTH 8', style_data_row) 
+    work_sheet.write(8,1, rd8, style_data_row) 
+    work_sheet.write(8,2, ei8, style_data_row) 
+    work_sheet.write(8,3, ntwH8, style_data_row) 
+    work_sheet.write(8,4, ntwF8, style_data_row) 
+    work_sheet.write(8,5, ntw8, style_data_row) 
+    work_sheet.write(8,6, hC8, style_data_row) 
+    work_sheet.write(8,7, fC8, style_data_row) 
+    work_sheet.write(8,8, ihc8, style_data_row)
+
+    work_sheet.write(9,0,'TOTAL INDIVIDUAL COSTS',style_data_row)
+    work_sheet.write(9,6,thC,style_data_row)
+    work_sheet.write(9,7,tfC,style_data_row)
+    work_sheet.write(9,8,tihC,style_data_row)
+
+    work_sheet.write(10,0,"OPTIMIZED FINAL COST FOR MULTI-PERIOD PLANNING",style_data_row)
+    work_sheet.write(10,7,optimalCost,style_data_row)
+
+    output = BytesIO()
+    work_book.save(output)
+    output.seek(0)
+    response.write(output.getvalue()) 
+
+    return response
+
+def downloadNine(request,plan_Name):
+    response = HttpResponse(content_type='application/vnd.ms-excel') 
+    response['Content-Disposition'] = 'attachment;filename=viewNine.xls'
+    work_book = xlwt.Workbook(encoding = 'utf-8') 
+    work_sheet = work_book.add_sheet(u'plan details')
+
+    
+     
+    plan = models.NineMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in plan:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        ntwH8 = x['hiredTemporary8']
+        ntwF8 = x['firedTemporary8']
+        ntwH9 = x['hiredTemporary9']
+        ntwF9 = x['firedTemporary9']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryMonth7']
+        rd8 = x['demand8'] - (x['numPermanent8'] * x['prodPermanent8'])
+        if rd8 < 0:
+            rd8 = 0
+        hC8 = ntwH8 * x['costHiring8']
+        fC8 = ntwF8 * x['costFiring8']
+        ihc8 = x['costHoldingUnit8'] * x['inventoryMonth8']
+        rd9 = x['demand9'] - (x['numPermanent9'] * x['prodPermanent9'])
+        if rd9 < 0:
+            rd9 = 0
+        hC9 = ntwH9 * x['costHiring9']
+        fC9 = ntwF9 * x['costFiring9']
+        ihc9 = x['costHoldingUnit9'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        ntw8 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8
+        ntw9 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7 + hC8 + hC9
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7 + fC8 + fC9
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7 + ihc8 + ihc9
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryMonth7']
+        ei8 = x['inventoryMonth8']
+        ei9 = x['inventoryFinal']
+        optimalCost= x['optimalCost']
+
+    work_sheet.write(0,0, 'MONTH', style_head_row) 
+    work_sheet.write(0,1, 'REMAINING DEMAND', style_head_row) 
+    work_sheet.write(0,2, 'ENDING INVENTORY UNIT(S)', style_head_row) 
+    work_sheet.write(0,3, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row) 
+    work_sheet.write(0,4, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row) 
+    work_sheet.write(0,5, 'NUMBER OF TEMPORARY WORKER(S)', style_head_row) 
+    work_sheet.write(0,6, 'HIRING COST', style_head_row) 
+    work_sheet.write(0,7, 'FIRING COST', style_head_row) 
+    work_sheet.write(0,8, 'INVENTORY HOLDING COST', style_head_row)
+
+    work_sheet.write(1,0, 'MONTH 1', style_data_row) 
+    work_sheet.write(1,1, rd1, style_data_row) 
+    work_sheet.write(1,2, ei1, style_data_row) 
+    work_sheet.write(1,3, ntwH1, style_data_row) 
+    work_sheet.write(1,4, ntwF1, style_data_row) 
+    work_sheet.write(1,5,ntw1, style_data_row) 
+    work_sheet.write(1,6, hC1, style_data_row) 
+    work_sheet.write(1,7, fC1, style_data_row) 
+    work_sheet.write(1,8, ihc1, style_data_row)
+
+    work_sheet.write(2,0, 'MONTH 2', style_data_row) 
+    work_sheet.write(2,1, rd2, style_data_row) 
+    work_sheet.write(2,2, ei2, style_data_row) 
+    work_sheet.write(2,3, ntwH2, style_data_row) 
+    work_sheet.write(2,4, ntwF2, style_data_row) 
+    work_sheet.write(2,5,ntw2, style_data_row) 
+    work_sheet.write(2,6, hC2, style_data_row) 
+    work_sheet.write(2,7, fC2, style_data_row) 
+    work_sheet.write(2,8, ihc2, style_data_row)
+
+    work_sheet.write(3,0, 'MONTH 3', style_data_row) 
+    work_sheet.write(3,1, rd3, style_data_row) 
+    work_sheet.write(3,2, ei3, style_data_row) 
+    work_sheet.write(3,3, ntwH3, style_data_row) 
+    work_sheet.write(3,4, ntwF3, style_data_row) 
+    work_sheet.write(3,5,ntw3, style_data_row) 
+    work_sheet.write(3,6, hC3, style_data_row) 
+    work_sheet.write(3,7, fC3, style_data_row) 
+    work_sheet.write(3,8, ihc3, style_data_row)
+
+    work_sheet.write(4,0, 'MONTH 4', style_data_row) 
+    work_sheet.write(4,1, rd4, style_data_row) 
+    work_sheet.write(4,2, ei4, style_data_row) 
+    work_sheet.write(4,3, ntwH4, style_data_row) 
+    work_sheet.write(4,4, ntwF4, style_data_row) 
+    work_sheet.write(4,5, ntw4, style_data_row) 
+    work_sheet.write(4,6, hC4, style_data_row) 
+    work_sheet.write(4,7, fC4, style_data_row) 
+    work_sheet.write(4,8, ihc4, style_data_row)
+
+    work_sheet.write(5,0, 'MONTH 5', style_data_row) 
+    work_sheet.write(5,1, rd5, style_data_row) 
+    work_sheet.write(5,2, ei5, style_data_row) 
+    work_sheet.write(5,3, ntwH5, style_data_row) 
+    work_sheet.write(5,4, ntwF5, style_data_row) 
+    work_sheet.write(5,5, ntw5, style_data_row) 
+    work_sheet.write(5,6, hC5, style_data_row) 
+    work_sheet.write(5,7, fC5, style_data_row) 
+    work_sheet.write(5,8, ihc5, style_data_row)
+
+    work_sheet.write(6,0, 'MONTH 6', style_data_row) 
+    work_sheet.write(6,1, rd6, style_data_row) 
+    work_sheet.write(6,2, ei6, style_data_row) 
+    work_sheet.write(6,3, ntwH6, style_data_row) 
+    work_sheet.write(6,4, ntwF6, style_data_row) 
+    work_sheet.write(6,5, ntw6, style_data_row) 
+    work_sheet.write(6,6, hC6, style_data_row) 
+    work_sheet.write(6,7, fC6, style_data_row) 
+    work_sheet.write(6,8, ihc6, style_data_row)
+
+    work_sheet.write(7,0, 'MONTH 7', style_data_row) 
+    work_sheet.write(7,1, rd7, style_data_row) 
+    work_sheet.write(7,2, ei7, style_data_row) 
+    work_sheet.write(7,3, ntwH7, style_data_row) 
+    work_sheet.write(7,4, ntwF7, style_data_row) 
+    work_sheet.write(7,5, ntw7, style_data_row) 
+    work_sheet.write(7,6, hC7, style_data_row) 
+    work_sheet.write(7,7, fC7, style_data_row) 
+    work_sheet.write(7,8, ihc7, style_data_row)
+
+    work_sheet.write(8,0, 'MONTH 8', style_data_row) 
+    work_sheet.write(8,1, rd8, style_data_row) 
+    work_sheet.write(8,2, ei8, style_data_row) 
+    work_sheet.write(8,3, ntwH8, style_data_row) 
+    work_sheet.write(8,4, ntwF8, style_data_row) 
+    work_sheet.write(8,5, ntw8, style_data_row) 
+    work_sheet.write(8,6, hC8, style_data_row) 
+    work_sheet.write(8,7, fC8, style_data_row) 
+    work_sheet.write(8,8, ihc8, style_data_row)
+
+    work_sheet.write(9,0, 'MONTH 9', style_data_row) 
+    work_sheet.write(9,1, rd9, style_data_row) 
+    work_sheet.write(9,2, ei9, style_data_row) 
+    work_sheet.write(9,3, ntwH9, style_data_row) 
+    work_sheet.write(9,4, ntwF9, style_data_row) 
+    work_sheet.write(9,5, ntw9, style_data_row) 
+    work_sheet.write(9,6, hC9, style_data_row) 
+    work_sheet.write(9,7, fC9, style_data_row) 
+    work_sheet.write(9,8, ihc9, style_data_row)
+
+    work_sheet.write(10,0,'TOTAL INDIVIDUAL COSTS',style_data_row)
+    work_sheet.write(10,6,thC,style_data_row)
+    work_sheet.write(10,7,tfC,style_data_row)
+    work_sheet.write(10,8,tihC,style_data_row)
+
+    work_sheet.write(11,0,"OPTIMIZED FINAL COST FOR MULTI-PERIOD PLANNING",style_data_row)
+    work_sheet.write(11,7,optimalCost,style_data_row)
+
+    output = BytesIO()
+    work_book.save(output)
+    output.seek(0)
+    response.write(output.getvalue()) 
+
+    return response
+
+def downloadTen(request,plan_Name):
+    response = HttpResponse(content_type='application/vnd.ms-excel') 
+    response['Content-Disposition'] = 'attachment;filename=viewTen.xls'
+    work_book = xlwt.Workbook(encoding = 'utf-8') 
+    work_sheet = work_book.add_sheet(u'plan details')
+
+    
+     
+    plan = models.TenMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in plan:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        ntwH8 = x['hiredTemporary8']
+        ntwF8 = x['firedTemporary8']
+        ntwH9 = x['hiredTemporary9']
+        ntwF9 = x['firedTemporary9']
+        ntwH10 = x['hiredTemporary10']
+        ntwF10 = x['firedTemporary10']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryMonth7']
+        rd8 = x['demand8'] - (x['numPermanent8'] * x['prodPermanent8'])
+        if rd8 < 0:
+            rd8 = 0
+        hC8 = ntwH8 * x['costHiring8']
+        fC8 = ntwF8 * x['costFiring8']
+        ihc8 = x['costHoldingUnit8'] * x['inventoryMonth8']
+        rd9 = x['demand9'] - (x['numPermanent9'] * x['prodPermanent9'])
+        if rd9 < 0:
+            rd9 = 0
+        hC9 = ntwH9 * x['costHiring9']
+        fC9 = ntwF9 * x['costFiring9']
+        ihc9 = x['costHoldingUnit9'] * x['inventoryMonth9']
+        rd10 = x['demand10'] - (x['numPermanent10'] * x['prodPermanent10'])
+        if rd10 < 0:
+            rd10 = 0
+        hC10 = ntwH10 * x['costHiring10']
+        fC10 = ntwF10 * x['costFiring10']
+        ihc10 = x['costHoldingUnit10'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        ntw8 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8
+        ntw9 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9
+        ntw10 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7 + hC8 + hC9 + hC10
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7 + fC8 + fC9 + fC10
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7 + ihc8 + ihc9 + ihc10
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryMonth7']
+        ei8 = x['inventoryMonth8']
+        ei9 = x['inventoryMonth9']
+        ei10 = x['inventoryFinal']
+        optimalCost= x['optimalCost']
+
+    work_sheet.write(0,0, 'MONTH', style_head_row) 
+    work_sheet.write(0,1, 'REMAINING DEMAND', style_head_row) 
+    work_sheet.write(0,2, 'ENDING INVENTORY UNIT(S)', style_head_row) 
+    work_sheet.write(0,3, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row) 
+    work_sheet.write(0,4, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row) 
+    work_sheet.write(0,5, 'NUMBER OF TEMPORARY WORKER(S)', style_head_row) 
+    work_sheet.write(0,6, 'HIRING COST', style_head_row) 
+    work_sheet.write(0,7, 'FIRING COST', style_head_row) 
+    work_sheet.write(0,8, 'INVENTORY HOLDING COST', style_head_row)
+
+    work_sheet.write(1,0, 'MONTH 1', style_data_row) 
+    work_sheet.write(1,1, rd1, style_data_row) 
+    work_sheet.write(1,2, ei1, style_data_row) 
+    work_sheet.write(1,3, ntwH1, style_data_row) 
+    work_sheet.write(1,4, ntwF1, style_data_row) 
+    work_sheet.write(1,5,ntw1, style_data_row) 
+    work_sheet.write(1,6, hC1, style_data_row) 
+    work_sheet.write(1,7, fC1, style_data_row) 
+    work_sheet.write(1,8, ihc1, style_data_row)
+
+    work_sheet.write(2,0, 'MONTH 2', style_data_row) 
+    work_sheet.write(2,1, rd2, style_data_row) 
+    work_sheet.write(2,2, ei2, style_data_row) 
+    work_sheet.write(2,3, ntwH2, style_data_row) 
+    work_sheet.write(2,4, ntwF2, style_data_row) 
+    work_sheet.write(2,5,ntw2, style_data_row) 
+    work_sheet.write(2,6, hC2, style_data_row) 
+    work_sheet.write(2,7, fC2, style_data_row) 
+    work_sheet.write(2,8, ihc2, style_data_row)
+
+    work_sheet.write(3,0, 'MONTH 3', style_data_row) 
+    work_sheet.write(3,1, rd3, style_data_row) 
+    work_sheet.write(3,2, ei3, style_data_row) 
+    work_sheet.write(3,3, ntwH3, style_data_row) 
+    work_sheet.write(3,4, ntwF3, style_data_row) 
+    work_sheet.write(3,5,ntw3, style_data_row) 
+    work_sheet.write(3,6, hC3, style_data_row) 
+    work_sheet.write(3,7, fC3, style_data_row) 
+    work_sheet.write(3,8, ihc3, style_data_row)
+
+    work_sheet.write(4,0, 'MONTH 4', style_data_row) 
+    work_sheet.write(4,1, rd4, style_data_row) 
+    work_sheet.write(4,2, ei4, style_data_row) 
+    work_sheet.write(4,3, ntwH4, style_data_row) 
+    work_sheet.write(4,4, ntwF4, style_data_row) 
+    work_sheet.write(4,5, ntw4, style_data_row) 
+    work_sheet.write(4,6, hC4, style_data_row) 
+    work_sheet.write(4,7, fC4, style_data_row) 
+    work_sheet.write(4,8, ihc4, style_data_row)
+
+    work_sheet.write(5,0, 'MONTH 5', style_data_row) 
+    work_sheet.write(5,1, rd5, style_data_row) 
+    work_sheet.write(5,2, ei5, style_data_row) 
+    work_sheet.write(5,3, ntwH5, style_data_row) 
+    work_sheet.write(5,4, ntwF5, style_data_row) 
+    work_sheet.write(5,5, ntw5, style_data_row) 
+    work_sheet.write(5,6, hC5, style_data_row) 
+    work_sheet.write(5,7, fC5, style_data_row) 
+    work_sheet.write(5,8, ihc5, style_data_row)
+
+    work_sheet.write(6,0, 'MONTH 6', style_data_row) 
+    work_sheet.write(6,1, rd6, style_data_row) 
+    work_sheet.write(6,2, ei6, style_data_row) 
+    work_sheet.write(6,3, ntwH6, style_data_row) 
+    work_sheet.write(6,4, ntwF6, style_data_row) 
+    work_sheet.write(6,5, ntw6, style_data_row) 
+    work_sheet.write(6,6, hC6, style_data_row) 
+    work_sheet.write(6,7, fC6, style_data_row) 
+    work_sheet.write(6,8, ihc6, style_data_row)
+
+    work_sheet.write(7,0, 'MONTH 7', style_data_row) 
+    work_sheet.write(7,1, rd7, style_data_row) 
+    work_sheet.write(7,2, ei7, style_data_row) 
+    work_sheet.write(7,3, ntwH7, style_data_row) 
+    work_sheet.write(7,4, ntwF7, style_data_row) 
+    work_sheet.write(7,5, ntw7, style_data_row) 
+    work_sheet.write(7,6, hC7, style_data_row) 
+    work_sheet.write(7,7, fC7, style_data_row) 
+    work_sheet.write(7,8, ihc7, style_data_row)
+
+    work_sheet.write(8,0, 'MONTH 8', style_data_row) 
+    work_sheet.write(8,1, rd8, style_data_row) 
+    work_sheet.write(8,2, ei8, style_data_row) 
+    work_sheet.write(8,3, ntwH8, style_data_row) 
+    work_sheet.write(8,4, ntwF8, style_data_row) 
+    work_sheet.write(8,5, ntw8, style_data_row) 
+    work_sheet.write(8,6, hC8, style_data_row) 
+    work_sheet.write(8,7, fC8, style_data_row) 
+    work_sheet.write(8,8, ihc8, style_data_row)
+
+    work_sheet.write(9,0, 'MONTH 9', style_data_row) 
+    work_sheet.write(9,1, rd9, style_data_row) 
+    work_sheet.write(9,2, ei9, style_data_row) 
+    work_sheet.write(9,3, ntwH9, style_data_row) 
+    work_sheet.write(9,4, ntwF9, style_data_row) 
+    work_sheet.write(9,5, ntw9, style_data_row) 
+    work_sheet.write(9,6, hC9, style_data_row) 
+    work_sheet.write(9,7, fC9, style_data_row) 
+    work_sheet.write(9,8, ihc9, style_data_row)
+
+    work_sheet.write(10,0, 'MONTH 10', style_data_row) 
+    work_sheet.write(10,1, rd10, style_data_row) 
+    work_sheet.write(10,2, ei10, style_data_row) 
+    work_sheet.write(10,3, ntwH10, style_data_row) 
+    work_sheet.write(10,4, ntwF10, style_data_row) 
+    work_sheet.write(10,5, ntw10, style_data_row) 
+    work_sheet.write(10,6, hC10, style_data_row) 
+    work_sheet.write(10,7, fC10, style_data_row) 
+    work_sheet.write(10,8, ihc10, style_data_row)
+
+    work_sheet.write(11,0,'TOTAL INDIVIDUAL COSTS',style_data_row)
+    work_sheet.write(11,6,thC,style_data_row)
+    work_sheet.write(11,7,tfC,style_data_row)
+    work_sheet.write(11,8,tihC,style_data_row)
+
+    work_sheet.write(12,0,"OPTIMIZED FINAL COST FOR MULTI-PERIOD PLANNING",style_data_row)
+    work_sheet.write(12,7,optimalCost,style_data_row)
+
+    output = BytesIO()
+    work_book.save(output)
+    output.seek(0)
+    response.write(output.getvalue()) 
+
+    return response
+
+def downloadEleven(request,plan_Name):
+    response = HttpResponse(content_type='application/vnd.ms-excel') 
+    response['Content-Disposition'] = 'attachment;filename=viewEleven.xls'
+    work_book = xlwt.Workbook(encoding = 'utf-8') 
+    work_sheet = work_book.add_sheet(u'plan details')
+
+    
+     
+    plan = models.ElevenMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in plan:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        ntwH8 = x['hiredTemporary8']
+        ntwF8 = x['firedTemporary8']
+        ntwH9 = x['hiredTemporary9']
+        ntwF9 = x['firedTemporary9']
+        ntwH10 = x['hiredTemporary10']
+        ntwF10 = x['firedTemporary10']
+        ntwH11 = x['hiredTemporary11']
+        ntwF11 = x['firedTemporary11']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryMonth7']
+        rd8 = x['demand8'] - (x['numPermanent8'] * x['prodPermanent8'])
+        if rd8 < 0:
+            rd8 = 0
+        hC8 = ntwH8 * x['costHiring8']
+        fC8 = ntwF8 * x['costFiring8']
+        ihc8 = x['costHoldingUnit8'] * x['inventoryMonth8']
+        rd9 = x['demand9'] - (x['numPermanent9'] * x['prodPermanent9'])
+        if rd9 < 0:
+            rd9 = 0
+        hC9 = ntwH9 * x['costHiring9']
+        fC9 = ntwF9 * x['costFiring9']
+        ihc9 = x['costHoldingUnit9'] * x['inventoryMonth9']
+        rd10 = x['demand10'] - (x['numPermanent10'] * x['prodPermanent10'])
+        if rd10 < 0:
+            rd10 = 0
+        hC10 = ntwH10 * x['costHiring10']
+        fC10 = ntwF10 * x['costFiring10']
+        ihc10 = x['costHoldingUnit10'] * x['inventoryMonth10']
+        rd11 = x['demand11'] - (x['numPermanent11'] * x['prodPermanent11'])
+        if rd11 < 0:
+            rd11 = 0
+        hC11 = ntwH11 * x['costHiring11']
+        fC11 = ntwF11 * x['costFiring11']
+        ihc11 = x['costHoldingUnit11'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        ntw8 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8
+        ntw9 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9
+        ntw10 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10
+        ntw11 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10 + ntwH11 - ntwF11
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7 + hC8 + hC9 + hC10 + hC11
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7 + fC8 + fC9 + fC10 + fC11
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7 + ihc8 + ihc9 + ihc10 + ihc11
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryMonth7']
+        ei8 = x['inventoryMonth8']
+        ei9 = x['inventoryMonth9']
+        ei10 = x['inventoryMonth10']
+        ei11 = x['inventoryFinal']
+        optimalCost= x['optimalCost']
+
+    work_sheet.write(0,0, 'MONTH', style_head_row) 
+    work_sheet.write(0,1, 'REMAINING DEMAND', style_head_row) 
+    work_sheet.write(0,2, 'ENDING INVENTORY UNIT(S)', style_head_row) 
+    work_sheet.write(0,3, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row) 
+    work_sheet.write(0,4, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row) 
+    work_sheet.write(0,5, 'NUMBER OF TEMPORARY WORKER(S)', style_head_row) 
+    work_sheet.write(0,6, 'HIRING COST', style_head_row) 
+    work_sheet.write(0,7, 'FIRING COST', style_head_row) 
+    work_sheet.write(0,8, 'INVENTORY HOLDING COST', style_head_row)
+
+    work_sheet.write(1,0, 'MONTH 1', style_data_row) 
+    work_sheet.write(1,1, rd1, style_data_row) 
+    work_sheet.write(1,2, ei1, style_data_row) 
+    work_sheet.write(1,3, ntwH1, style_data_row) 
+    work_sheet.write(1,4, ntwF1, style_data_row) 
+    work_sheet.write(1,5,ntw1, style_data_row) 
+    work_sheet.write(1,6, hC1, style_data_row) 
+    work_sheet.write(1,7, fC1, style_data_row) 
+    work_sheet.write(1,8, ihc1, style_data_row)
+
+    work_sheet.write(2,0, 'MONTH 2', style_data_row) 
+    work_sheet.write(2,1, rd2, style_data_row) 
+    work_sheet.write(2,2, ei2, style_data_row) 
+    work_sheet.write(2,3, ntwH2, style_data_row) 
+    work_sheet.write(2,4, ntwF2, style_data_row) 
+    work_sheet.write(2,5,ntw2, style_data_row) 
+    work_sheet.write(2,6, hC2, style_data_row) 
+    work_sheet.write(2,7, fC2, style_data_row) 
+    work_sheet.write(2,8, ihc2, style_data_row)
+
+    work_sheet.write(3,0, 'MONTH 3', style_data_row) 
+    work_sheet.write(3,1, rd3, style_data_row) 
+    work_sheet.write(3,2, ei3, style_data_row) 
+    work_sheet.write(3,3, ntwH3, style_data_row) 
+    work_sheet.write(3,4, ntwF3, style_data_row) 
+    work_sheet.write(3,5,ntw3, style_data_row) 
+    work_sheet.write(3,6, hC3, style_data_row) 
+    work_sheet.write(3,7, fC3, style_data_row) 
+    work_sheet.write(3,8, ihc3, style_data_row)
+
+    work_sheet.write(4,0, 'MONTH 4', style_data_row) 
+    work_sheet.write(4,1, rd4, style_data_row) 
+    work_sheet.write(4,2, ei4, style_data_row) 
+    work_sheet.write(4,3, ntwH4, style_data_row) 
+    work_sheet.write(4,4, ntwF4, style_data_row) 
+    work_sheet.write(4,5, ntw4, style_data_row) 
+    work_sheet.write(4,6, hC4, style_data_row) 
+    work_sheet.write(4,7, fC4, style_data_row) 
+    work_sheet.write(4,8, ihc4, style_data_row)
+
+    work_sheet.write(5,0, 'MONTH 5', style_data_row) 
+    work_sheet.write(5,1, rd5, style_data_row) 
+    work_sheet.write(5,2, ei5, style_data_row) 
+    work_sheet.write(5,3, ntwH5, style_data_row) 
+    work_sheet.write(5,4, ntwF5, style_data_row) 
+    work_sheet.write(5,5, ntw5, style_data_row) 
+    work_sheet.write(5,6, hC5, style_data_row) 
+    work_sheet.write(5,7, fC5, style_data_row) 
+    work_sheet.write(5,8, ihc5, style_data_row)
+
+    work_sheet.write(6,0, 'MONTH 6', style_data_row) 
+    work_sheet.write(6,1, rd6, style_data_row) 
+    work_sheet.write(6,2, ei6, style_data_row) 
+    work_sheet.write(6,3, ntwH6, style_data_row) 
+    work_sheet.write(6,4, ntwF6, style_data_row) 
+    work_sheet.write(6,5, ntw6, style_data_row) 
+    work_sheet.write(6,6, hC6, style_data_row) 
+    work_sheet.write(6,7, fC6, style_data_row) 
+    work_sheet.write(6,8, ihc6, style_data_row)
+
+    work_sheet.write(7,0, 'MONTH 7', style_data_row) 
+    work_sheet.write(7,1, rd7, style_data_row) 
+    work_sheet.write(7,2, ei7, style_data_row) 
+    work_sheet.write(7,3, ntwH7, style_data_row) 
+    work_sheet.write(7,4, ntwF7, style_data_row) 
+    work_sheet.write(7,5, ntw7, style_data_row) 
+    work_sheet.write(7,6, hC7, style_data_row) 
+    work_sheet.write(7,7, fC7, style_data_row) 
+    work_sheet.write(7,8, ihc7, style_data_row)
+
+    work_sheet.write(8,0, 'MONTH 8', style_data_row) 
+    work_sheet.write(8,1, rd8, style_data_row) 
+    work_sheet.write(8,2, ei8, style_data_row) 
+    work_sheet.write(8,3, ntwH8, style_data_row) 
+    work_sheet.write(8,4, ntwF8, style_data_row) 
+    work_sheet.write(8,5, ntw8, style_data_row) 
+    work_sheet.write(8,6, hC8, style_data_row) 
+    work_sheet.write(8,7, fC8, style_data_row) 
+    work_sheet.write(8,8, ihc8, style_data_row)
+
+    work_sheet.write(9,0, 'MONTH 9', style_data_row) 
+    work_sheet.write(9,1, rd9, style_data_row) 
+    work_sheet.write(9,2, ei9, style_data_row) 
+    work_sheet.write(9,3, ntwH9, style_data_row) 
+    work_sheet.write(9,4, ntwF9, style_data_row) 
+    work_sheet.write(9,5, ntw9, style_data_row) 
+    work_sheet.write(9,6, hC9, style_data_row) 
+    work_sheet.write(9,7, fC9, style_data_row) 
+    work_sheet.write(9,8, ihc9, style_data_row)
+
+    work_sheet.write(10,0, 'MONTH 10', style_data_row) 
+    work_sheet.write(10,1, rd10, style_data_row) 
+    work_sheet.write(10,2, ei10, style_data_row) 
+    work_sheet.write(10,3, ntwH10, style_data_row) 
+    work_sheet.write(10,4, ntwF10, style_data_row) 
+    work_sheet.write(10,5, ntw10, style_data_row) 
+    work_sheet.write(10,6, hC10, style_data_row) 
+    work_sheet.write(10,7, fC10, style_data_row) 
+    work_sheet.write(10,8, ihc10, style_data_row)
+
+    work_sheet.write(11,0, 'MONTH 11', style_data_row) 
+    work_sheet.write(11,1, rd11, style_data_row) 
+    work_sheet.write(11,2, ei11, style_data_row) 
+    work_sheet.write(11,3, ntwH11, style_data_row) 
+    work_sheet.write(11,4, ntwF11, style_data_row) 
+    work_sheet.write(11,5, ntw11, style_data_row) 
+    work_sheet.write(11,6, hC11, style_data_row) 
+    work_sheet.write(11,7, fC11, style_data_row) 
+    work_sheet.write(11,8, ihc11, style_data_row)
+
+    work_sheet.write(12,0,'TOTAL INDIVIDUAL COSTS',style_data_row)
+    work_sheet.write(12,6,thC,style_data_row)
+    work_sheet.write(12,7,tfC,style_data_row)
+    work_sheet.write(12,8,tihC,style_data_row)
+
+    work_sheet.write(13,0,"OPTIMIZED FINAL COST FOR MULTI-PERIOD PLANNING",style_data_row)
+    work_sheet.write(13,7,optimalCost,style_data_row)
+
+    output = BytesIO()
+    work_book.save(output)
+    output.seek(0)
+    response.write(output.getvalue()) 
+
+    return response
+
+def downloadTwelve(request,plan_Name):
+    response = HttpResponse(content_type='application/vnd.ms-excel') 
+    response['Content-Disposition'] = 'attachment;filename=viewTwelve.xls'
+    work_book = xlwt.Workbook(encoding = 'utf-8') 
+    work_sheet = work_book.add_sheet(u'plan details')
+
+    
+     
+    plan = models.TwelveMonthPlan.objects.filter(planName=plan_Name).values()
+    for x in plan:
+        ntwH1 = x['hiredTemporary1']
+        ntwF1 = x['firedTemporary1']
+        ntwH2 = x['hiredTemporary2']
+        ntwF2 = x['firedTemporary2']
+        ntwH3 = x['hiredTemporary3']
+        ntwF3 = x['firedTemporary3']
+        ntwH4 = x['hiredTemporary4']
+        ntwF4 = x['firedTemporary4']
+        ntwH5 = x['hiredTemporary5']
+        ntwF5 = x['firedTemporary5']
+        ntwH6 = x['hiredTemporary6']
+        ntwF6 = x['firedTemporary6']
+        ntwH7 = x['hiredTemporary7']
+        ntwF7 = x['firedTemporary7']
+        ntwH8 = x['hiredTemporary8']
+        ntwF8 = x['firedTemporary8']
+        ntwH9 = x['hiredTemporary9']
+        ntwF9 = x['firedTemporary9']
+        ntwH10 = x['hiredTemporary10']
+        ntwF10 = x['firedTemporary10']
+        ntwH11 = x['hiredTemporary11']
+        ntwF11 = x['firedTemporary11']
+        ntwH12 = x['hiredTemporary12']
+        ntwF12 = x['firedTemporary12']
+        rd1 = x['demand1'] - (x['numPermanent1'] * x['prodPermanent1'])
+        if rd1 < 0:
+            rd1 = 0
+        hC1 = ntwH1 * x['costHiring1']
+        fC1 = ntwF1 * x['costFiring1']
+        ihc1 = x['costHoldingUnit1'] * x['inventoryMonth1']
+        rd2 = x['demand2'] - (x['numPermanent2'] * x['prodPermanent2'])
+        if rd2 < 0:
+            rd2 = 0
+        hC2 = ntwH2 * x['costHiring2']
+        fC2 = ntwF2 * x['costFiring2']
+        ihc2 = x['costHoldingUnit2'] * x['inventoryMonth2']
+        rd3 = x['demand3'] - (x['numPermanent3'] * x['prodPermanent3'])
+        if rd3 < 0:
+            rd3 = 0
+        hC3 = ntwH3 * x['costHiring3']
+        fC3 = ntwF3 * x['costFiring3']
+        ihc3 = x['costHoldingUnit3'] * x['inventoryMonth3']
+        rd4 = x['demand4'] - (x['numPermanent4'] * x['prodPermanent4'])
+        if rd4 < 0:
+            rd4 = 0
+        hC4 = ntwH4 * x['costHiring4']
+        fC4 = ntwF4 * x['costFiring4']
+        ihc4 = x['costHoldingUnit4'] * x['inventoryMonth4']
+        rd5 = x['demand5'] - (x['numPermanent5'] * x['prodPermanent5'])
+        if rd5 < 0:
+            rd5 = 0
+        hC5 = ntwH5 * x['costHiring5']
+        fC5 = ntwF5 * x['costFiring5']
+        ihc5 = x['costHoldingUnit5'] * x['inventoryMonth5']
+        rd6 = x['demand6'] - (x['numPermanent6'] * x['prodPermanent6'])
+        if rd6 < 0:
+            rd6 = 0
+        hC6 = ntwH6 * x['costHiring6']
+        fC6 = ntwF6 * x['costFiring6']
+        ihc6 = x['costHoldingUnit6'] * x['inventoryMonth6']
+        rd7 = x['demand7'] - (x['numPermanent7'] * x['prodPermanent7'])
+        if rd7 < 0:
+            rd7 = 0
+        hC7 = ntwH7 * x['costHiring7']
+        fC7 = ntwF7 * x['costFiring7']
+        ihc7 = x['costHoldingUnit7'] * x['inventoryMonth7']
+        rd8 = x['demand8'] - (x['numPermanent8'] * x['prodPermanent8'])
+        if rd8 < 0:
+            rd8 = 0
+        hC8 = ntwH8 * x['costHiring8']
+        fC8 = ntwF8 * x['costFiring8']
+        ihc8 = x['costHoldingUnit8'] * x['inventoryMonth8']
+        rd9 = x['demand9'] - (x['numPermanent9'] * x['prodPermanent9'])
+        if rd9 < 0:
+            rd9 = 0
+        hC9 = ntwH9 * x['costHiring9']
+        fC9 = ntwF9 * x['costFiring9']
+        ihc9 = x['costHoldingUnit9'] * x['inventoryMonth9']
+        rd10 = x['demand10'] - (x['numPermanent10'] * x['prodPermanent10'])
+        if rd10 < 0:
+            rd10 = 0
+        hC10 = ntwH10 * x['costHiring10']
+        fC10 = ntwF10 * x['costFiring10']
+        ihc10 = x['costHoldingUnit10'] * x['inventoryMonth10']
+        rd11 = x['demand11'] - (x['numPermanent11'] * x['prodPermanent11'])
+        if rd11 < 0:
+            rd11 = 0
+        hC11 = ntwH11 * x['costHiring11']
+        fC11 = ntwF11 * x['costFiring11']
+        ihc11 = x['costHoldingUnit11'] * x['inventoryMonth11']
+        rd12 = x['demand12'] - (x['numPermanent12'] * x['prodPermanent12'])
+        if rd12 < 0:
+            rd12 = 0
+        hC12 = ntwH12 * x['costHiring12']
+        fC12 = ntwF12 * x['costFiring12']
+        ihc12 = x['costHoldingUnit12'] * x['inventoryFinal']
+        ntw1 = ntwH1 - ntwF1 
+        ntw2 = ntwH1 - ntwF1 + ntwH2 - ntwF2 
+        ntw3 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 
+        ntw4 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4
+        ntw5 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5
+        ntw6 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6
+        ntw7 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7
+        ntw8 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8
+        ntw9 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9
+        ntw10 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10
+        ntw11 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10 + ntwH11 - ntwF11
+        ntw12 = ntwH1 - ntwF1 + ntwH2 - ntwF2 + ntwH3 - ntwF3 + ntwH4 - ntwF4 + ntwH5 - ntwF5 + ntwH6 - ntwF6 + ntwH7 - ntwF7 + ntwH8 - ntwF8 + ntwH9 - ntwF9 + ntwH10 - ntwF10 + ntwH11 - ntwF11 + ntwH12 - ntwF12
+        thC = hC1 + hC2 + hC3 + hC4 + hC5 + hC6 + hC7 + hC8 + hC9 + hC10 + hC11 + hC12
+        tfC = fC1 + fC2 + fC3 + fC4 + fC5 + fC6 + fC7 + fC8 + fC9 + fC10 + fC11 + fC12
+        tihC = ihc1 + ihc2 + ihc3 + ihc4 + ihc5 + ihc6 + ihc7 + ihc8 + ihc9 + ihc10 + ihc11 + ihc12
+        ei1 = x['inventoryMonth1']
+        ei2 = x['inventoryMonth2']
+        ei3 = x['inventoryMonth3']
+        ei4 = x['inventoryMonth4']
+        ei5 = x['inventoryMonth5']
+        ei6 = x['inventoryMonth6']
+        ei7 = x['inventoryMonth7']
+        ei8 = x['inventoryMonth8']
+        ei9 = x['inventoryMonth9']
+        ei10 = x['inventoryMonth10']
+        ei11 = x['inventoryMonth11']
+        ei12 = x['inventoryFinal']
+        optimalCost= x['optimalCost']
+
+    work_sheet.write(0,0, 'MONTH', style_head_row) 
+    work_sheet.write(0,1, 'REMAINING DEMAND', style_head_row) 
+    work_sheet.write(0,2, 'ENDING INVENTORY UNIT(S)', style_head_row) 
+    work_sheet.write(0,3, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row) 
+    work_sheet.write(0,4, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row) 
+    work_sheet.write(0,5, 'NUMBER OF TEMPORARY WORKER(S)', style_head_row) 
+    work_sheet.write(0,6, 'HIRING COST', style_head_row) 
+    work_sheet.write(0,7, 'FIRING COST', style_head_row) 
+    work_sheet.write(0,8, 'INVENTORY HOLDING COST', style_head_row)
+
+    work_sheet.write(1,0, 'MONTH 1', style_data_row) 
+    work_sheet.write(1,1, rd1, style_data_row) 
+    work_sheet.write(1,2, ei1, style_data_row) 
+    work_sheet.write(1,3, ntwH1, style_data_row) 
+    work_sheet.write(1,4, ntwF1, style_data_row) 
+    work_sheet.write(1,5,ntw1, style_data_row) 
+    work_sheet.write(1,6, hC1, style_data_row) 
+    work_sheet.write(1,7, fC1, style_data_row) 
+    work_sheet.write(1,8, ihc1, style_data_row)
+
+    work_sheet.write(2,0, 'MONTH 2', style_data_row) 
+    work_sheet.write(2,1, rd2, style_data_row) 
+    work_sheet.write(2,2, ei2, style_data_row) 
+    work_sheet.write(2,3, ntwH2, style_data_row) 
+    work_sheet.write(2,4, ntwF2, style_data_row) 
+    work_sheet.write(2,5,ntw2, style_data_row) 
+    work_sheet.write(2,6, hC2, style_data_row) 
+    work_sheet.write(2,7, fC2, style_data_row) 
+    work_sheet.write(2,8, ihc2, style_data_row)
+
+    work_sheet.write(3,0, 'MONTH 3', style_data_row) 
+    work_sheet.write(3,1, rd3, style_data_row) 
+    work_sheet.write(3,2, ei3, style_data_row) 
+    work_sheet.write(3,3, ntwH3, style_data_row) 
+    work_sheet.write(3,4, ntwF3, style_data_row) 
+    work_sheet.write(3,5,ntw3, style_data_row) 
+    work_sheet.write(3,6, hC3, style_data_row) 
+    work_sheet.write(3,7, fC3, style_data_row) 
+    work_sheet.write(3,8, ihc3, style_data_row)
+
+    work_sheet.write(4,0, 'MONTH 4', style_data_row) 
+    work_sheet.write(4,1, rd4, style_data_row) 
+    work_sheet.write(4,2, ei4, style_data_row) 
+    work_sheet.write(4,3, ntwH4, style_data_row) 
+    work_sheet.write(4,4, ntwF4, style_data_row) 
+    work_sheet.write(4,5, ntw4, style_data_row) 
+    work_sheet.write(4,6, hC4, style_data_row) 
+    work_sheet.write(4,7, fC4, style_data_row) 
+    work_sheet.write(4,8, ihc4, style_data_row)
+
+    work_sheet.write(5,0, 'MONTH 5', style_data_row) 
+    work_sheet.write(5,1, rd5, style_data_row) 
+    work_sheet.write(5,2, ei5, style_data_row) 
+    work_sheet.write(5,3, ntwH5, style_data_row) 
+    work_sheet.write(5,4, ntwF5, style_data_row) 
+    work_sheet.write(5,5, ntw5, style_data_row) 
+    work_sheet.write(5,6, hC5, style_data_row) 
+    work_sheet.write(5,7, fC5, style_data_row) 
+    work_sheet.write(5,8, ihc5, style_data_row)
+
+    work_sheet.write(6,0, 'MONTH 6', style_data_row) 
+    work_sheet.write(6,1, rd6, style_data_row) 
+    work_sheet.write(6,2, ei6, style_data_row) 
+    work_sheet.write(6,3, ntwH6, style_data_row) 
+    work_sheet.write(6,4, ntwF6, style_data_row) 
+    work_sheet.write(6,5, ntw6, style_data_row) 
+    work_sheet.write(6,6, hC6, style_data_row) 
+    work_sheet.write(6,7, fC6, style_data_row) 
+    work_sheet.write(6,8, ihc6, style_data_row)
+
+    work_sheet.write(7,0, 'MONTH 7', style_data_row) 
+    work_sheet.write(7,1, rd7, style_data_row) 
+    work_sheet.write(7,2, ei7, style_data_row) 
+    work_sheet.write(7,3, ntwH7, style_data_row) 
+    work_sheet.write(7,4, ntwF7, style_data_row) 
+    work_sheet.write(7,5, ntw7, style_data_row) 
+    work_sheet.write(7,6, hC7, style_data_row) 
+    work_sheet.write(7,7, fC7, style_data_row) 
+    work_sheet.write(7,8, ihc7, style_data_row)
+
+    work_sheet.write(8,0, 'MONTH 8', style_data_row) 
+    work_sheet.write(8,1, rd8, style_data_row) 
+    work_sheet.write(8,2, ei8, style_data_row) 
+    work_sheet.write(8,3, ntwH8, style_data_row) 
+    work_sheet.write(8,4, ntwF8, style_data_row) 
+    work_sheet.write(8,5, ntw8, style_data_row) 
+    work_sheet.write(8,6, hC8, style_data_row) 
+    work_sheet.write(8,7, fC8, style_data_row) 
+    work_sheet.write(8,8, ihc8, style_data_row)
+
+    work_sheet.write(9,0, 'MONTH 9', style_data_row) 
+    work_sheet.write(9,1, rd9, style_data_row) 
+    work_sheet.write(9,2, ei9, style_data_row) 
+    work_sheet.write(9,3, ntwH9, style_data_row) 
+    work_sheet.write(9,4, ntwF9, style_data_row) 
+    work_sheet.write(9,5, ntw9, style_data_row) 
+    work_sheet.write(9,6, hC9, style_data_row) 
+    work_sheet.write(9,7, fC9, style_data_row) 
+    work_sheet.write(9,8, ihc9, style_data_row)
+
+    work_sheet.write(10,0, 'MONTH 10', style_data_row) 
+    work_sheet.write(10,1, rd10, style_data_row) 
+    work_sheet.write(10,2, ei10, style_data_row) 
+    work_sheet.write(10,3, ntwH10, style_data_row) 
+    work_sheet.write(10,4, ntwF10, style_data_row) 
+    work_sheet.write(10,5, ntw10, style_data_row) 
+    work_sheet.write(10,6, hC10, style_data_row) 
+    work_sheet.write(10,7, fC10, style_data_row) 
+    work_sheet.write(10,8, ihc10, style_data_row)
+
+    work_sheet.write(11,0, 'MONTH 11', style_data_row) 
+    work_sheet.write(11,1, rd11, style_data_row) 
+    work_sheet.write(11,2, ei11, style_data_row) 
+    work_sheet.write(11,3, ntwH11, style_data_row) 
+    work_sheet.write(11,4, ntwF11, style_data_row) 
+    work_sheet.write(11,5, ntw11, style_data_row) 
+    work_sheet.write(11,6, hC11, style_data_row) 
+    work_sheet.write(11,7, fC11, style_data_row) 
+    work_sheet.write(11,8, ihc11, style_data_row)
+    
+    work_sheet.write(12,0, 'MONTH 12', style_data_row) 
+    work_sheet.write(12,1, rd12, style_data_row) 
+    work_sheet.write(12,2, ei12, style_data_row) 
+    work_sheet.write(12,3, ntwH12, style_data_row) 
+    work_sheet.write(12,4, ntwF12, style_data_row) 
+    work_sheet.write(12,5, ntw12, style_data_row) 
+    work_sheet.write(12,6, hC12, style_data_row) 
+    work_sheet.write(12,7, fC12, style_data_row) 
+    work_sheet.write(12,8, ihc12, style_data_row)
+
+    work_sheet.write(13,0,'TOTAL INDIVIDUAL COSTS',style_data_row)
+    work_sheet.write(13,6,thC,style_data_row)
+    work_sheet.write(13,7,tfC,style_data_row)
+    work_sheet.write(13,8,tihC,style_data_row)
+
+    work_sheet.write(14,0,"OPTIMIZED FINAL COST FOR MULTI-PERIOD PLANNING",style_data_row)
+    work_sheet.write(14,7,optimalCost,style_data_row)
+
+    output = BytesIO()
+    work_book.save(output)
+    output.seek(0)
+    response.write(output.getvalue()) 
+
+    return response

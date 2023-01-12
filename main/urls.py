@@ -18,6 +18,7 @@ urlpatterns = [
     
     path('viewDetailFour/<plan_Name>/', views.viewDetailFour, name='viewDetailFour'),
     path('deleteDetailFour/<plan_Name>/', views.deleteDetailFour, name='deleteDetailFour'),
+    path('downloadFour/<plan_Name>/', views.downloadFour,name='downloadFour'),
     path('demandFour/<plan_Name>/', views.demandFour, name='demandFour'),
     path('numPermanentFour/<plan_Name>/', views.numPermanentFour, name='numPermanentFour'),
     path('prodPermanentFour/<plan_Name>/', views.prodPermanentFour, name='prodPermanentFour'),
@@ -28,6 +29,7 @@ urlpatterns = [
     
     path('viewDetailFive/<plan_Name>/', views.viewDetailFive, name='viewDetailFive'),
     path('deleteDetailFive/<plan_Name>/', views.deleteDetailFive, name='deleteDetailFive'),
+    path('downloadFive/<plan_Name>/', views.downloadFive,name='downloadFive'),
     path('demandFive/<plan_Name>/', views.demandFive, name='demandFive'),
     path('numPermanentFive/<plan_Name>/', views.numPermanentFive, name='numPermanentFive'),
     path('prodPermanentFive/<plan_Name>/', views.prodPermanentFive, name='prodPermanentFive'),
@@ -38,6 +40,7 @@ urlpatterns = [
     
     path('viewDetailSix/<plan_Name>/', views.viewDetailSix, name='viewDetailSix'),
     path('deleteDetailSix/<plan_Name>/', views.deleteDetailSix, name='deleteDetailSix'),
+    path('downloadSix/<plan_Name>/', views.downloadSix,name='downloadSix'),
     path('demandSix/<plan_Name>/', views.demandSix, name='demandSix'),
     path('numPermanentSix/<plan_Name>/', views.numPermanentSix, name='numPermanentSix'),
     path('prodPermanentSix/<plan_Name>/', views.prodPermanentSix, name='prodPermanentSix'),
@@ -48,6 +51,7 @@ urlpatterns = [
     
     path('viewDetailSeven/<plan_Name>/', views.viewDetailSeven, name='viewDetailSeven'),
     path('deleteDetailSeven/<plan_Name>/', views.deleteDetailSeven, name='deleteDetailSeven'),
+    path('downloadSeven/<plan_Name>/', views.downloadSeven,name='downloadSeven'),
     path('demandSeven/<plan_Name>/', views.demandSeven, name='demandSeven'),
     path('numPermanentSeven/<plan_Name>/', views.numPermanentSeven, name='numPermanentSeven'),
     path('prodPermanentSeven/<plan_Name>/', views.prodPermanentSeven, name='prodPermanentSeven'),
@@ -58,6 +62,7 @@ urlpatterns = [
     
     path('viewDetailEight/<plan_Name>/', views.viewDetailEight, name='viewDetailEight'),
     path('deleteDetailEight/<plan_Name>/', views.deleteDetailEight, name='deleteDetailEight'),
+    path('downloadEight/<plan_Name>/', views.downloadEight,name='downloadEight'),
     path('demandEight/<plan_Name>/', views.demandEight, name='demandEight'),
     path('numPermanentEight/<plan_Name>/', views.numPermanentEight, name='numPermanentEight'),
     path('prodPermanentEight/<plan_Name>/', views.prodPermanentEight, name='prodPermanentEight'),
@@ -68,6 +73,7 @@ urlpatterns = [
     
     path('viewDetailNine/<plan_Name>/', views.viewDetailNine, name='viewDetailNine'),
     path('deleteDetailNine/<plan_Name>/', views.deleteDetailNine, name='deleteDetailNine'),
+    path('downloadNine/<plan_Name>/', views.downloadNine,name='downloadNine'),
     path('demandNine/<plan_Name>/', views.demandNine, name='demandNine'),
     path('numPermanentNine/<plan_Name>/', views.numPermanentNine, name='numPermanentNine'),
     path('prodPermanentNine/<plan_Name>/', views.prodPermanentNine, name='prodPermanentNine'),
@@ -78,6 +84,7 @@ urlpatterns = [
     
     path('viewDetailTen/<plan_Name>/', views.viewDetailTen, name='viewDetailTen'),
     path('deleteDetailTen/<plan_Name>/', views.deleteDetailTen, name='deleteDetailTen'),
+    path('downloadTen/<plan_Name>/', views.downloadTen,name='downloadTen'),
     path('demandTen/<plan_Name>/', views.demandTen, name='demandTen'),
     path('numPermanentTen/<plan_Name>/', views.numPermanentTen, name='numPermanentTen'),
     path('prodPermanentTen/<plan_Name>/', views.prodPermanentTen, name='prodPermanentTen'),
@@ -88,6 +95,7 @@ urlpatterns = [
     
     path('viewDetailEleven/<plan_Name>/', views.viewDetailEleven, name='viewDetailEleven'),
     path('deleteDetailEleven/<plan_Name>/', views.deleteDetailEleven, name='deleteDetailEleven'),
+    path('downloadEleven/<plan_Name>/', views.downloadEleven,name='downloadEleven'),
     path('demandEleven/<plan_Name>/', views.demandEleven, name='demandEleven'),
     path('numPermanentEleven/<plan_Name>/', views.numPermanentEleven, name='numPermanentEleven'),
     path('prodPermanentEleven/<plan_Name>/', views.prodPermanentEleven, name='prodPermanentEleven'),
@@ -98,6 +106,7 @@ urlpatterns = [
     
     path('viewDetailTwelve/<plan_Name>/', views.viewDetailTwelve, name='viewDetailTwelve'),
     path('deleteDetailTwelve/<plan_Name>/', views.deleteDetailTwelve, name='deleteDetailTwelve'),
+    path('downloadTwelve/<plan_Name>/', views.downloadTwelve,name='downloadTwelve'),
     path('demandTwelve/<plan_Name>/', views.demandTwelve, name='demandTwelve'),
     path('numPermanentTwelve/<plan_Name>/', views.numPermanentTwelve, name='numPermanentTwelve'),
     path('prodPermanentTwelve/<plan_Name>/', views.prodPermanentTwelve, name='prodPermanentTwelve'),
