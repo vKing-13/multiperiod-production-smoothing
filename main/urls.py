@@ -113,5 +113,6 @@ urlpatterns = [
     path('prodTemporaryTwelve/<plan_Name>/', views.prodTemporaryTwelve, name='prodTemporaryTwelve'),
     path('costHiringTwelve/<plan_Name>/', views.costHiringTwelve, name='costHiringTwelve'),
     path('costFiringTwelve/<plan_Name>/', views.costFiringTwelve, name='costFiringTwelve'),
-    path('costHoldingUnitTwelve/<plan_Name>/', views.costHoldingUnitTwelve, name='costHoldingUnitTwelve')
+    path('costHoldingUnitTwelve/<plan_Name>/', views.costHoldingUnitTwelve, name='costHoldingUnitTwelve'),
+    path('inventoryInitialFinal/<month>/<plan_Name>/', views.inventoryInitialFinal, name='inventoryInitialFinal')
 ]

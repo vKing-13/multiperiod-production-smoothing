@@ -3404,6 +3404,50 @@ def costHoldingUnitTwelve(request, plan_Name):
         detail = models.TwelveMonthPlan.objects.filter(planName = plan_Name).values()
     return render(request, 'main/Twelve/costHoldingUnitTwelve.html',{'detail' : detail})
 
+def inventoryInitialFinal(request, month, plan_Name):
+    if request.method == "POST":
+        inputInventoryInitial = request.POST.get('inventoryInitial')
+        inputInventoryFinal = request.POST.get('inventoryFinal')
+        if month == "Four":
+            models.FourMonthPlan.objects.filter(planName = plan_Name).update(inventoryInitial= inputInventoryInitial, inventoryFinal= inputInventoryFinal)
+        elif month == "Five":
+            models.FiveMonthPlan.objects.filter(planName = plan_Name).update(inventoryInitial= inputInventoryInitial, inventoryFinal= inputInventoryFinal)
+        elif month == "Six":
+            models.SixMonthPlan.objects.filter(planName = plan_Name).update(inventoryInitial= inputInventoryInitial, inventoryFinal= inputInventoryFinal)
+        elif month == "Seven":
+            models.SevenMonthPlan.objects.filter(planName = plan_Name).update(inventoryInitial= inputInventoryInitial, inventoryFinal= inputInventoryFinal)
+        elif month == "Eight":
+            models.EightMonthPlan.objects.filter(planName = plan_Name).update(inventoryInitial= inputInventoryInitial, inventoryFinal= inputInventoryFinal)
+        elif month == "Nine":
+            models.NineMonthPlan.objects.filter(planName = plan_Name).update(inventoryInitial= inputInventoryInitial, inventoryFinal= inputInventoryFinal)
+        elif month == "Ten":
+            models.TenMonthPlan.objects.filter(planName = plan_Name).update(inventoryInitial= inputInventoryInitial, inventoryFinal= inputInventoryFinal)
+        elif month == "Eleven":
+            models.ElevenMonthPlan.objects.filter(planName = plan_Name).update(inventoryInitial= inputInventoryInitial, inventoryFinal= inputInventoryFinal)
+        elif month == "Twelve":
+            models.TwelveMonthPlan.objects.filter(planName = plan_Name).update(inventoryInitial= inputInventoryInitial, inventoryFinal= inputInventoryFinal)
+        return redirect('history')
+    else:
+        if month == "Four":
+            detail = models.FourMonthPlan.objects.filter(planName = plan_Name).values()
+        elif month == "Five":
+            detail = models.FiveMonthPlan.objects.filter(planName = plan_Name).values()
+        elif month == "Six":
+            detail = models.SixMonthPlan.objects.filter(planName = plan_Name).values()
+        elif month == "Seven":
+            detail = models.SevenMonthPlan.objects.filter(planName = plan_Name).values()
+        elif month == "Eight":
+            detail = models.EightMonthPlan.objects.filter(planName = plan_Name).values()
+        elif month == "Nine":
+            detail = models.NineMonthPlan.objects.filter(planName = plan_Name).values()
+        elif month == "Ten":
+            detail = models.TenMonthPlan.objects.filter(planName = plan_Name).values()
+        elif month == "Eleven":
+            detail = models.ElevenMonthPlan.objects.filter(planName = plan_Name).values()
+        elif month == "Twelve":
+            detail = models.TwelveMonthPlan.objects.filter(planName = plan_Name).values()
+    return render(request, 'main/inventoryInitialFinal.html',{'detail' : detail})
+
 style_head_row = xlwt.easyxf("""    
         align:
         wrap off,
