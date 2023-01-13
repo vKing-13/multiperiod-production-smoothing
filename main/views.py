@@ -5297,10 +5297,10 @@ def contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            name=form.cleaned_data['subject']
+            subject=form.cleaned_data['subject']
             email=form.cleaned_data['email']
             content=form.cleaned_data['content']
-            send_mail(subject=name, message=content,from_email=settings.EMAIL_HOST_USER,recipient_list=[settings.RECIPIENT_ADDRESS])
+            send_mail(subject=subject, message=content,from_email=settings.EMAIL_HOST_USER,recipient_list=[settings.RECIPIENT_ADDRESS])
             return redirect ("home")
     form = ContactForm()
     context = {'form': form}
