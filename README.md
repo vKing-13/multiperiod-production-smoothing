@@ -22,6 +22,11 @@ pip install django_compressor
 pip install xlwt
 ```
 
+## Install PuLp library
+```
+pip install pulp
+```
+
 ## Run Server
 
 ```
