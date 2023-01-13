@@ -138,10 +138,17 @@ STATICFILES_FINDERS = [
     'compressor.finders.CompressorFinder',
 ]
 
-EMAIL_HOST = 'smtp.mailtrap.io'
-EMAIL_HOST_USER = '4989be04fbbf98'
-EMAIL_HOST_PASSWORD = 'c679013f9acdbd'
-EMAIL_PORT = '2525'
+import environ
+env=environ.Env()
+environ.Env.read_env()
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+RECIPIENT_ADDRESS = env('RECIPIENT_ADDRESS')
 
 LOGIN_URL='login'
 

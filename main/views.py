@@ -11,6 +11,7 @@ from django.template.loader import render_to_string
 import xlwt
 from io import StringIO,BytesIO
 import csv
+from django.conf import settings
 # Create your views here.
 def is_admin(user):
     return user.is_superuser
@@ -5291,6 +5292,7 @@ def downloadTwelve(request,plan_Name):
 
     return response
 
+
 def contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
@@ -5298,12 +5300,7 @@ def contact(request):
             name=form.cleaned_data['name']
             email=form.cleaned_data['email']
             content=form.cleaned_data['content']
-            html=render_to_string('main/contactform.html',{
-                'name':name,
-                'email':email,
-                'content':content
-            })
-            send_mail('Multiperiod Production Smoothing Inquiry',content,email,['vicolee49@gmail.com'])
+            send_mail(subject=name, message=content,from_email=settings.EMAIL_HOST_USER,recipient_list=[settings.RECIPIENT_ADDRESS])
             return redirect ("home")
     form = ContactForm()
     context = {'form': form}
