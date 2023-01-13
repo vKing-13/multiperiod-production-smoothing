@@ -27,6 +27,11 @@ pip install xlwt
 pip install pulp
 ```
 
+## Install django-environ 0.9.0
+```
+pip install django-environ
+```
+
 ## Run Server
 
 ```
