@@ -4,93 +4,93 @@
 
 <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
 <script src="http://cdn.tailwindcss.com"></script>
-<body class="min-h-screen  bg-slate-300" style="min-height: 400px; margin-bottom: 100px;">
+<body class="min-h-screen  bg-neutral-100bg-neutral-100" style="min-height: 400px; margin-bottom: 100px;">
       <div class='overflow-x-auto my-16 ml-60'>
             <table class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-none w-full overflow-hidden">
-                  <thead class="text-white border-none bg-blue-700">
+                  <thead class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center">
                         {% for x in detail %}
                         <tr class="text-white text-center border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center border-none" colspan="9">{{x.planName}}</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center border-white border-b-2" colspan="9">{{x.planName}}</th>
                         </tr> 
                         {% endfor %}
                   </thead>
-                  <thead class="bg-white text-black border-none">
-                        <tr class="text-black text-center border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none">Month</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none">Remaining Demand</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none">Ending Inventory Unit(s)</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none">Number of Temporary Worker Hired</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none">Number of Temporary Worker Fired</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none">Number of Temporary Worker(s)</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none">Hiring Cost</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none">Firing Cost</th>
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none">Inventory Holding Cost</th>
+                  <thead class="bg-white text-white text-center border-none">
+                        <tr class="text-white text-center border-none">
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center border-sky-700">Month</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center border-sky-700">Remaining Demand</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center border-sky-700">Ending Inventory Unit(s)</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center border-sky-700">Number of Temporary Worker Hired</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center border-sky-700">Number of Temporary Worker Fired</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center border-sky-700">Number of Temporary Worker(s)</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center border-sky-700">Hiring Cost</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center border-sky-700">Firing Cost</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 bg-sky-700 text-center border-sky-700">Inventory Holding Cost</th>
                         </tr> 
                   </thead> 
                   <tbody class="bg-white text-gray-900 text-center border-none">
                         <tr class="border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none text-black">Month 1</th>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ rd1 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ei1 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwH1 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwF1 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntw1 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ hC1 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ fC1 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ ihc1 }}</td>
+                              <th class="font-semibold uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2">Month 1</th>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ rd1 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ei1 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntwH1 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntwF1 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntw1 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">RM{{ hC1 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">RM{{ fC1 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-none">RM{{ ihc1 }}</td>
                         </tr>
                         <tr class=" bg-white border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none text-black">Month 2</th>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ rd2 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ei2 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwH2 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwF2 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntw2 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ hC2 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ fC2 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ ihc2 }}</td>
+                              <th class="font-semibold uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2">Month 2</th>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ rd2 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ei2 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntwH2 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntwF2 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntw2 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">RM{{ hC2 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">RM{{ fC2 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-none">RM{{ ihc2 }}</td>
                         </tr>
                         <tr class=" bg-white border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none text-black">Month 3</th>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ rd3 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ei3 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwH3 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwF3 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntw3 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ hC3 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ fC3 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ ihc3 }}</td>
+                              <th class="font-semibold uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2">Month 3</th>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ rd3 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ei3 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntwH3 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntwF3 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntw3 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">RM{{ hC3 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">RM{{ fC3 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-none">RM{{ ihc3 }}</td>
                         </tr>
                         <tr class=" bg-white border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none text-black">Month 4</th>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ rd4 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ei4 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwH4 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwF4 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntw4 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ hC4 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ fC4 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ ihc4 }}</td>
+                              <th class="font-semibold uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2">Month 4</th>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ rd4 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ei4 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntwH4 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntwF4 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">{{ ntw4 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">RM{{ hC4 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-0 border-t-0 border-l-0">RM{{ fC4 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-none">RM{{ ihc4 }}</td>
                         </tr>
                         <tr class=" bg-white border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none text-black">Month 5</th>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ rd5 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ei5 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwH5 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntwF5 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">{{ ntw5 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ hC5 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ fC5 }}</td>
-                              <td class="whitespace-nowrap text-sm font-medium border-none">RM{{ ihc5 }}</td>
+                              <th class="font-semibold uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-2">Month 5</th>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-2 border-t-0 border-l-0">{{ rd5 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-2 border-t-0 border-l-0">{{ ei5 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-2 border-t-0 border-l-0">{{ ntwH5 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-2 border-t-0 border-l-0">{{ ntwF5 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-2 border-t-0 border-l-0">{{ ntw5 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-2 border-t-0 border-l-0">RM{{ hC5 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-r-2 border-b-2 border-t-0 border-l-0">RM{{ fC5 }}</td>
+                              <td class="font-medium uppercase bg-white text-sm text-black text-center whitespace-nowrap p-5 border-sky-700 border-b-2 border-t-0 border-l-0 border-r-0">RM{{ ihc5 }}</td>
                         </tr>
                         <tr class=" bg-white border-none">
-                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center border-none text-black" colspan="6">Total Individual Costs</th>
+                              <th class="font-semibold text-sm uppercase px-6 py-4 text-center  border-sky-700 border-r-2 border-t-0 border-l-0 text-black" colspan="6">Total Individual Costs</th>
                               <td class="whitespace-nowrap text-sm font-medium text-center border-none">RM{{ thC }}</td>
                               <td class="whitespace-nowrap text-sm font-medium text-center border-none">RM{{ tfC }}</td>
                               <td class="whitespace-nowrap text-sm font-medium text-center border-none">RM{{ tihC }}</td>
                         </tr>
                         {% for x in detail %}
-                        <tr class="bg-blue-700 text-white font-bold border-none">
+                        <tr class="text-sm uppercase px-6 py-4 bg-sky-700 text-center text-white font-bold border-none">
                               <th class="font-semibold text-sm uppercase px-6 py-4  text-center border-none " colspan="6">Optimized Final Cost for Multi-Period Planning</th>
                               <td class="whitespace-nowrap font-bold border-none" colspan="3">RM{{ x.optimalCost }}</td>
                         </tr>
