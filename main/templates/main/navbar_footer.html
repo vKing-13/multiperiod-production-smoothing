@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="{% static 'src/output.css' %}">
   {% endcompress %}
   <script src="https://unpkg.com/flowbite@1.5.5/dist/flowbite.js"></script>
+  <link rel="icon" href="https://i.ibb.co/8gpyyg9/logo-App-Dev.png" type="image/x-icon">
   <style>
     table, tr, td{
       border: solid black 1px;
@@ -28,36 +29,32 @@
 <body>
 
   <div class="container flex flex-wrap">
-  <aside class="w-64 h-screen bg-gradient-to-r from-indigo-900 via-blue-700 to-blue-500 rounded-r-lg fixed">
+  <aside class="w-64 h-screen bg-gradient-to-b from-sky-700 to-sky-900 rounded-r-lg fixed mr-2">
     <div class="px-6 pt-8">
 
-
       <div class="flex items-center justify-center pl-4">
-      <a href="/" class="block text-gray-700 rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent"><img class="w-36" src="https://i.ibb.co/xzd0dBy/App-Dev-Logo-2.png"></img></a>
+      <a href="/" class="block text-gray-700 rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent"><img class="w-42" src="https://i.ibb.co/xzd0dBy/App-Dev-Logo-2.png"></img></a>
       </div>
 
-      <div class="pt-4">
-        <hr class="border-white">
+      <div class="pt-6">
+        <hr class="border-neutral-100">
       </div>
 
-      <div class="flex items-center p-2 space-x-4">
+      <div class="flex items-center pt-4 p-2 space-x-4">
         <img src="https://source.unsplash.com/100x100/?portrait" alt="" class="w-12 h-12 rounded-full dark:bg-gray-500">
         <div>
-          <h2 class="text-lg font-semibold  text-white">Diana Haidar</h2>
-          <span class="flex items-center space-x-1">
-            <a rel="noopener noreferrer" href="#" class="text-xs hover:underline  text-white">View profile</a>
-          </span>
+          <h2 class="text-lg font-semibold  text-white">Eka Gustiwana</h2>
         </div>
       </div>
 
       <div class=" pt-2">
-        <hr class="border-white">
+        <hr class="border-neutral-100">
       </div>
 
         <div class="pt-4">
       {% if user.is_authenticated%}
       {% comment %} <button class="inline-block text-sm leading-none  rounded text-white border-none hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
-        <a href="{% url 'history' %}" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"
+        <a href="{% url 'history' %}" class="flex items-center p-2 font-semibold text-neutral-100 transition-colors rounded-md dark:text-bold hover:bg-neutral-100 dark:hover:bg-neutral-100  hover:text-sky-700 dark:hover:text-sky-700"
         :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
         role="button"
         aria-haspopup="true"
@@ -66,14 +63,14 @@
         {% comment %} </button> {% endcomment %}
 
       {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
-        <a href="{% url 'formula' %}" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"
+        <a href="{% url 'formula' %}" class="flex items-center p-2 font-semibold text-neutral-100 transition-colors rounded-md dark:text-bold hover:bg-neutral-100 dark:hover:bg-neutral-100  hover:text-sky-700 dark:hover:text-sky-700"
         :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
         role="button"
         aria-haspopup="true"
         :aria-expanded="(open || isActive) ? 'true' : 'false'"
-    >Formula</a>
+    >About Us</a>
     
-    <a href="{% url 'contact' %}" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"
+    <a href="{% url 'contact' %}" class="flex items-center p-2 font-semibold text-neutral-100 transition-colors rounded-md dark:text-bold hover:bg-neutral-100 dark:hover:bg-neutral-100  hover:text-sky-700 dark:hover:text-sky-700"
     :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
     role="button"
     aria-haspopup="true"
@@ -82,7 +79,7 @@
     {% comment %} </button> {% endcomment %}
 
         {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
-          <a href="{% url 'logout' %}" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"
+          <a href="{% url 'logout' %}" class="flex items-center p-2 font-semibold text-neutral-100 transition-colors rounded-md dark:text-bold hover:bg-neutral-100 dark:hover:bg-neutral-100  hover:text-sky-700 dark:hover:text-sky-700"
           :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
           role="button"
           aria-haspopup="true"
@@ -91,12 +88,12 @@
           {% comment %} </button> {% endcomment %}
         {% else %} 
         {% comment %} <button class="inline-block text-sm m-4  leading-none border rounded text-white border-white hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}
-          <a href="login/" class="flex items-center p-2 text-white transition-colors rounded-md dark:text-light hover:bg-slate-200 dark:hover:bg-slate-200 hover:text-indigo-600 dark:hover:text-indigo-600"
-                :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
-                role="button"
-                aria-haspopup="true"
-                :aria-expanded="(open || isActive) ? 'true' : 'false'"
-            >Sign in</a>
+          <a href="login/" class="flex items-center p-2 font-semibold text-neutral-100 transition-colors rounded-md dark:text-bold hover:bg-neutral-100 dark:hover:bg-neutral-100  hover:text-sky-700 dark:hover:text-sky-700"
+          :class="{'bg-indigo-100 dark:bg-indigo-600': isActive || open}"
+          role="button"
+          aria-haspopup="true"
+          :aria-expanded="(open || isActive) ? 'true' : 'false'"
+          >Sign in</a>
           {% comment %} </button> {% endcomment %}
       {% endif %}
     </div>

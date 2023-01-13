@@ -5,9 +5,9 @@
 {% load static %}
 <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
 <script src="http://cdn.tailwindcss.com"></script>
-<body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both">
-   <form method="POST" class="bg-white p-6 drop-shadow-lg rounded-[18px] mx-auto max-w-4xl font-[Poppins] w-[24rem] overflow-hidden m-10">
-      <h1 class="px-4 py-4 text-3xl block text-center bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-blue-500 font-black">Please Insert Needed Input</h1>
+<body class="min-h-screen bg-neutral-100" style="min-height: 400px; margin-bottom: 100px; clear: both">
+   <form method="POST" class="bg-white p-6 drop-shadow-lg rounded-[18px] ml-[635px] mr-[400px] mt-[120px] font-[Poppins] w-[24rem] overflow-hidden m-10">
+      <h1 class="px-4 py-4 text-3xl block text-center bg-clip-text text-transparent bg-gradient-to-b from-sky-700 to-sky-900 font-black">Please Insert Needed Input</h1>
       {% csrf_token %}
       <div class="p-6">
          <label for="planName" class="block mb-2 text-sm font-bold text-gray-600">Plan Name:</label>
@@ -27,7 +27,7 @@
          </select> 
 
          <div class="flex space-x-2 justify-center pt-3">
-            <button type="submit" name="Submit" class="bg-indigo-600 text-white py-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-blue-500 hover:text-white font-bold">Create Plan</button>
+            <button type="submit" name="Submit" class="bg-orange-500 text-white py-2 w-full rounded-md drop-shadow-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-red-500 hover:text-white font-bold">Create Plan</button>
          </div>
       </div>
    </form>
