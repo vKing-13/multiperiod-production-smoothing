@@ -1,74 +1,330 @@
 {% extends 'main/navbar_footer.html' %}
-{% block title %}History{% endblock  %}
+{% block title %}About Us{% endblock  %}
 {% block content %}
 
 <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
 <script src="http://cdn.tailwindcss.com"></script>
-<body class="min-h-screen bg-slate-300" style="min-height: 400px; margin-bottom: 100px; clear: both;">
-    <!--so that the table can accomodate data-->
-    <div class='overflow-x-auto'>
-    <h3 class="block mt-6 mb-6 text-center text-2xl font-medium text-gray-800 dark:text-gray">Input Functions</h3>
-    <table class="mx-auto max-w-4xl drop-shadow-lg font-[Poppins] rounded-lg border-gray-800 w-2/5 overflow-hidden">
-        <!--start of table-->
-        <tr class="text-white text-center">
-            <td class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center">Function Name
-            </td>
-            <td class="font-semibold text-sm uppercase px-6 py-4 bg-blue-700 text-center">Label
-            </td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">Plan Name</td>
-            <td class="bg-white text-black">Plan Name</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">Demand 1</td>
-            <td class="bg-white text-black">Demand for Month 1</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">Demand 2</td>
-            <td class="bg-white text-black">Demand for Month 2</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">Demand 3</td>
-            <td class="bg-white text-black">Demand for Month 3</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">Demand 4</td>
-            <td class="bg-white text-black">Demand for Month 4</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">numPermanent</td>
-            <td class="bg-white text-black">Number of Permanent Worker(s)</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">prodPermanent</td>
-            <td class="bg-white text-black">Production of a Permanent Worker</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">prodTemporary</td>
-            <td class="bg-white text-black">Production of a Temporary Worker</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">costHiring</td>
-            <td class="bg-white text-black">Temporary Worker Hiring Cost</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">costFiring</td>
-            <td class="bg-white text-black">Temporary Worker Firing Cost</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">costHoldingUnit</td>
-            <td class="bg-white text-black">Monthly Holding Cost per Unit</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">inventoryInitial</td>
-            <td class="bg-white text-black">Initial Inventory Level</td>
-        </tr>
-        <tr class="text-white text-center">
-            <td class="font-semibold bg-white text-sm text-black text-center">inventoryFinal</td>
-            <td class="bg-white text-black">Final Inventory Level</td>
-        </tr>
-        <!--end of table-->
-    </table>
+<body class="min-h-screen bg-neutral-100" style="min-height: 400px; margin-bottom: 25px; clear: both;">
+<link rel="stylesheet" href="https://cdn.materialdesignicons.com/6.5.95/css/materialdesignicons.min.css">
+
+<div class="flex items-center justify-center bg-white p-6 drop-shadow-lg rounded-[18px] ml-[290px] mt-[25px] font-[Poppins] w-[68rem] overflow-hidden m-10">
+    <div class="flex flex-col">
+        <div class="flex flex-col mt-8">
+            <div class="container max-w-7xl px-4">
+                <div class="flex flex-wrap justify-center text-center mb-12">
+                    <div class="w-full lg:w-6/12 px-4">
+                        <h1 class="text-gray-900 text-4xl font-bold mb-8">
+                            Meet the Team
+                        </h1>
+                        <p class="text-gray-700 text-lg">
+                            We're currently leveling up our knowledge as third-year software engineering majors in the Bachelor of Computer Science program at UTM.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Leader -->
+                <div class="flex items-center justify-center flex-col">
+                    <div class="w-[260px]">
+                        <!-- Avatar -->
+                        <a href="#" class="mx-auto">
+                            <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                            src="https://i.ibb.co/S5chY2h/vico-profile.png">
+                        </a>
+
+                        <!-- Details -->
+                        <div class="text-center mt-6">
+                            <!-- Name -->
+                            <h1 class="text-gray-900 text-xl font-bold mb-1">
+                            Vico King
+                            </h1>
+
+                            <!-- Title -->
+                            <div class="text-gray-700 font-light mb-2">
+                                Team Leader
+                            </div>
+
+                            <!-- Social Icons -->
+                            <div class="flex items-center justify-center opacity-50 hover:opacity-100
+                        transition-opacity duration-300">
+                                <!-- Linkedin -->
+                                <a href="#" class="flex rounded-full hover:bg-indigo-50 h-10 w-10">
+                                    <i class="mdi mdi-linkedin text-indigo-500 mx-auto mt-2"></i>
+                                </a>
+
+                                <!-- Instagram -->
+                                <a href="#" class="flex rounded-full hover:bg-orange-50 h-10 w-10">
+                                    <i class="mdi mdi-instagram text-orange-400 mx-auto mt-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-wrap">
+                    <!-- Member #1 -->
+                    <div class="w-full md:w-6/12 lg:w-3/12 mb-6 px-6 sm:px-6 lg:px-4">
+                        <div class="flex flex-col">
+                            <!-- Avatar -->
+                            <a href="#" class="mx-auto">
+                                <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                                    src="https://i.ibb.co/nMbDzFm/iqbal-profile.png">
+                            </a>
+
+                            <!-- Details -->
+                            <div class="text-center mt-6">
+                                <!-- Name -->
+                                <h1 class="text-gray-900 text-xl font-bold mb-1">
+                                    M. Iqbal Habibie
+                                </h1>
+
+                                <!-- Title -->
+                                <div class="text-gray-700 font-light mb-2">
+                                    Member 01
+                                </div>
+
+                                <!-- Social Icons -->
+                                <div class="flex items-center justify-center opacity-50 hover:opacity-100
+                                transition-opacity duration-300">
+                                    <!-- Linkedin -->
+                                    <a href="#" class="flex rounded-full hover:bg-indigo-50 h-10 w-10">
+                                        <i class="mdi mdi-linkedin text-indigo-500 mx-auto mt-2"></i>
+                                    </a>
+
+                                    <!-- Instagram -->
+                                    <a href="#" class="flex rounded-full hover:bg-orange-50 h-10 w-10">
+                                        <i class="mdi mdi-instagram text-orange-400 mx-auto mt-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member #2 -->
+                    <div class="w-full md:w-6/12 lg:w-3/12 mb-6 px-6 sm:px-6 lg:px-4">
+                        <div class="flex flex-col">
+                            <!-- Avatar -->
+                            <a href="#" class="mx-auto">
+                                <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                                    src="https://i.ibb.co/SK3kFYt/faiq-profile.png">
+                            </a>
+
+                            <!-- Details -->
+                            <div class="text-center mt-6">
+                                <!-- Name -->
+                                <h1 class="text-gray-900 text-xl font-bold mb-1">
+                                    M. Faiq Haidar
+                                </h1>
+
+                                <!-- Title -->
+                                <div class="text-gray-700 font-light mb-2">
+                                    Member 02
+                                </div>
+
+                                <!-- Social Icons -->
+                                <div class="flex items-center justify-center opacity-50 hover:opacity-100
+                                transition-opacity duration-300">
+                                    <!-- Linkedin -->
+                                    <a href="#" class="flex rounded-full hover:bg-indigo-50 h-10 w-10">
+                                        <i class="mdi mdi-linkedin text-indigo-700 mx-auto mt-2"></i>
+                                    </a>
+
+                                    <!-- Instagram -->
+                                    <a href="#" class="flex rounded-full hover:bg-orange-50 h-10 w-10">
+                                        <i class="mdi mdi-instagram text-orange-400 mx-auto mt-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member #3 -->
+                    <div class="w-full md:w-6/12 lg:w-3/12 mb-6 px-6 sm:px-6 lg:px-4">
+                        <div class="flex flex-col">
+                            <!-- Avatar -->
+                            <a href="#" class="mx-auto">
+                                <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                                    src="https://i.ibb.co/HXRxW3y/arkan-profile.png">
+                            </a>
+
+                            <!-- Details -->
+                            <div class="text-center mt-6">
+                                <!-- Name -->
+                                <h1 class="text-gray-900 text-xl font-bold mb-1">
+                                    M. Arkan Al Rasyid
+                                </h1>
+
+                                <!-- Title -->
+                                <div class="text-gray-700 font-light mb-2">
+                                    Member 03
+                                </div>
+
+                                <!-- Social Icons -->
+                                <div class="flex items-center justify-center opacity-50 hover:opacity-100
+                                transition-opacity duration-300">
+                                    <!-- Linkedin -->
+                                    <a href="#" class="flex rounded-full hover:bg-indigo-50 h-10 w-10">
+                                        <i class="mdi mdi-linkedin text-indigo-700 mx-auto mt-2"></i>
+                                    </a>
+
+                                    <!-- Instagram -->
+                                    <a href="#" class="flex rounded-full hover:bg-orange-50 h-10 w-10">
+                                        <i class="mdi mdi-instagram text-orange-400 mx-auto mt-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member #4 -->
+                    <div class="w-full md:w-6/12 lg:w-3/12 mb-6 px-6 sm:px-6 lg:px-4">
+                        <div class="flex flex-col">
+                            <!-- Avatar -->
+                            <a href="#" class="mx-auto">
+                                <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                                    src="https://i.ibb.co/MRf5FNg/zaki-profile.png">
+                            </a>
+
+                            <!-- Details -->
+                            <div class="text-center mt-6">
+                                <!-- Name -->
+                                <h1 class="text-gray-900 text-xl font-bold mb-1">
+                                    M. Zaki Mufthi
+                                </h1>
+
+                                <!-- Title -->
+                                <div class="text-gray-700 font-light mb-2">
+                                    Member 04
+                                </div>
+
+                                <!-- Social Icons -->
+                                <div class="flex items-center justify-center opacity-50 hover:opacity-100
+                                transition-opacity duration-300">
+                                    <!-- Linkedin -->
+                                    <a href="#" class="flex rounded-full hover:bg-indigo-50 h-10 w-10">
+                                        <i class="mdi mdi-linkedin text-indigo-700 mx-auto mt-2"></i>
+                                    </a>
+
+                                    <!-- Instagram -->
+                                    <a href="#" class="flex rounded-full hover:bg-orange-50 h-10 w-10">
+                                        <i class="mdi mdi-instagram text-orange-400 mx-auto mt-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collaboration -->
+                <div class="flex flex-wrap justify-center text-center my-12">
+                    <div class="w-full lg:w-6/12 px-4">
+                        <h1 class="text-gray-900 text-4xl font-bold mb-8">
+                            Collaboration
+                        </h1>
+                        <p class="text-gray-700 text-lg">
+                            In partnership with UTM's Faculty of Computing and CIAM, led by Dr. Noor Hidayah and Dr. Zaitul, we're tackling the challenges faced by manufacturing companies through collaborative projects.
+                        </p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2">
+                <div class="flex items-center justify-center flex-col">
+                    <a href="#" class="w-[450px] ml-[60px] mx-auto">
+                        <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                        src="https://i.ibb.co/FHydLTS/fc-logo.png">
+                    </a>
+                    <div class="w-[260px]">
+                        <!-- Avatar -->
+                        <a href="#" class="mx-auto">
+                            <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                            src="https://i.ibb.co/3r4kf63/dr-noorhidayah-profile.png">
+                        </a>
+
+                        <!-- Details -->
+                        <div class="text-center mt-6">
+
+                            <!-- Name -->
+                            <h1 class="text-gray-900 text-xl font-bold mb-1">
+                            Dr. Noor Hidayah
+                            </h1>
+
+                            <!-- Title -->
+                            <div class="text-gray-700 font-light mb-2">
+                                Faculty of Computing
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-center flex-col">
+                    <a href="#" class="w-[250px] mx-auto">
+                        <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                        src="https://i.ibb.co/HgsrQ6n/utm-ciam-logo.png">
+                    </a>
+                    <div class="w-[260px]">
+                        <!-- Avatar -->
+                        <a href="#" class="mx-auto">
+                            <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                            src="https://i.ibb.co/9g8ds3R/dr-zaitulmarlizawati-profile.png">
+                        </a>
+
+                        <!-- Details -->
+                        <div class="text-center mt-6">
+
+                            <!-- Name -->
+                            <h1 class="text-gray-900 text-xl font-bold mb-1">
+                            Dr. Zaitul Marlizawati
+                            </h1>
+
+                            <!-- Title -->
+                            <div class="text-gray-700 font-light mb-2">
+                                UTM CIAM
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- Project Document -->
+                <div class="flex flex-wrap justify-center text-center my-12">
+                    <div class="w-full lg:w-6/12 px-4">
+                        <h1 class="text-gray-900 text-4xl font-bold mb-8">
+                            Project Document
+                        </h1>
+                        <p class="text-gray-700 text-lg">
+                            Multiperiod Production Smoothing is a system to assist with production planning and resource management over a certain month period. The primary goal of the system is to minimize costs and meet production needs effectively, which will require careful consideration of hiring and firing decisions, as well as the ability to forecast demand and optimize production schedules.
+                        </p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3">
+                <div class="flex items-center justify-center flex-col">
+                    <div class="w-[360px]">
+                        <!-- PDF -->
+                        <a href="#" class="mx-auto">
+                            <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                            src="https://i.ibb.co/m55XhKT/Formula-1.png">
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center justify-center flex-col">
+                    <div class="w-[350px]">
+                        <!-- PDF -->
+                        <a href="#" class="mx-auto">
+                            <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                            src="https://i.ibb.co/9GS6r07/Formula-2.png">
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center justify-center flex-col">
+                    <div class="w-[340px]">
+                        <!-- PDF -->
+                        <a href="#" class="mx-auto">
+                            <img class="rounded-2xl drop-shadow-md hover:drop-shadow-xl transition-all duration-200 delay-100"
+                            src="https://i.ibb.co/LvKz7vk/Formula-3.png">
+                        </a>
+                    </div>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+</body>
 {% endblock %}
