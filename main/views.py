@@ -25,7 +25,7 @@ def is_upper(user):
     return user.groups.filter(name='BOSS').exists() or user.groups.filter(name='WORKER').exists()
 
 
-def index(request):
+def index(request):    
     if request.method == "POST":
         if request.user.is_authenticated:
             inputPlanName = str(request.POST.get('planName'))
@@ -3502,7 +3502,7 @@ def downloadFour(request,plan_Name):
     work_sheet = work_book.add_sheet(u'plan details')
 
     
-     
+    
     plan = models.FourMonthPlan.objects.filter(planName=plan_Name).values()
     for x in plan:
         ntwH1 = x['hiredTemporary1']
@@ -5305,3 +5305,45 @@ def contact(request):
     form = ContactForm()
     context = {'form': form}
     return render(request, 'main/contact.html', context)
+
+def create_user(request):
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        user = models.User.objects.create(
+            first_name=first_name, last_name=last_name, username=username, email=email, password=password
+        )
+        return redirect("read")
+    return render(request, "main/users/create.html")
+
+@login_required(login_url='login/')
+def read_user(request):
+    # pk = request.user.id
+    # user = models.User.objects.get(id=pk)
+    userData = models.User.objects.all().values
+    return render(request, 'main/users/read.html', {'userData': userData})
+
+def update_user(request, id):
+    # pk = request.user.id
+    userData = models.User.objects.get(id=id)
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        email = request.POST.get("email")
+        userData.first_name = first_name
+        userData.last_name = last_name
+        userData.email = email
+        userData.save()
+        return redirect("read")
+    return render(request, "main/users/update.html", {"userData": userData})
+
+def delete_user(request, id):
+    # pk = request.user.id
+    userData = models.User.objects.get(id=id)
+    if request.method == "POST":
+        userData.delete()
+        return redirect("read")
+    return render(request, "main/users/delete.html", {"userData": userData})

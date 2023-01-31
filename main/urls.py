@@ -15,6 +15,11 @@ urlpatterns = [
     path('history', views.history, name='history'),
     path('formula', views.formula, name='formula'),
     path('contact',views.contact,name='contact'),
+    path('create',views.create_user,name='create'),
+    path('read',views.read_user,name='read'),
+    # path('<int:pk>/read/',views.read_user, name='read'),
+    path('update/<id>/',views.update_user,name='update'),
+    path('delete/<id>/',views.delete_user,name='delete'),
     
     path('viewDetailFour/<plan_Name>/', views.viewDetailFour, name='viewDetailFour'),
     path('deleteDetailFour/<plan_Name>/', views.deleteDetailFour, name='deleteDetailFour'),
