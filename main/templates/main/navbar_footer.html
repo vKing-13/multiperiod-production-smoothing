@@ -35,22 +35,24 @@
       <div class="flex items-center justify-center pl-4">
       <a href="/" class="block text-gray-700 rounded hover:underline md:mr-6 hover:bg-transparent md:hover:bg-transparent    md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-transparent dark:hover:text-white md:dark:hover:bg-transparent"><img class="w-42" src="https://i.ibb.co/xzd0dBy/App-Dev-Logo-2.png"></img></a>
       </div>
-
+      
       <div class="pt-6">
         <hr class="border-neutral-100">
-      </div>
-
+      </div> 
+      {% if user.is_authenticated%}
+      <a href="{% url 'editprofile' user.id %}" >
       <div class="flex items-center pt-4 p-2 space-x-4">
         <img src="https://source.unsplash.com/100x100/?portrait" alt="" class="w-12 h-12 rounded-full dark:bg-gray-500">
         <div>
           <h2 class="text-lg font-semibold  text-white">{{ user.first_name }}&nbsp;{{ user.last_name }}</h2>
         </div>
       </div>
+    </a>
 
       <div class=" pt-2">
         <hr class="border-neutral-100">
       </div>
-
+      {% endif %}
         <div class="pt-4">
       {% if user.is_authenticated%}
       {% comment %} <button class="inline-block text-sm leading-none  rounded text-white border-none hover:border-transparent hover:text-white hover:bg-blue-500 "> {% endcomment %}

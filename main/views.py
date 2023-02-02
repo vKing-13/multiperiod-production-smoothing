@@ -5319,6 +5319,19 @@ def create_user(request):
         return redirect("read")
     return render(request, "main/users/create.html")
 
+def signup(request):
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        user = models.User.objects.create(
+            first_name=first_name, last_name=last_name, username=username, email=email, password=password
+        )
+        return redirect("login")
+    return render(request, "main/signup.html")
+
 @login_required(login_url='login/')
 def read_user(request):
     # pk = request.user.id
@@ -5339,6 +5352,18 @@ def update_user(request, id):
         userData.save()
         return redirect("read")
     return render(request, "main/users/update.html", {"userData": userData})
+
+def editprofile(request, id):
+    # pk = request.user.id
+    userData = models.User.objects.get(id=id)
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        userData.first_name = first_name
+        userData.last_name = last_name
+        userData.save()
+        return redirect("/")
+    return render(request, "main/editprofile.html", {"userData": userData})
 
 def delete_user(request, id):
     # pk = request.user.id
