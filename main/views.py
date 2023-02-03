@@ -5346,9 +5346,15 @@ def update_user(request, id):
         first_name = request.POST.get("first_name")
         last_name = request.POST.get("last_name")
         email = request.POST.get("email")
+        is_active = request.POST.get("is_active")
+        is_staff = request.POST.get("is_staff")
+        is_superuser = request.POST.get("is_superuser")
         userData.first_name = first_name
         userData.last_name = last_name
         userData.email = email
+        userData.is_active = (is_active == 'on')
+        userData.is_staff = (is_staff == 'on')
+        userData.is_superuser = (is_superuser == 'on')
         userData.save()
         return redirect("read")
     return render(request, "main/users/update.html", {"userData": userData})
