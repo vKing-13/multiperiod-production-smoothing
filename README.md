@@ -1,6 +1,7 @@
 # multiperiod-production-smoothing
 
 Multiperiod Production Smoothing is an application for manufacturer or company to predict their production in certain range. The mathematical model that we are using are based on undisclosed company's case study. The documentation can be read on "Multiperiod Production Smoothing Problem.pdf" file. to solve the mathematic model, we ultilized the pulp algorithm from python library which can be used to solve linear programming problems.
+
 Pitching video of FC Startup 23' event:https://www.youtube.com/watch?v=-XrytJg4_VQ&t=33s
 
 ![image](https://user-images.githubusercontent.com/63147528/215561661-d88ad63d-f5f1-4c02-a96c-9d5e61e4da8c.png)
